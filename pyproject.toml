@@ -1,0 +1,135 @@
+[project]
+name = "cinemagoerng"
+version = "20230909.1"
+description = "Retrieve data from the IMDb."
+readme = "README.rst"
+
+authors = [
+    {name = "H. Turgut Uyar", email = "uyar@tekir.org"},
+    {name = "Davide Alberani", email = "da@mimante.net"},
+]
+license = {file = "LICENSE.txt"}
+
+keywords = ["imdb", "cinema", "movie", "film", "cast", "actor", "director"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+requires-python = "~=3.8"
+
+[project.optional-dependencies]
+tests = ["pytest", "pytest-cov"]
+types = ["mypy"]
+style = ["flake8", "flake8-isort", "flake8-pyproject"]
+dev = [
+    "cinemagoerng[tests,types,style]",
+    "build",
+    "twine",
+    "tox",
+]
+
+[project.urls]
+repository = "https://github.com/cinemagoer/cinemagoerng"
+
+[project.scripts]
+cinemagoerng = "cinemagoerng:cli.main"
+
+[tool.setuptools]
+packages = ["cinemagoerng"]
+include-package-data = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source_pkgs = ["cinemagoerng"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.flake8]
+ignore = ["E731"]
+per-file-ignores = [
+    "tests/*: E501",
+]
+max-line-length = 79
+
+[tool.isort]
+lines_after_imports = 2
+multi_line_output = 2
+known_test = ["pytest", "unittest"]
+sections = [
+    "FUTURE",
+    "TEST",
+    "STDLIB",
+    "THIRDPARTY",
+    "FIRSTPARTY",
+    "LOCALFOLDER",
+]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py3{8,9,10,11}, pypy3{8,9,10}, types, style
+isolated_build = True
+
+[testenv]
+extras = tests
+package = wheel
+wheel_build_env = .pkg
+commands =
+    pytest
+
+[testenv:coverage]
+commands =
+    pytest --cov
+
+[testenv:types]
+skip_install = true
+deps =
+    mypy
+commands =
+    mypy cinemagoerng
+
+[testenv:style]
+skip_install = true
+deps =
+    flake8
+    flake8-isort
+    flake8-pyproject
+commands =
+    flake8 cinemagoerng tests
+
+[testenv:package]
+skip_install = true
+deps =
+    build
+    twine
+commands =
+    python -c "import shutil; shutil.rmtree('dist', ignore_errors=True)"
+    python -m build
+    twine check dist/*
+"""
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
