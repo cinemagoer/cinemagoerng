@@ -1,0 +1,3 @@
+{
+  "url": "%(base)s/title/tt%(imdb_id)s/reference"
+}

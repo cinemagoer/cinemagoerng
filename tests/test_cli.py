@@ -5,7 +5,7 @@ from pathlib import Path
 import cinemagoerng
 
 
-cli = Path(sys.executable).with_name("cinemagoerng")
+cli = Path(sys.executable).parent / "cinemagoerng"
 
 
 def test_installation_should_create_cli_script():

@@ -1,6 +1,6 @@
 [project]
 name = "cinemagoerng"
-version = "20230909.1"
+version = "2023.10.28"
 description = "Retrieve data from the IMDb."
 readme = "README.rst"
 
@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Database :: Front-Ends",
@@ -52,6 +53,9 @@ cinemagoerng = "cinemagoerng:cli.main"
 [tool.setuptools]
 packages = ["cinemagoerng"]
 include-package-data = false
+
+[tool.setuptools.package-data]
+cinemagoerng = ["specs/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -89,7 +93,7 @@ sections = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py3{8,9,10,11}, pypy3{8,9,10}, types, style
+envlist = py3{8,9,10,11,12}, pypy3{8,9,10}, types, style
 isolated_build = True
 
 [testenv]
