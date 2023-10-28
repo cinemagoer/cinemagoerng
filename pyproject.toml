@@ -32,10 +32,11 @@ classifiers = [
 ]
 
 requires-python = "~=3.8"
+dependencies = ["lxml"]
 
 [project.optional-dependencies]
 tests = ["pytest", "pytest-cov"]
-types = ["mypy"]
+types = ["mypy", "lxml-stubs"]
 style = ["flake8", "flake8-isort", "flake8-pyproject"]
 dev = [
     "cinemagoerng[tests,types,style]",
@@ -66,9 +67,6 @@ source_pkgs = ["cinemagoerng"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-
-[tool.mypy]
-ignore_missing_imports = true
 
 [tool.flake8]
 ignore = ["E731"]
@@ -111,6 +109,7 @@ commands =
 skip_install = true
 deps =
     mypy
+    lxml-stubs
 commands =
     mypy cinemagoerng
 

@@ -14,21 +14,15 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-"""Retrieve data from the IMDb web site."""
-
-from __future__ import annotations
-
 import json
 from functools import lru_cache
 from pathlib import Path
-from types import MappingProxyType
-from typing import Any, Mapping
+from typing import Mapping, TypedDict
 from urllib.request import Request, urlopen
 
+from .model import Title
+from .piculet import scrape
 
-BASE_URL = "https://www.imdb.com"
-
-_URL_PARAMS = MappingProxyType({"base": BASE_URL})
 
 _USER_AGENT = " ".join([
     "Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B)",
@@ -36,20 +30,25 @@ _USER_AGENT = " ".join([
     "Chrome/18.0.1025.133 Mobile Safari/535.19",
 ])
 
+SPECS_DIR = Path(__file__).parent / "specs"
+
+
 CACHE_DIR = Path.home() / ".cache" / "cinemagoerng" / "imdb"
 if not CACHE_DIR.exists():
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-SPECS_DIR = Path(__file__).parent / "specs"
+
+class Spec(TypedDict):
+    url: str
+    rules: Mapping[str, str]
 
 
-@lru_cache()
-def _retrieve(url: str, /, skip_cache: bool = False) -> str:
-    if not skip_cache:
-        cache_file = url.split(BASE_URL)[-1][1:].replace("/", "__")
-        cache_path = CACHE_DIR / cache_file
-        if cache_path.exists():
-            return cache_path.read_text(encoding="utf-8")
+@lru_cache(maxsize=None)
+def fetch(url: str, /) -> str:
+    cache_filename = url.split("imdb.com/")[-1].replace("/", "__")
+    cache_path = CACHE_DIR / cache_filename
+    if cache_path.exists():
+        return cache_path.read_text(encoding="utf-8")
 
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
@@ -59,30 +58,16 @@ def _retrieve(url: str, /, skip_cache: bool = False) -> str:
     return content.decode("utf-8")
 
 
-def _get_spec(spec_name: str, /) -> Any:
-    spec_file = SPECS_DIR / f"{spec_name}.json"
-    spec_content = spec_file.read_text(encoding="utf-8")
-    return json.loads(spec_content)
+@lru_cache(maxsize=None)
+def _spec(name: str, /) -> Spec:
+    spec_path = SPECS_DIR / f"{name}.json"
+    content = spec_path.read_text(encoding="utf-8")
+    return json.loads(content)
 
 
-def _get_imdb(spec_name: str, /, *,
-              url_params: Mapping[str, str],
-              skip_cache: bool = False) -> Mapping[str, Any]:
-    spec = _get_spec(spec_name)
-    url_pattern: str = spec["url"]
-    # XXX: use dict union when 3.8 is dropped
-    url = url_pattern % {**url_params, **_URL_PARAMS}
-    _ = _retrieve(url, skip_cache=skip_cache)
-    return {}
-
-
-def get_title_reference(imdb_id: int, *,
-                        skip_cache: bool = False) -> Mapping[str, Any]:
-    """Get the data from the combined reference page of a title.
-
-    :param imdb_id: IMDb id of the title to retrieve.
-    :return: Extracted data.
-    """
-    url_params = {"imdb_id": f"{imdb_id:07d}"}
-    return _get_imdb("title_reference", url_params=url_params,
-                     skip_cache=skip_cache)
+def get_title_reference(imdb_id: int) -> Title:
+    spec = _spec("title_reference")
+    url = spec["url"] % {"imdb_id": f"{imdb_id:07d}"}
+    document = fetch(url)
+    data = scrape(document, spec.get("rules", {}))
+    return Title(imdb_id=imdb_id, **data)
