@@ -15,7 +15,7 @@
 
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Callable, Dict, Union
+from typing import Callable, Mapping, MutableMapping, Sequence, TypeAlias
 
 from lxml.etree import XPath
 from lxml.html import fromstring as parse_html
@@ -27,19 +27,19 @@ xpath: Callable[[str], XPath] = lru_cache(maxsize=None)(XPath)
 @dataclass
 class Spec:
     url: str
-    rules: Dict[str, str]
+    rules: dict[str, str]
 
 
-ParsedData = Union[str, int, None]
+ParsedData: TypeAlias = str | int | None
 
 
 def scrape(document: str, /,
-           rules: Dict[str, str]) -> Dict[str, ParsedData]:
+           rules: Mapping[str, str]) -> MutableMapping[str, ParsedData]:
     root = parse_html(document)
-    data: Dict[str, ParsedData] = {}
+    data: dict[str, ParsedData] = {}
     for key, path in rules.items():
         extract = xpath(path)
-        raw: list[str] = extract(root)  # type: ignore
+        raw: Sequence[str] = extract(root)  # type: ignore
         if len(raw) == 0:
             data[key] = None
         else:

@@ -14,8 +14,6 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import annotations
-
 from argparse import ArgumentParser
 
 from cinemagoerng import __version__

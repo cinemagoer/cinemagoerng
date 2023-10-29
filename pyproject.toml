@@ -20,8 +20,6 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -31,7 +29,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-requires-python = "~=3.8"
+requires-python = "~=3.10"
 dependencies = ["lxml", "typedload"]
 
 [project.optional-dependencies]
@@ -91,7 +89,7 @@ sections = [
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py3{8,9,10,11,12}, pypy3{8,9,10}, types, style
+envlist = py3{10,11,12}, pypy3{10}, types, style
 isolated_build = True
 
 [testenv]

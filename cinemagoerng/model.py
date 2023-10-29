@@ -15,15 +15,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from dataclasses import dataclass
-from typing import Union
 
 
 @dataclass
 class Title:
     imdb_id: int
     default_title: str
-    original_title: Union[str, None]
-    years: Union[str, None]
+    original_title: str | None
+    years: str | None
 
     @property
     def title(self) -> str:
@@ -31,13 +30,13 @@ class Title:
             self.default_title
 
     @property
-    def year(self) -> Union[int, None]:
+    def year(self) -> int | None:
         if self.years is None:
             return None
         return int(self.years.split("-")[0])
 
     @property
-    def end_year(self) -> Union[int, None]:
+    def end_year(self) -> int | None:
         if self.years is None:
             return None
         years = self.years.split("-")
