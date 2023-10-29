@@ -15,9 +15,16 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from dataclasses import dataclass
+from typing import Union
 
 
 @dataclass
 class Title:
     imdb_id: int
-    title: str
+    default_title: str
+    original_title: Union[str, None]
+
+    @property
+    def title(self):
+        return self.original_title if self.original_title is not None else \
+            self.default_title

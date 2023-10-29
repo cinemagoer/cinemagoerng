@@ -30,12 +30,18 @@ class Spec:
     rules: Dict[str, str]
 
 
+ParsedData = Union[str, int, None]
+
+
 def scrape(document: str, /,
-           rules: Dict[str, str]) -> Dict[str, Union[str, int]]:
+           rules: Dict[str, str]) -> Dict[str, ParsedData]:
     root = parse_html(document)
-    data: Dict[str, Union[str, int]] = {}
+    data: Dict[str, ParsedData] = {}
     for key, path in rules.items():
         extract = xpath(path)
         raw: list[str] = extract(root)  # type: ignore
-        data[key] = "".join(raw).strip()
+        if len(raw) == 0:
+            data[key] = None
+        else:
+            data[key] = "".join(raw).strip()
     return data

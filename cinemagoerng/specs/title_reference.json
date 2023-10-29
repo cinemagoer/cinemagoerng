@@ -1,6 +1,7 @@
 {
   "url": "https://www.imdb.com/title/tt%(imdb_id)s/reference",
   "rules": {
-    "title": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()[1]"
+    "default_title": "//h3[@itemprop='name']/text()",
+    "original_title": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()[1]"
   }
 }
