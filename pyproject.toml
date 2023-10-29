@@ -1,6 +1,6 @@
 [project]
 name = "cinemagoerng"
-version = "2023.10.28"
+version = "2023.10.29"
 description = "Retrieve data from the IMDb."
 readme = "README.rst"
 
@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 requires-python = "~=3.8"
-dependencies = ["lxml"]
+dependencies = ["lxml", "typedload"]
 
 [project.optional-dependencies]
 tests = ["pytest", "pytest-cov"]
@@ -106,10 +106,7 @@ commands =
     pytest --cov
 
 [testenv:types]
-skip_install = true
-deps =
-    mypy
-    lxml-stubs
+extras = types
 commands =
     mypy cinemagoerng
 

@@ -17,11 +17,12 @@
 import json
 from functools import lru_cache
 from pathlib import Path
-from typing import Mapping, TypedDict
 from urllib.request import Request, urlopen
 
+import typedload
+
 from .model import Title
-from .piculet import scrape
+from .piculet import Spec, scrape
 
 
 _USER_AGENT = " ".join([
@@ -31,11 +32,6 @@ _USER_AGENT = " ".join([
 ])
 
 SPECS_DIR = Path(__file__).parent / "specs"
-
-
-class Spec(TypedDict):
-    url: str
-    rules: Mapping[str, str]
 
 
 def fetch(url: str, /) -> str:
@@ -50,12 +46,13 @@ def fetch(url: str, /) -> str:
 def _spec(name: str, /) -> Spec:
     spec_path = SPECS_DIR / f"{name}.json"
     content = spec_path.read_text(encoding="utf-8")
-    return json.loads(content)
+    return typedload.load(json.loads(content), Spec)
 
 
 def get_title_reference(imdb_id: int) -> Title:
     spec = _spec("title_reference")
-    url = spec["url"] % {"imdb_id": f"{imdb_id:07d}"}
+    url = spec.url % {"imdb_id": f"{imdb_id:07d}"}
     document = fetch(url)
-    data = scrape(document, spec.get("rules", {}))
-    return Title(imdb_id=imdb_id, **data)
+    data = scrape(document, spec.rules)
+    data["imdb_id"] = imdb_id
+    return typedload.load(data, Title)

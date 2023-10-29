@@ -14,4 +14,4 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-__version__ = "2023.10.28"
+__version__ = "2023.10.29"

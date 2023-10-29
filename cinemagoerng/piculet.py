@@ -13,21 +13,27 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
+from dataclasses import dataclass
 from functools import lru_cache
-from typing import Callable, Mapping
+from typing import Callable, Dict, Union
 
-from lxml.etree import XPath, _Element
+from lxml.etree import XPath
 from lxml.html import fromstring as parse_html
 
 
 xpath: Callable[[str], XPath] = lru_cache(maxsize=None)(XPath)
 
 
-def scrape(document: str, /, rules: Mapping[str, str]) -> dict[str, str]:
-    root: _Element = parse_html(document)
-    data: dict[str, str] = {}
+@dataclass
+class Spec:
+    url: str
+    rules: Dict[str, str]
+
+
+def scrape(document: str, /,
+           rules: Dict[str, str]) -> Dict[str, Union[str, int]]:
+    root = parse_html(document)
+    data: Dict[str, Union[str, int]] = {}
     for key, path in rules.items():
         extract = xpath(path)
         raw: list[str] = extract(root)  # type: ignore
