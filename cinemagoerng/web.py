@@ -33,28 +33,16 @@ _USER_AGENT = " ".join([
 SPECS_DIR = Path(__file__).parent / "specs"
 
 
-CACHE_DIR = Path.home() / ".cache" / "cinemagoerng" / "imdb"
-if not CACHE_DIR.exists():
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-
 class Spec(TypedDict):
     url: str
     rules: Mapping[str, str]
 
 
-@lru_cache(maxsize=None)
 def fetch(url: str, /) -> str:
-    cache_filename = url.split("imdb.com/")[-1].replace("/", "__")
-    cache_path = CACHE_DIR / cache_filename
-    if cache_path.exists():
-        return cache_path.read_text(encoding="utf-8")
-
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
     with urlopen(request) as connection:
         content: bytes = connection.read()
-    cache_path.write_bytes(content)
     return content.decode("utf-8")
 
 
