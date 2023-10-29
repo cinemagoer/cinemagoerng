@@ -20,28 +20,6 @@ from dataclasses import dataclass
 @dataclass
 class Title:
     imdb_id: int
-    default_title: str
-    original_title: str | None
-    years: str | None
-
-    @property
-    def title(self) -> str:
-        return self.original_title if self.original_title is not None else \
-            self.default_title
-
-    @property
-    def year(self) -> int | None:
-        if self.years is None:
-            return None
-        return int(self.years.split("-")[0])
-
-    @property
-    def end_year(self) -> int | None:
-        if self.years is None:
-            return None
-        years = self.years.split("-")
-        if len(years) == 1:
-            return None
-        if years[1] == "":
-            return None
-        return int(years[1])
+    title: str
+    year: int | None = None
+    end_year: int | None = None

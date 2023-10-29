@@ -1,0 +1,15 @@
+{
+  "url": "https://www.imdb.com/title/tt%(imdb_id)s/",
+  "rules": {
+    "next_data": {
+      "path": "//script[@id='__NEXT_DATA__']/text()",
+      "transform": "json",
+      "post_map_root": ["props", "pageProps"],
+      "post_map": {
+        "title": ["mainColumnData", "titleText", "text"],
+        "year": ["aboveTheFoldData", "releaseYear", "year"],
+        "end_year": ["aboveTheFoldData", "releaseYear", "endYear"]
+      }
+    }
+  }
+}

@@ -49,6 +49,15 @@ def _spec(name: str, /) -> Spec:
     return typedload.load(json.loads(content), Spec)
 
 
+def get_title(imdb_id: int) -> Title:
+    spec = _spec("title")
+    url = spec.url % {"imdb_id": f"{imdb_id:07d}"}
+    document = fetch(url)
+    data = scrape(document, spec.rules)
+    data["imdb_id"] = imdb_id
+    return typedload.load(data, Title)
+
+
 def get_title_reference(imdb_id: int) -> Title:
     spec = _spec("title_reference")
     url = spec.url % {"imdb_id": f"{imdb_id:07d}"}

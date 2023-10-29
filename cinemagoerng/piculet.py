@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Callable, Mapping, MutableMapping, Sequence, TypeAlias
@@ -25,23 +26,60 @@ xpath: Callable[[str], XPath] = lru_cache(maxsize=None)(XPath)
 
 
 @dataclass
+class Rule:
+    path: str
+    transform: str | None = None
+    post_map_root: list[str] | None = None
+    post_map: dict[str, list[str]] | None = None
+
+
+@dataclass
 class Spec:
     url: str
-    rules: dict[str, str]
+    rules: dict[str, Rule]
 
 
-ParsedData: TypeAlias = str | int | None
+ParsedData: TypeAlias = str | int | dict | None
 
 
 def scrape(document: str, /,
-           rules: Mapping[str, str]) -> MutableMapping[str, ParsedData]:
+           rules: Mapping[str, Rule]) -> MutableMapping[str, ParsedData]:
     root = parse_html(document)
     data: dict[str, ParsedData] = {}
-    for key, path in rules.items():
-        extract = xpath(path)
+    for key, rule in rules.items():
+        extract = xpath(rule.path)
         raw: Sequence[str] = extract(root)  # type: ignore
         if len(raw) == 0:
-            data[key] = None
-        else:
-            data[key] = "".join(raw).strip()
+            continue
+        value = "".join(raw).strip()
+        match rule.transform:
+            case "int":
+                data[key] = int(value)
+            case "json":
+                data[key] = json.loads(value)
+            case _:
+                data[key] = value
+
+        if rule.post_map is not None:
+            post_root: dict = data[key]  # type: ignore
+            if rule.post_map_root is not None:
+                for root_key in rule.post_map_root:
+                    post_root = post_root[root_key]
+
+            for item_key, item_path in rule.post_map.items():
+                post_item: dict = post_root
+                for post_key in item_path[:-1]:
+                    post_next = post_item.get(post_key)
+                    if not isinstance(post_next, dict):
+                        missing = True
+                        break
+                    post_item = post_next
+                else:
+                    missing = False
+                if missing:
+                    continue
+                item_value = post_item.get(item_path[-1])
+                if item_value is not None:
+                    data[item_key] = item_value
+
     return data
