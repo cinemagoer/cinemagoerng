@@ -4,12 +4,12 @@
     "next_data": {
       "path": "//script[@id='__NEXT_DATA__']/text()",
       "transform": "json",
-      "post_map_root": ["props", "pageProps"],
       "post_map": {
-        "type": ["aboveTheFoldData", "titleType", "id"],
-        "title": ["aboveTheFoldData", "titleText", "text"],
-        "year": ["aboveTheFoldData", "releaseYear", "year"],
-        "end_year": ["aboveTheFoldData", "releaseYear", "endYear"]
+        "type": "props.pageProps.aboveTheFoldData.titleType.id",
+        "title": "props.pageProps.aboveTheFoldData.titleText.text",
+        "year": "props.pageProps.aboveTheFoldData.releaseYear.year",
+        "end_year": "props.pageProps.aboveTheFoldData.releaseYear.endYear",
+        "genres": "props.pageProps.aboveTheFoldData.genres.genres[*].text"
       }
     }
   }

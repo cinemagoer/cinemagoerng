@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Callable, Mapping, MutableMapping, Sequence, TypeAlias
 
+import jmespath
 from lxml.etree import XPath
 from lxml.html import fromstring as parse_html
 
@@ -29,8 +30,7 @@ xpath: Callable[[str], XPath] = lru_cache(maxsize=None)(XPath)
 class Rule:
     path: str
     transform: str | None = None
-    post_map_root: list[str] | None = None
-    post_map: dict[str, list[str]] | None = None
+    post_map: dict[str, str] | None = None
 
 
 @dataclass
@@ -61,24 +61,8 @@ def scrape(document: str, /,
                 data[key] = value
 
         if rule.post_map is not None:
-            post_root: dict = data[key]  # type: ignore
-            if rule.post_map_root is not None:
-                for root_key in rule.post_map_root:
-                    post_root = post_root[root_key]
-
             for item_key, item_path in rule.post_map.items():
-                post_item: dict = post_root
-                for post_key in item_path[:-1]:
-                    post_next = post_item.get(post_key)
-                    if not isinstance(post_next, dict):
-                        missing = True
-                        break
-                    post_item = post_next
-                else:
-                    missing = False
-                if missing:
-                    continue
-                item_value = post_item.get(item_path[-1])
+                item_value = jmespath.search(item_path, data[key])
                 if item_value is not None:
                     data[item_key] = item_value
 

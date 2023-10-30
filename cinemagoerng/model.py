@@ -23,6 +23,7 @@ class _Title:
     imdb_id: int
     title: str
     year: int | None = None
+    genres: list[str] | None = None
 
 
 @dataclass(kw_only=True)

@@ -30,11 +30,11 @@ classifiers = [
 ]
 
 requires-python = "~=3.10"
-dependencies = ["lxml", "typedload"]
+dependencies = ["lxml", "typedload", "jmespath"]
 
 [project.optional-dependencies]
 tests = ["pytest", "pytest-cov"]
-types = ["mypy", "lxml-stubs"]
+types = ["mypy", "lxml-stubs", "types-jmespath"]
 style = ["flake8", "flake8-isort", "flake8-pyproject"]
 dev = [
     "cinemagoerng[tests,types,style]",
