@@ -15,7 +15,8 @@ def test_title_parser_should_set_imdb_id():
                    (390244, model.VideoGame),  # The Matrix Online
                    (436992, model.TVSeries),  # Doctor Who
                    (185906, model.TVMiniSeries),  # Band of Brothers
-                   (1000252, model.TVEpisode)])  # Blink
+                   (1000252, model.TVEpisode),  # Blink
+                   (15475200, model.TVSpecial)])  # Ricky Velez: Here's Everything
 def test_title_parser_should_instantiate_correct_type(imdb_id, type_):
     parsed = web.get_title(imdb_id=imdb_id)
     assert isinstance(parsed, type_)
@@ -28,7 +29,8 @@ def test_title_parser_should_instantiate_correct_type(imdb_id, type_):
                    (390244, "The Matrix Online"),
                    (436992, "Doctor Who"),
                    (185906, "Band of Brothers"),
-                   (1000252, "Blink")])
+                   (1000252, "Blink"),
+                   (15475200, "Ricky Velez: Here's Everything")])
 def test_title_parser_should_set_title(imdb_id, title):
     parsed = web.get_title(imdb_id=imdb_id)
     assert parsed.title == title
@@ -59,7 +61,8 @@ def test_title_parser_should_set_end_year(imdb_id, end_year):
                    (389150,),  # The Matrix Defence (TV Movie)
                    (109151,),  # Armitage III: Poly-Matrix (Video)
                    (390244,),  # The Matrix Online (Video Game)
-                   (1000252,)])  # Blink (TV Episode)
+                   (1000252,),  # Blink (TV Episode)
+                   (15475200,)])  # Ricky Velez: Here's Everything
 def test_title_parser_should_not_set_end_year_for_other_than_series(imdb_id):
     parsed = web.get_title(imdb_id=imdb_id)
     assert not hasattr(parsed, "end_year")

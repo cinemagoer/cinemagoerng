@@ -70,5 +70,11 @@ class TVEpisode(_Title):
     runtime: int | None = None
 
 
-Title: TypeAlias = Movie | TVMovie | Video | VideoGame \
-                 | TVSeries | TVMiniSeries | TVEpisode  # noqa: E126
+@dataclass
+class TVSpecial(_Title):
+    type: Literal["tvSpecial"]
+    runtime: int | None = None
+
+
+Title: TypeAlias = Movie | TVMovie | Video | VideoGame | TVSeries \
+                 | TVMiniSeries | TVEpisode | TVSpecial  # noqa: E126
