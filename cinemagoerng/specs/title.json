@@ -6,7 +6,8 @@
       "transform": "json",
       "post_map_root": ["props", "pageProps"],
       "post_map": {
-        "title": ["mainColumnData", "titleText", "text"],
+        "type": ["aboveTheFoldData", "titleType", "id"],
+        "title": ["aboveTheFoldData", "titleText", "text"],
         "year": ["aboveTheFoldData", "releaseYear", "year"],
         "end_year": ["aboveTheFoldData", "releaseYear", "endYear"]
       }
