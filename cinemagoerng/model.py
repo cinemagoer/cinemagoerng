@@ -30,16 +30,19 @@ class _Title:
 @dataclass(kw_only=True)
 class Movie(_Title):
     type: Literal["movie"]
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class TVMovie(_Title):
     type: Literal["tvMovie"]
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class Video(_Title):
     type: Literal["video"]
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
@@ -51,17 +54,20 @@ class VideoGame(_Title):
 class TVSeries(_Title):
     type: Literal["tvSeries"]
     end_year: int | None = None
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class TVMiniSeries(_Title):
     type: Literal["tvMiniSeries"]
     end_year: int | None = None
+    runtime: int | None = None
 
 
 @dataclass
 class TVEpisode(_Title):
     type: Literal["tvEpisode"]
+    runtime: int | None = None
 
 
 Title: TypeAlias = Movie | TVMovie | Video | VideoGame \

@@ -63,5 +63,5 @@ def update_title(title: Title, /, *, infoset: str) -> Title:
     url = spec.url % {"imdb_id": f"{title.imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
-    existing_data = typedload.dump(title)
+    existing_data: dict = typedload.dump(title)
     return typedload.load(existing_data | data, Title)

@@ -5,11 +5,24 @@
       "path": "//script[@id='__NEXT_DATA__']/text()",
       "transform": "json",
       "post_map": {
-        "type": "props.pageProps.aboveTheFoldData.titleType.id",
-        "title": "props.pageProps.aboveTheFoldData.titleText.text",
-        "year": "props.pageProps.aboveTheFoldData.releaseYear.year",
-        "end_year": "props.pageProps.aboveTheFoldData.releaseYear.endYear",
-        "genres": "props.pageProps.aboveTheFoldData.genres.genres[*].text"
+        "type": {
+          "path": "props.pageProps.aboveTheFoldData.titleType.id"
+        },
+        "title": {
+          "path": "props.pageProps.aboveTheFoldData.titleText.text"
+        },
+        "year": {
+          "path": "props.pageProps.aboveTheFoldData.releaseYear.year"
+        },
+        "end_year": {
+          "path": "props.pageProps.aboveTheFoldData.releaseYear.endYear"
+        },
+        "runtime": {
+          "path": "props.pageProps.aboveTheFoldData.runtime.seconds",
+          "transform": "sec2min"
+        },
+        "genres": {
+          "path": "props.pageProps.aboveTheFoldData.genres.genres[*].text"}
       }
     }
   }

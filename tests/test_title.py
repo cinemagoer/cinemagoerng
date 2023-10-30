@@ -60,9 +60,26 @@ def test_title_parser_should_set_end_year(imdb_id, end_year):
                    (109151,),  # Armitage III: Poly-Matrix (Video)
                    (390244,),  # The Matrix Online (Video Game)
                    (1000252,)])  # Blink (TV Episode)
-def test_title_parser_should_set_end_year_only_for_series(imdb_id):
+def test_title_parser_should_not_set_end_year_for_other_than_series(imdb_id):
     parsed = web.get_title(imdb_id=imdb_id)
     assert not hasattr(parsed, "end_year")
+
+
+@mark.parametrize(("imdb_id", "runtime"),
+                  [(133093, 136),  # The Matrix
+                   (436992, 45),  # Doctor Who
+                   (185906, 594),  # Band of Brothers (2001-2001)
+                   (3629794, None)])  # Aslan
+def test_title_parser_should_set_runtime(imdb_id, runtime):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.runtime == runtime
+
+
+@mark.parametrize(("imdb_id",),
+                  [(390244,)])  # The Matrix Online
+def test_title_parser_should_not_set_runtime_for_video_games(imdb_id):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert not hasattr(parsed, "runtime")
 
 
 @mark.parametrize(("imdb_id", "genres"),

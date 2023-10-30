@@ -28,10 +28,16 @@ xpath: Callable[[str], XPath] = lru_cache(maxsize=None)(XPath)
 
 
 @dataclass
+class DictRule:
+    path: str
+    transform: str | None = None
+
+
+@dataclass
 class Rule:
     path: str
     transform: str | None = None
-    post_map: dict[str, str] | None = None
+    post_map: dict[str, DictRule] | None = None
 
 
 @dataclass
@@ -54,22 +60,21 @@ def scrape(document: str, /,
             continue
         value = "".join(raw).strip()
         match rule.transform:
-            case "int":
-                data[key] = int(value)
             case "json":
-                data[key] = json.loads(value)
+                value = json.loads(value)
             case _:
                 data[key] = value
 
         if rule.post_map is not None:
-            for item_key, item_path in rule.post_map.items():
-                item_value = jmespath.search(item_path, data[key])
-                match item_value:
-                    case str():
-                        item_value = html.unescape(item_value)
-                    case [x, *_] if isinstance(x, str):
-                        item_value = [html.unescape(v) for v in item_value]
-                if item_value is not None:
-                    data[item_key] = item_value
+            for post_key, post_rule in rule.post_map.items():
+                post_value = jmespath.search(post_rule.path, value)
+                if post_value is None:
+                    continue
+                match post_rule.transform:
+                    case "unescape":
+                        post_value = [html.unescape(v) for v in post_value]
+                    case "sec2min":
+                        post_value = post_value // 60
+                data[post_key] = post_value
 
     return data
