@@ -14,7 +14,7 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal, TypeAlias
 
 
@@ -23,7 +23,8 @@ class _Title:
     imdb_id: int
     title: str
     year: int | None = None
-    genres: list[str] | None = None
+    genres: list[str] = field(default_factory=list)
+    taglines: list[str] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)

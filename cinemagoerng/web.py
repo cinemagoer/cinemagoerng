@@ -58,10 +58,10 @@ def get_title(imdb_id: int) -> Title:
     return typedload.load(data, Title)
 
 
-def get_title_reference(imdb_id: int) -> Title:
-    spec = _spec("title_reference")
-    url = spec.url % {"imdb_id": f"{imdb_id:07d}"}
+def update_title(title: Title, /, *, infoset: str) -> Title:
+    spec = _spec(f"title_{infoset}")
+    url = spec.url % {"imdb_id": f"{title.imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
-    data["imdb_id"] = imdb_id
-    return typedload.load(data, Title)
+    existing_data = typedload.dump(title)
+    return typedload.load(existing_data | data, Title)

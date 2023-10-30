@@ -1,8 +1,4 @@
 {
   "url": "https://www.imdb.com/title/tt%(imdb_id)s/reference",
-  "rules": {
-    "title": {
-      "path": "//h3[@itemprop='name']/text()"
-    }
-  }
+  "rules": {}
 }

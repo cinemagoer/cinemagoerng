@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
+import html
 import json
 from dataclasses import dataclass
 from functools import lru_cache
@@ -63,6 +64,11 @@ def scrape(document: str, /,
         if rule.post_map is not None:
             for item_key, item_path in rule.post_map.items():
                 item_value = jmespath.search(item_path, data[key])
+                match item_value:
+                    case str():
+                        item_value = html.unescape(item_value)
+                    case [x, *_] if isinstance(x, str):
+                        item_value = [html.unescape(v) for v in item_value]
                 if item_value is not None:
                     data[item_key] = item_value
 
