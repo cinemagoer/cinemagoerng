@@ -24,7 +24,7 @@ def get_item(args: Namespace) -> None:
         item = web.get_title(args.imdb_id)
     if args.taglines:
         item = web.update_title(item, infoset="taglines")
-    print(f"Title: {item.title} ({item.__class__.__name__})")
+    print(f"Title: {item.title} ({item.type_name})")
     print(f"Year: {item.year}")
     if hasattr(item, "runtime"):
         print(f"Runtime: {item.runtime} min")

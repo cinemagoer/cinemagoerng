@@ -11,7 +11,10 @@ def test_title_parser_should_set_imdb_id():
 @mark.parametrize(("imdb_id", "type_"), [
     (133093, model.Movie),  # The Matrix
     (389150, model.TVMovie),  # The Matrix Defence
-    (109151, model.Video),  # Armitage III: Poly-Matrix
+    (5359784, model.ShortMovie),  # A Glitch in the Matrix
+    (365467, model.TVShortMovie),  # Making 'The Matrix'
+    (109151, model.VideoMovie),  # Armitage III: Poly-Matrix
+    (7045440, model.MusicVideo),  # David Bowie: Ziggy Stardust
     (390244, model.VideoGame),  # The Matrix Online
     (436992, model.TVSeries),  # Doctor Who
     (185906, model.TVMiniSeries),  # Band of Brothers
@@ -26,7 +29,10 @@ def test_title_parser_should_instantiate_correct_type(imdb_id, type_):
 @mark.parametrize(("imdb_id", "title"), [
     (133093, "The Matrix"),
     (389150, "The Matrix Defence"),
+    (5359784, "A Glitch in the Matrix"),
+    (365467, "Making 'The Matrix'"),
     (109151, "Armitage III: Poly-Matrix"),
+    (7045440, "David Bowie: Ziggy Stardust"),
     (390244, "The Matrix Online"),
     (436992, "Doctor Who"),
     (185906, "Band of Brothers"),
@@ -63,9 +69,12 @@ def test_title_parser_should_set_end_year(imdb_id, end_year):
 @mark.parametrize(("imdb_id",), [
     (133093,),  # The Matrix (Movie)
     (389150,),  # The Matrix Defence (TV Movie)
-    (109151,),  # Armitage III: Poly-Matrix (Video)
+    (5359784,),  # A Glitch in the Matrix (Short Movie)
+    (365467,),  # Making 'The Matrix' (TV Short Movie)
+    (109151,),  # Armitage III: Poly-Matrix (Video Movie)
+    (7045440,),  # David Bowie: Ziggy Stardust (Music Video)
     (390244,),  # The Matrix Online (Video Game)
-    (1000252,),  # Blink (TV Episode)
+    (1000252,),  # Blink (TV Series Episode)
     (15475200,),  # Ricky Velez: Here's Everything (TV Special)
 ])
 def test_title_parser_should_not_set_end_year_for_other_than_series(imdb_id):
@@ -75,6 +84,9 @@ def test_title_parser_should_not_set_end_year_for_other_than_series(imdb_id):
 
 @mark.parametrize(("imdb_id", "runtime"), [
     (133093, 136),  # The Matrix (Movie)
+    (5359784, 5),  # A Glitch in the Matrix (Short Movie)
+    (365467, 26),  # Making 'The Matrix' (TV Short Movie)
+    (7045440, 3),  # David Bowie: Ziggy Stardust (Music Video)
     (436992, 45),  # Doctor Who (TV Series)
     (185906, 594),  # Band of Brothers (TV Mini-Series)
     (3629794, None),  # Aslan
@@ -95,6 +107,15 @@ def test_title_parser_should_not_set_runtime_for_video_games(imdb_id):
 @mark.parametrize(("imdb_id", "genres"), [
     (133093, ["Action", "Sci-Fi"]),  # The Matrix
     (389150, ["Documentary"]),  # The Matrix Defence
+    (5359784, ["Short", "Drama", "Fantasy", "Mystery"]),  # A Glitch in the Matrix (Short Movie)
+    (365467, ["Documentary", "Short", "Sci-Fi"]),  # Making 'The Matrix' (TV Short Movie)
+    (109151, ["Animation", "Action", "Drama", "Sci-Fi", "Thriller"]),  # Armitage III: Poly-Matrix (Video Movie)
+    (7045440, ["Short", "Music"]),  # David Bowie: Ziggy Stardust (Music Video)
+    (390244, ["Action", "Adventure", "Sci-Fi"]),  # The Matrix Online (Video Game)
+    (436992, ["Adventure", "Drama", "Sci-Fi"]),  # Doctor Who (TV Series)
+    (185906, ["Drama", "History", "War"]),  # Band of Brothers (TV Mini-Series)
+    (1000252, ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
+    (15475200, ["Comedy"]),  # Ricky Velez: Here's Everything (TV Special)
 ])
 def test_title_parser_should_set_genres(imdb_id, genres):
     parsed = web.get_title(imdb_id=imdb_id)
