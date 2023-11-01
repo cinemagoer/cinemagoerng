@@ -1,7 +1,7 @@
 {
   "url": "https://www.imdb.com/title/tt%(imdb_id)s/",
   "rules": {
-    "next_data": {
+    "__json": {
       "path": "//script[@id='__NEXT_DATA__']/text()",
       "transform": "json",
       "post_map": {

@@ -62,8 +62,8 @@ def scrape(document: str, /,
         match rule.transform:
             case "json":
                 value = json.loads(value)
-            case _:
-                data[key] = value
+        if key[:2] != "__":
+            data[key] = value
 
         if rule.post_map is not None:
             for post_key, post_rule in rule.post_map.items():
