@@ -21,6 +21,12 @@
           "path": "props.pageProps.aboveTheFoldData.runtime.seconds",
           "transform": "sec2min"
         },
+        "rating": {
+          "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating"
+        },
+        "n_votes": {
+          "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
+        },
         "genres": {
           "path": "props.pageProps.aboveTheFoldData.genres.genres[*].text"}
       }

@@ -104,6 +104,24 @@ def test_title_parser_should_not_set_runtime_for_video_games(imdb_id):
     assert not hasattr(parsed, "runtime")
 
 
+@mark.parametrize(("imdb_id", "rating"), [
+    (133093, 8.7),  # The Matrix
+    (3629794, None),  # Aslan
+])
+def test_title_parser_should_set_rating(imdb_id, rating):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert (abs(parsed.rating - rating) < 0.3) if rating is not None else (parsed.rating is None)
+
+
+@mark.parametrize(("imdb_id", "n_votes"), [
+    (133093, 1_999_000),  # The Matrix
+    (3629794, 0),  # Aslan
+])
+def test_title_parser_should_set_number_of_votes(imdb_id, n_votes):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert (parsed.n_votes >= n_votes) if n_votes > 0 else (parsed.n_votes == 0)
+
+
 @mark.parametrize(("imdb_id", "genres"), [
     (133093, ["Action", "Sci-Fi"]),  # The Matrix
     (389150, ["Documentary"]),  # The Matrix Defence

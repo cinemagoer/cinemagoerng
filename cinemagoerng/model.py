@@ -23,6 +23,8 @@ class _Title:
     imdb_id: int
     title: str
     year: int | None = None
+    rating: float | None = None
+    n_votes: int = 0
     genres: list[str] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
 
