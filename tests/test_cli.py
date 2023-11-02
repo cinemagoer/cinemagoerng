@@ -87,6 +87,24 @@ def test_cli_get_title_should_include_genres(capsys, imdb_id):
 @mark.parametrize(("imdb_id",), [
     (133093,),  # The Matrix
 ])
+def test_cli_get_title_should_include_plot(capsys, imdb_id):
+    cli.main(["get", "title", str(imdb_id)])
+    std = capsys.readouterr()
+    assert re.search(r"Plot:\n  [\w]+", std.out)
+
+
+@mark.parametrize(("imdb_id",), [
+    (3629794,),  # Aslan
+])
+def test_cli_get_title_should_exclude_plot_if_missing(capsys, imdb_id):
+    cli.main(["get", "title", str(imdb_id)])
+    std = capsys.readouterr()
+    assert "Plot:" not in std.out
+
+
+@mark.parametrize(("imdb_id",), [
+    (133093,),  # The Matrix
+])
 def test_cli_get_title_should_exclude_taglines_by_default(capsys, imdb_id):
     cli.main(["get", "title", str(imdb_id)])
     std = capsys.readouterr()

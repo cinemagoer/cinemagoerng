@@ -15,6 +15,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys
+import textwrap
 from argparse import ArgumentParser, Namespace
 
 from cinemagoerng import __version__, web
@@ -43,6 +44,13 @@ def get_item(args: Namespace) -> None:
     if len(item.genres) > 0:
         genres = ", ".join(item.genres)
         print(f"Genres: {genres}")
+
+    plot_en = item.plot.get("en-US", "Plot undisclosed.")
+    if plot_en != "Plot undisclosed.":
+        indent = "  "
+        plot = textwrap.fill(plot_en, width=72, initial_indent=indent,
+                             subsequent_indent=indent)
+        print(f"Plot:\n{plot}")
 
     if args.taglines and (len(item.taglines) > 0):
         taglines = "\n  ".join(item.taglines)

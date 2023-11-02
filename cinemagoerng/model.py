@@ -26,6 +26,7 @@ class _Title:
     rating: float | None = None
     n_votes: int = 0
     genres: list[str] = field(default_factory=list)
+    plot: dict[str, str] = field(default_factory=dict)
     taglines: list[str] = field(default_factory=list)
 
 

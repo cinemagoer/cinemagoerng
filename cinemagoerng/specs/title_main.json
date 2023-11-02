@@ -27,6 +27,13 @@
         "n_votes": {
           "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
         },
+        "plot.lang": {
+          "path": "props.pageProps.aboveTheFoldData.plot.language.id"
+        },
+        "plot": {
+          "path": "props.pageProps.aboveTheFoldData.plot.plotText.plainText",
+          "transform": "lang"
+        },
         "genres": {
           "path": "props.pageProps.aboveTheFoldData.genres.genres[*].text"}
       }

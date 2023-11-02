@@ -114,7 +114,7 @@ def test_title_parser_should_set_rating(imdb_id, rating):
 
 
 @mark.parametrize(("imdb_id", "n_votes"), [
-    (133093, 1_999_000),  # The Matrix
+    (133093, 2_000_000),  # The Matrix
     (3629794, 0),  # Aslan
 ])
 def test_title_parser_should_set_number_of_votes(imdb_id, n_votes):
@@ -138,3 +138,12 @@ def test_title_parser_should_set_number_of_votes(imdb_id, n_votes):
 def test_title_parser_should_set_genres(imdb_id, genres):
     parsed = web.get_title(imdb_id=imdb_id)
     assert parsed.genres == genres
+
+
+@mark.parametrize(("imdb_id", "plot", "lang"), [
+    (133093, "When a beautiful stranger", "en-US"),  # The Matrix
+    (3629794, "Plot undisclosed.", "en-US"),  # Aslan
+])
+def test_title_parser_should_set_plot(imdb_id, plot, lang):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.plot[lang].startswith(plot)

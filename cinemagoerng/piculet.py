@@ -75,6 +75,10 @@ def scrape(document: str, /,
                         post_value = [html.unescape(v) for v in post_value]
                     case "sec2min":
                         post_value = post_value // 60
+                    case "lang":
+                        lang_key = f"{post_key}.lang"
+                        post_value = {data[lang_key]: post_value}
+                        del data[lang_key]
                 data[post_key] = post_value
 
     return data
