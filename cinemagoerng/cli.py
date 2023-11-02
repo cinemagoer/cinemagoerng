@@ -14,6 +14,7 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+import sys
 from argparse import ArgumentParser, Namespace
 
 from cinemagoerng import __version__, web
@@ -24,17 +25,27 @@ def get_item(args: Namespace) -> None:
         item = web.get_title(args.imdb_id)
     if args.taglines:
         item = web.update_title(item, infoset="taglines")
+
     print(f"Title: {item.title} ({item.type_name})")
-    print(f"Year: {item.year}")
-    if hasattr(item, "runtime"):
-        print(f"Runtime: {item.runtime} min")
-    print(f"Genres: {', '.join(item.genres)}")
+
+    year = getattr(item, "year", None)
+    if year is not None:
+        print(f"Year: {year}")
+
+    runtime = getattr(item, "runtime", None)
+    if runtime is not None:
+        print(f"Runtime: {runtime} min")
+
+    if len(item.genres) > 0:
+        genres = ", ".join(item.genres)
+        print(f"Genres: {genres}")
+
     if args.taglines and (len(item.taglines) > 0):
-        taglines = '\n  '.join(item.taglines)
+        taglines = "\n  ".join(item.taglines)
         print(f"Taglines:\n  {taglines}")
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = ArgumentParser(description="Retrieve data from the IMDb.")
     parser.add_argument("--version", action="version", version=__version__)
 
@@ -51,5 +62,5 @@ def main() -> None:
                             help="include taglines")
     get_parser.set_defaults(func=get_item)
 
-    arguments = parser.parse_args()
+    arguments = parser.parse_args(argv if argv is not None else sys.argv[1:])
     arguments.func(arguments)
