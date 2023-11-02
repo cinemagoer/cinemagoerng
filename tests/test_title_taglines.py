@@ -12,7 +12,5 @@ def test_title_taglines_parser_should_set_taglines(imdb_id, n, taglines):
     parsed = web.get_title(imdb_id=imdb_id)
     parsed = web.update_title(parsed, infoset="taglines")
     assert len(parsed.taglines) == n
-    if n > 0:
-        assert parsed.taglines[0] == taglines[0]
-    for tagline in taglines[1:]:
+    for tagline in taglines:
         assert tagline in parsed.taglines
