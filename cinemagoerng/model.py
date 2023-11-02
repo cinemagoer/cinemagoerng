@@ -35,102 +35,69 @@ class _TimedTitle(_Title):
 @dataclass(kw_only=True)
 class Movie(_TimedTitle):
     type: Literal["movie"]
-
-    @property
-    def type_name(self) -> str:
-        return "Movie"
+    type_name: Literal["Movie"] = "Movie"
 
 
 @dataclass(kw_only=True)
 class TVMovie(_TimedTitle):
     type: Literal["tvMovie"]
-
-    @property
-    def type_name(self) -> str:
-        return "TV Movie"
+    type_name: Literal["TV Movie"] = "TV Movie"
 
 
 @dataclass(kw_only=True)
 class ShortMovie(_TimedTitle):
     type: Literal["short"]
-
-    @property
-    def type_name(self) -> str:
-        return "Short Movie"
+    type_name: Literal["Short Movie"] = "Short Movie"
 
 
 @dataclass(kw_only=True)
 class TVShortMovie(_TimedTitle):
     type: Literal["tvShort"]
-
-    @property
-    def type_name(self) -> str:
-        return "TV Short Movie"
+    type_name: Literal["TV Short Movie"] = "TV Short Movie"
 
 
 @dataclass(kw_only=True)
 class VideoMovie(_TimedTitle):
     type: Literal["video"]
-
-    @property
-    def type_name(self) -> str:
-        return "Video Movie"
+    type_name: Literal["Video Movie"] = "Video Movie"
 
 
 @dataclass(kw_only=True)
 class MusicVideo(_TimedTitle):
     type: Literal["musicVideo"]
-
-    @property
-    def type_name(self) -> str:
-        return "Music Video"
+    type_name: Literal["Music Video"] = "Music Video"
 
 
 @dataclass(kw_only=True)
 class VideoGame(_Title):
     type: Literal["videoGame"]
-
-    @property
-    def type_name(self) -> str:
-        return "Video Game"
+    type_name: Literal["Video Game"] = "Video Game"
 
 
 @dataclass(kw_only=True)
 class TVSeries(_TimedTitle):
     type: Literal["tvSeries"]
+    type_name: Literal["TV Series"] = "TV Series"
     end_year: int | None = None
-
-    @property
-    def type_name(self) -> str:
-        return "TV Series"
 
 
 @dataclass(kw_only=True)
 class TVMiniSeries(_TimedTitle):
     type: Literal["tvMiniSeries"]
+    type_name: Literal["TV Mini-Series"] = "TV Mini-Series"
     end_year: int | None = None
-
-    @property
-    def type_name(self) -> str:
-        return "TV Mini-Series"
 
 
 @dataclass
 class TVEpisode(_TimedTitle):
     type: Literal["tvEpisode"]
-
-    @property
-    def type_name(self) -> str:
-        return "TV Series Episode"
+    type_name: Literal["TV Series Episode"] = "TV Series Episode"
 
 
 @dataclass
 class TVSpecial(_TimedTitle):
     type: Literal["tvSpecial"]
-
-    @property
-    def type_name(self) -> str:
-        return "TV Special"
+    type_name: Literal["TV Special"] = "TV Special"
 
 
 Title: TypeAlias = Movie | TVMovie | ShortMovie | TVShortMovie \
