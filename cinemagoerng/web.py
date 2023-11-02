@@ -17,12 +17,16 @@
 import json
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal, TypeAlias
 from urllib.request import Request, urlopen
 
 import typedload
 
 from .model import Title
 from .piculet import Spec, scrape
+
+
+InfoSet: TypeAlias = Literal["main", "taglines"]
 
 
 _USER_AGENT = " ".join([
@@ -49,19 +53,19 @@ def _spec(name: str, /) -> Spec:
     return typedload.load(json.loads(content), Spec)
 
 
-def get_title(imdb_id: int) -> Title:
-    spec = _spec("title")
+def get_title(imdb_id: int, *, infoset: InfoSet = "main") -> Title:
+    spec = _spec(f"title_{infoset}")
     url = spec.url % {"imdb_id": f"{imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
     data["imdb_id"] = imdb_id
-    return typedload.load(data, Title)
+    return typedload.load(data, Title)  # type: ignore
 
 
-def update_title(title: Title, /, *, infoset: str) -> Title:
+def update_title(title: Title, /, *, infoset: InfoSet) -> Title:
     spec = _spec(f"title_{infoset}")
     url = spec.url % {"imdb_id": f"{title.imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
     existing_data: dict = typedload.dump(title)
-    return typedload.load(existing_data | data, Title)
+    return typedload.load(existing_data | data, Title)  # type: ignore
