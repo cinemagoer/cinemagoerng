@@ -36,6 +36,10 @@ def get_item(args: Namespace) -> None:
     if runtime is not None:
         print(f"Runtime: {runtime} min")
 
+    rating = getattr(item, "rating", None)
+    if rating is not None:
+        print(f"Rating: {rating} ({item.n_votes} votes)")
+
     if len(item.genres) > 0:
         genres = ", ".join(item.genres)
         print(f"Genres: {genres}")
