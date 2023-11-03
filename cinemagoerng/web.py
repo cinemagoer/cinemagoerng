@@ -15,6 +15,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import json
+from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal, TypeAlias, TypeVar
@@ -63,7 +64,8 @@ def get_title(imdb_id: int, *, infoset: InfoSet = "main") -> Title:
     TitleClass = TITLE_TYPE_IDS.get(type_id)
     if TitleClass is None:
         raise ValueError("Unknown title type")
-    return typedload.load(data, TitleClass)  # type: ignore
+    return typedload.load(data, TitleClass,
+                          strconstructed={Decimal})  # type: ignore
 
 
 Title_ = TypeVar("Title_", bound=Title)
@@ -74,5 +76,6 @@ def update_title(title: Title_, /, *, infoset: InfoSet) -> Title_:
     url = spec.url % {"imdb_id": f"{title.imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
-    current_data: dict = typedload.dump(title)
-    return typedload.load(current_data | data, title.__class__)  # type: ignore
+    current_data: dict = typedload.dump(title, strconstructed={Decimal})
+    return typedload.load(current_data | data, title.__class__,
+                          strconstructed={Decimal})  # type: ignore

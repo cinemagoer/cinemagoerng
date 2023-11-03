@@ -15,6 +15,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import TypeAlias
 
 
@@ -23,7 +24,7 @@ class _Title:
     imdb_id: int
     title: str
     year: int | None = None
-    rating: float | None = None
+    rating: Decimal | None = None
     n_votes: int = 0
     genres: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)

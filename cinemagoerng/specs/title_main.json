@@ -19,10 +19,11 @@
         },
         "runtime": {
           "path": "props.pageProps.aboveTheFoldData.runtime.seconds",
-          "transform": "sec2min"
+          "transform": "div60"
         },
         "rating": {
-          "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating"
+          "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
+          "transform": "decimal1"
         },
         "n_votes": {
           "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
