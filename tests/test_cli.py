@@ -3,6 +3,7 @@ from pytest import mark, raises
 import re
 
 from cinemagoerng import __version__, cli
+from cinemagoerng.model import TITLE_TYPE_NAMES
 
 
 def test_cli_should_report_correct_version(capsys):
@@ -13,12 +14,23 @@ def test_cli_should_report_correct_version(capsys):
 
 
 @mark.parametrize(("imdb_id",), [
-    (133093,),  # The Matrix
+    (133093,),  # The Matrix (Movie)
+    (389150,),  # The Matrix Defence (TV Movie)
+    (2971344,),  # Matrix: First Dream (Short Movie)
+    (365467,),  # Making 'The Matrix' (TV Short Movie)
+    (109151,),  # Armitage III: Poly-Matrix (Video Movie)
+    (7045440,),  # David Bowie: Ziggy Stardust (Music Video)
+    (390244,),  # The Matrix Online (Video Game)
+    (436992,),  # Doctor Who (TV Series)
+    (185906,),  # Band of Brothers (TV Mini-Series)
+    (1000252,),  # Blink (TV Episode)
+    (14544192,),  # Bo Burnham: Inside (TV Special)
 ])
 def test_cli_get_title_should_include_title_and_type(capsys, imdb_id):
     cli.main(["get", "title", str(imdb_id)])
     std = capsys.readouterr()
-    assert re.search(r"Title: (\w|\s)+ \(Movie\)\n", std.out)
+    type_pattern = "|".join(TITLE_TYPE_NAMES.values())
+    assert re.search(r"Title: (\w|\s)+ \(%(p)s\)\n" % {"p": type_pattern}, std.out)
 
 
 @mark.parametrize(("imdb_id",), [

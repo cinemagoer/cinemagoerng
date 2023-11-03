@@ -15,7 +15,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 from dataclasses import dataclass, field
-from typing import Literal, TypeAlias
+from typing import TypeAlias
 
 
 @dataclass(kw_only=True)
@@ -31,79 +31,93 @@ class _Title:
 
 
 @dataclass(kw_only=True)
-class _TimedTitle(_Title):
+class Movie(_Title):
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class Movie(_TimedTitle):
-    type: Literal["movie"]
-    type_name: Literal["Movie"] = "Movie"
+class TVMovie(_Title):
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class TVMovie(_TimedTitle):
-    type: Literal["tvMovie"]
-    type_name: Literal["TV Movie"] = "TV Movie"
+class ShortMovie(_Title):
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class ShortMovie(_TimedTitle):
-    type: Literal["short"]
-    type_name: Literal["Short Movie"] = "Short Movie"
+class TVShortMovie(_Title):
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class TVShortMovie(_TimedTitle):
-    type: Literal["tvShort"]
-    type_name: Literal["TV Short Movie"] = "TV Short Movie"
+class VideoMovie(_Title):
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class VideoMovie(_TimedTitle):
-    type: Literal["video"]
-    type_name: Literal["Video Movie"] = "Video Movie"
-
-
-@dataclass(kw_only=True)
-class MusicVideo(_TimedTitle):
-    type: Literal["musicVideo"]
-    type_name: Literal["Music Video"] = "Music Video"
+class MusicVideo(_Title):
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class VideoGame(_Title):
-    type: Literal["videoGame"]
-    type_name: Literal["Video Game"] = "Video Game"
+    pass
 
 
 @dataclass(kw_only=True)
-class TVSeries(_TimedTitle):
-    type: Literal["tvSeries"]
-    type_name: Literal["TV Series"] = "TV Series"
+class TVSeries(_Title):
     end_year: int | None = None
+    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class TVMiniSeries(_TimedTitle):
-    type: Literal["tvMiniSeries"]
-    type_name: Literal["TV Mini-Series"] = "TV Mini-Series"
+class TVMiniSeries(_Title):
     end_year: int | None = None
+    runtime: int | None = None
 
 
 @dataclass
-class TVEpisode(_TimedTitle):
-    type: Literal["tvEpisode"]
-    type_name: Literal["TV Series Episode"] = "TV Series Episode"
+class TVEpisode(_Title):
+    runtime: int | None = None
 
 
 @dataclass
-class TVSpecial(_TimedTitle):
-    type: Literal["tvSpecial"]
-    type_name: Literal["TV Special"] = "TV Special"
+class TVSpecial(_Title):
+    runtime: int | None = None
 
 
 Title: TypeAlias = Movie | TVMovie | ShortMovie | TVShortMovie \
                  | VideoMovie | MusicVideo | VideoGame \
                  | TVSeries | TVMiniSeries | TVEpisode \
                  | TVSpecial  # noqa: E126
+
+
+TITLE_TYPE_IDS: dict[str, type] = {
+    "movie": Movie,
+    "tvMovie": TVMovie,
+    "short": ShortMovie,
+    "tvShort": TVShortMovie,
+    "video": VideoMovie,
+    "musicVideo": MusicVideo,
+    "videoGame": VideoGame,
+    "tvSeries": TVSeries,
+    "tvMiniSeries": TVMiniSeries,
+    "tvEpisode": TVEpisode,
+    "tvSpecial": TVSpecial,
+}
+
+
+TITLE_TYPE_NAMES: dict[type, str] = {
+    Movie: "Movie",
+    TVMovie: "TV Movie",
+    ShortMovie: "Short Movie",
+    TVShortMovie: "TV Short Movie",
+    VideoMovie: "Video Movie",
+    MusicVideo: "Music Video",
+    VideoGame: "Video Game",
+    TVSeries: "TV Series",
+    TVMiniSeries: "TV Mini-Series",
+    TVEpisode: "TV Episode",
+    TVSpecial: "TV Special",
+}

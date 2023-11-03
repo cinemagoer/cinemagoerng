@@ -19,6 +19,7 @@ import textwrap
 from argparse import ArgumentParser, Namespace
 
 from cinemagoerng import __version__, web
+from cinemagoerng.model import TITLE_TYPE_NAMES
 
 
 def get_item(args: Namespace) -> None:
@@ -27,7 +28,8 @@ def get_item(args: Namespace) -> None:
     if args.taglines:
         item = web.update_title(item, infoset="taglines")
 
-    print(f"Title: {item.title} ({item.type_name})")
+    type_name: str | None = TITLE_TYPE_NAMES.get(item.__class__)
+    print(f"Title: {item.title} ({type_name})")
 
     year = getattr(item, "year", None)
     if year is not None:
