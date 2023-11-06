@@ -23,7 +23,7 @@
         },
         "rating": {
           "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
-          "transform": "decimal1"
+          "transform": "decimal"
         },
         "n_votes": {
           "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"

@@ -76,8 +76,8 @@ def scrape(document: str, /,
                         post_value = [html.unescape(v) for v in post_value]
                     case "div60":
                         post_value = post_value // 60
-                    case "decimal1":
-                        post_value = round(Decimal(post_value), 1)
+                    case "decimal":
+                        post_value = Decimal(str(post_value))
                     case "lang":
                         lang_key = f"{post_key}.lang"
                         post_value = {data[lang_key]: post_value}
