@@ -25,7 +25,7 @@
           "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
           "transform": "decimal"
         },
-        "n_votes": {
+        "vote_count": {
           "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
         },
         "plot.lang": {

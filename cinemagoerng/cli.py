@@ -41,7 +41,7 @@ def get_item(args: Namespace) -> None:
 
     rating = getattr(item, "rating", None)
     if rating is not None:
-        print(f"Rating: {rating} ({item.n_votes} votes)")
+        print(f"Rating: {rating} ({item.vote_count} votes)")
 
     if len(item.genres) > 0:
         genres = ", ".join(item.genres)

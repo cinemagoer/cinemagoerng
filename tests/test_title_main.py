@@ -116,13 +116,13 @@ def test_title_parser_should_set_rating(imdb_id, rating):
     assert (abs(parsed.rating) - rating < Decimal("0.3")) if rating is not None else (parsed.rating is None)
 
 
-@mark.parametrize(("imdb_id", "n_votes"), [
+@mark.parametrize(("imdb_id", "n"), [
     (133093, 2_000_000),  # The Matrix
     (3629794, 0),  # Aslan
 ])
-def test_title_parser_should_set_number_of_votes(imdb_id, n_votes):
+def test_title_parser_should_set_number_of_votes(imdb_id, n):
     parsed = web.get_title(imdb_id=imdb_id)
-    assert (parsed.n_votes >= n_votes) if n_votes > 0 else (parsed.n_votes == 0)
+    assert (parsed.vote_count >= n) if n > 0 else (parsed.vote_count == 0)
 
 
 @mark.parametrize(("imdb_id", "genres"), [
