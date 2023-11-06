@@ -35,11 +35,12 @@ def test_title_parser_should_instantiate_correct_type(imdb_id, type_):
     (7045440, "David Bowie: Ziggy Stardust"),
     (390244, "The Matrix Online"),
     (436992, "Doctor Who"),
+    (810788, "Burn Notice"),
     (185906, "Band of Brothers"),
     (1000252, "Blink"),
     (14544192, "Bo Burnham: Inside"),
 ])
-def test_title_parser_should_set_title(imdb_id, title):
+def test_title_parser_should_set_title_from_original_title(imdb_id, title):
     parsed = web.get_title(imdb_id=imdb_id)
     assert parsed.title == title
 

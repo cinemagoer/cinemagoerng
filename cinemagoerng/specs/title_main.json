@@ -9,7 +9,7 @@
           "path": "props.pageProps.aboveTheFoldData.titleType.id"
         },
         "title": {
-          "path": "props.pageProps.aboveTheFoldData.titleText.text"
+          "path": "props.pageProps.aboveTheFoldData.originalTitleText.text"
         },
         "year": {
           "path": "props.pageProps.aboveTheFoldData.releaseYear.year"
