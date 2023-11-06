@@ -16,6 +16,7 @@
 import html
 import json
 from dataclasses import dataclass
+from decimal import Decimal
 from functools import lru_cache
 from typing import Callable, Mapping, MutableMapping, Sequence, TypeAlias
 
@@ -73,8 +74,10 @@ def scrape(document: str, /,
                 match post_rule.transform:
                     case "unescape":
                         post_value = [html.unescape(v) for v in post_value]
-                    case "sec2min":
+                    case "div60":
                         post_value = post_value // 60
+                    case "decimal1":
+                        post_value = round(Decimal(post_value), 1)
                     case "lang":
                         lang_key = f"{post_key}.lang"
                         post_value = {data[lang_key]: post_value}

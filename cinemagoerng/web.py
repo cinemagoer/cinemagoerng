@@ -15,14 +15,15 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import json
+from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, TypeVar
 from urllib.request import Request, urlopen
 
 import typedload
 
-from .model import Title
+from .model import TITLE_TYPE_IDS, Title
 from .piculet import Spec, scrape
 
 
@@ -59,13 +60,22 @@ def get_title(imdb_id: int, *, infoset: InfoSet = "main") -> Title:
     document = fetch(url)
     data = scrape(document, spec.rules)
     data["imdb_id"] = imdb_id
-    return typedload.load(data, Title)  # type: ignore
+    type_id: str = data.pop("type_id", "")  # type: ignore
+    TitleClass = TITLE_TYPE_IDS.get(type_id)
+    if TitleClass is None:
+        raise ValueError("Unknown title type")
+    return typedload.load(data, TitleClass,
+                          strconstructed={Decimal})  # type: ignore
 
 
-def update_title(title: Title, /, *, infoset: InfoSet) -> Title:
+Title_ = TypeVar("Title_", bound=Title)
+
+
+def update_title(title: Title_, /, *, infoset: InfoSet) -> Title_:
     spec = _spec(f"title_{infoset}")
     url = spec.url % {"imdb_id": f"{title.imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
-    existing_data: dict = typedload.dump(title)
-    return typedload.load(existing_data | data, Title)  # type: ignore
+    current_data: dict = typedload.dump(title, strconstructed={Decimal})
+    return typedload.load(current_data | data, title.__class__,
+                          strconstructed={Decimal})  # type: ignore
