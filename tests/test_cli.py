@@ -129,4 +129,4 @@ def test_cli_get_title_should_exclude_taglines_by_default(capsys, imdb_id):
 def test_cli_get_title_should_include_taglines_if_requested(capsys, imdb_id):
     cli.main(["get", "title", str(imdb_id), "--taglines"])
     std = capsys.readouterr()
-    assert re.search(r"Taglines:\n  \w+", std.out)
+    assert re.search(r"Taglines:\n  - \w+", std.out)

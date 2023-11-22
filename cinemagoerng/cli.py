@@ -25,56 +25,70 @@ from cinemagoerng.model import TITLE_TYPE_NAMES
 def get_item(args: Namespace) -> None:
     if args.type == "title":
         item = web.get_title(args.imdb_id)
-    if args.taglines:
-        item = web.update_title(item, infoset="taglines")
 
-    type_name: str | None = TITLE_TYPE_NAMES.get(item.__class__)
-    print(f"Title: {item.title} ({type_name})")
+        if args.taglines:
+            item = web.update_title(item, infoset="taglines")
 
-    year = getattr(item, "year", None)
-    if year is not None:
-        print(f"Year: {year}")
+        type_name = TITLE_TYPE_NAMES[item.__class__]
+        print(f"Title: {item.title} ({type_name})")
 
-    runtime = getattr(item, "runtime", None)
-    if runtime is not None:
-        print(f"Runtime: {runtime} min")
+        if item.year is not None:
+            print(f"Year: {item.year}")
 
-    rating = getattr(item, "rating", None)
-    if rating is not None:
-        print(f"Rating: {rating} ({item.vote_count} votes)")
+        runtime: int | None = getattr(item, "runtime", None)
+        if runtime is not None:
+            print(f"Runtime: {runtime} min")
 
-    if len(item.genres) > 0:
-        genres = ", ".join(item.genres)
-        print(f"Genres: {genres}")
+        if item.rating is not None:
+            print(f"Rating: {item.rating} ({item.vote_count} votes)")
 
-    plot_en = item.plot.get("en-US", "Plot undisclosed.")
-    if plot_en != "Plot undisclosed.":
+        if len(item.genres) > 0:
+            genres = ", ".join(item.genres)
+            print(f"Genres: {genres}")
+
         indent = "  "
-        plot = textwrap.fill(plot_en, width=72, initial_indent=indent,
-                             subsequent_indent=indent)
-        print(f"Plot:\n{plot}")
+        wrap = 72
 
-    if args.taglines and (len(item.taglines) > 0):
-        taglines = "\n  ".join(item.taglines)
-        print(f"Taglines:\n  {taglines}")
+        plot_en = item.plot.get("en-US", "Plot undisclosed.")
+        if plot_en != "Plot undisclosed.":
+            plot = textwrap.fill(plot_en, width=wrap, initial_indent=indent,
+                                 subsequent_indent=indent)
+            print(f"Plot:\n{plot}")
+
+        if args.taglines and (len(item.taglines) > 0):
+            subindent = "  "
+            taglines = f"\n{indent}- ".join(
+                textwrap.fill(t, width=wrap - len(indent) - len(subindent),
+                              subsequent_indent=indent + subindent)
+                for t in item.taglines
+            )
+            print(f"Taglines:\n{indent}- {taglines}")
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = ArgumentParser(description="Retrieve data from the IMDb.")
     parser.add_argument("--version", action="version", version=__version__)
 
-    command = parser.add_subparsers(metavar="command", dest="command")
-    command.required = True
+    subparsers = parser.add_subparsers(metavar="command", dest="command")
+    subparsers.required = True
 
-    get_parser = command.add_parser("get",
-                                    help="retrieve information about an item")
-    get_parser.add_argument("type", choices=["title"],
-                            help="type of item to retrieve")
-    get_parser.add_argument("imdb_id", type=int,
-                            help="IMDb id of item to retrieve")
-    get_parser.add_argument("--taglines", action="store_true",
-                            help="include taglines")
-    get_parser.set_defaults(func=get_item)
+    subparser_get = subparsers.add_parser(
+        "get",
+        help="retrieve information about an item",
+    )
+    subparser_get.add_argument(
+        "type", choices=["title"],
+        help="type of item to retrieve",
+    )
+    subparser_get.add_argument(
+        "imdb_id", type=int,
+        help="IMDb id of item to retrieve",
+    )
+    subparser_get.add_argument(
+        "--taglines", action="store_true",
+        help="include taglines",
+    )
+    subparser_get.set_defaults(func=get_item)
 
     arguments = parser.parse_args(argv if argv is not None else sys.argv[1:])
     arguments.func(arguments)
