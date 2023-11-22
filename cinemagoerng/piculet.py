@@ -13,12 +13,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Callable, Mapping, MutableMapping, Sequence, TypeAlias
+
 import html
 import json
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache
-from typing import Callable, Mapping, MutableMapping, Sequence, TypeAlias
 
 import jmespath
 from lxml.etree import XPath

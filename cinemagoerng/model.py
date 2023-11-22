@@ -14,9 +14,10 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from typing import TypeAlias
+
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import TypeAlias
 
 
 @dataclass(kw_only=True)

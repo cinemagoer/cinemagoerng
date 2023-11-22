@@ -14,11 +14,12 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from typing import Literal, TypeAlias, TypeVar
+
 import json
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal, TypeAlias, TypeVar
 from urllib.request import Request, urlopen
 
 import typedload
