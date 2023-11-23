@@ -10,7 +10,7 @@ from cinemagoerng import web
 ])
 def test_title_taglines_parser_should_set_taglines(imdb_id, n, taglines):
     parsed = web.get_title(imdb_id=imdb_id)
-    parsed = web.update_title(parsed, infoset="taglines")
+    parsed = web.update_title(parsed, page="taglines")
     assert len(parsed.taglines) == n
     for tagline in taglines:
         assert tagline in parsed.taglines

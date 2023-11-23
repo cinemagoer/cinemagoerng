@@ -16,79 +16,90 @@
 
 import sys
 import textwrap
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 
 from cinemagoerng import __version__, web
 from cinemagoerng.model import TITLE_TYPE_NAMES
 
 
-def get_item(args: Namespace) -> None:
-    if args.type == "title":
-        item = web.get_title(args.imdb_id)
+_INDENT = "  "
+_LINE_WIDTH = 72
 
-        if args.taglines:
-            item = web.update_title(item, infoset="taglines")
 
-        type_name = TITLE_TYPE_NAMES[item.__class__]
-        print(f"Title: {item.title} ({type_name})")
+def get_title(imdb_id: int, taglines: bool = False) -> None:
+    item = web.get_title(imdb_id)
+    if taglines:
+        item = web.update_title(item, page="taglines")
 
-        if item.year is not None:
-            print(f"Year: {item.year}")
+    type_name = TITLE_TYPE_NAMES[item.__class__]
+    print(f"Title: {item.title} ({type_name})")
 
-        runtime: int | None = getattr(item, "runtime", None)
-        if runtime is not None:
-            print(f"Runtime: {runtime} min")
+    if item.year is not None:
+        print(f"Year: {item.year}")
 
-        if item.rating is not None:
-            print(f"Rating: {item.rating} ({item.vote_count} votes)")
+    runtime: int | None = getattr(item, "runtime", None)
+    if runtime is not None:
+        print(f"Runtime: {runtime} min")
 
-        if len(item.genres) > 0:
-            genres = ", ".join(item.genres)
-            print(f"Genres: {genres}")
+    if item.rating is not None:
+        print(f"Rating: {item.rating} ({item.vote_count} votes)")
 
-        indent = "  "
-        wrap = 72
+    if len(item.genres) > 0:
+        genres = ", ".join(item.genres)
+        print(f"Genres: {genres}")
 
-        plot_en = item.plot.get("en-US", "Plot undisclosed.")
-        if plot_en != "Plot undisclosed.":
-            plot = textwrap.fill(plot_en, width=wrap, initial_indent=indent,
-                                 subsequent_indent=indent)
-            print(f"Plot:\n{plot}")
+    plot_en = item.plot.get("en-US", "Plot undisclosed.")
+    if plot_en != "Plot undisclosed.":
+        print("Plot:")
+        plot_text = textwrap.fill(plot_en, width=_LINE_WIDTH,
+                                  initial_indent=_INDENT,
+                                  subsequent_indent=_INDENT)
+        print(plot_text)
 
-        if args.taglines and (len(item.taglines) > 0):
-            subindent = "  "
-            taglines = f"\n{indent}- ".join(
-                textwrap.fill(t, width=wrap - len(indent) - len(subindent),
-                              subsequent_indent=indent + subindent)
-                for t in item.taglines
-            )
-            print(f"Taglines:\n{indent}- {taglines}")
+    if taglines and (len(item.taglines) > 0):
+        print("Taglines:")
+        subindent = _INDENT + "  "
+        for tagline in item.taglines:
+            tagline_text = textwrap.fill("- " + tagline,
+                                         width=_LINE_WIDTH,
+                                         initial_indent=_INDENT,
+                                         subsequent_indent=subindent)
+            print(tagline_text)
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = ArgumentParser(description="Retrieve data from the IMDb.")
     parser.add_argument("--version", action="version", version=__version__)
 
-    subparsers = parser.add_subparsers(metavar="command", dest="command")
-    subparsers.required = True
+    command = parser.add_subparsers(metavar="command")
+    command.required = True
 
-    subparser_get = subparsers.add_parser(
+    parser_get = command.add_parser(
         "get",
         help="retrieve information about an item",
     )
-    subparser_get.add_argument(
-        "type", choices=["title"],
+
+    item_type = parser_get.add_subparsers(
+        metavar="type",
         help="type of item to retrieve",
     )
-    subparser_get.add_argument(
-        "imdb_id", type=int,
-        help="IMDb id of item to retrieve",
+    item_type.required = True
+
+    parser_get_title = item_type.add_parser(
+        "title",
+        help="retrieve information about a title",
     )
-    subparser_get.add_argument(
+    parser_get_title.add_argument(
+        "imdb_id", type=int,
+        help="IMDb id of title",
+    )
+    parser_get_title.add_argument(
         "--taglines", action="store_true",
         help="include taglines",
     )
-    subparser_get.set_defaults(func=get_item)
+    parser_get_title.set_defaults(func=get_title)
 
-    arguments = parser.parse_args(argv if argv is not None else sys.argv[1:])
-    arguments.func(arguments)
+    args = parser.parse_args(argv if argv is not None else sys.argv[1:])
+    arguments = vars(args)
+    handler = arguments.pop("func")
+    return handler(**arguments)

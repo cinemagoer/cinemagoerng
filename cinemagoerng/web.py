@@ -28,7 +28,7 @@ from .model import TITLE_TYPE_IDS, Title
 from .piculet import Spec, scrape
 
 
-InfoSet: TypeAlias = Literal["main", "taglines"]
+TitlePage: TypeAlias = Literal["main", "taglines"]
 
 
 _USER_AGENT = " ".join([
@@ -55,8 +55,8 @@ def _spec(name: str, /) -> Spec:
     return typedload.load(json.loads(content), Spec)
 
 
-def get_title(imdb_id: int, *, infoset: InfoSet = "main") -> Title:
-    spec = _spec(f"title_{infoset}")
+def get_title(imdb_id: int, *, page: TitlePage = "main") -> Title:
+    spec = _spec(f"title_{page}")
     url = spec.url % {"imdb_id": f"{imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
@@ -72,8 +72,8 @@ def get_title(imdb_id: int, *, infoset: InfoSet = "main") -> Title:
 Title_ = TypeVar("Title_", bound=Title)
 
 
-def update_title(title: Title_, /, *, infoset: InfoSet) -> Title_:
-    spec = _spec(f"title_{infoset}")
+def update_title(title: Title_, /, *, page: TitlePage) -> Title_:
+    spec = _spec(f"title_{page}")
     url = spec.url % {"imdb_id": f"{title.imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
