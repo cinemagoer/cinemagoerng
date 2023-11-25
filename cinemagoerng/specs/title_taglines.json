@@ -13,7 +13,7 @@
           "key": "taglines",
           "extractor": {
             "jmespath": "props.pageProps.contentData.section.items[*].htmlContent",
-            "transform": "unescape"
+            "transform": "unescape*"
           }
         }
       ]

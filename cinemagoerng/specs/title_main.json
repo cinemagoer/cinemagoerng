@@ -60,15 +60,22 @@
           }
         },
         {
-          "key": "plot.lang",
-          "extractor": {
-            "jmespath": "props.pageProps.aboveTheFoldData.plot.language.id"
-          }
-        },
-        {
           "key": "plot",
           "extractor": {
-            "jmespath": "props.pageProps.aboveTheFoldData.plot.plotText.plainText",
+            "rules": [
+              {
+                "key": "lang",
+                "extractor": {
+                  "jmespath": "props.pageProps.aboveTheFoldData.plot.language.id"
+                }
+              },
+              {
+                "key": "text",
+                "extractor": {
+                  "jmespath": "props.pageProps.aboveTheFoldData.plot.plotText.plainText"
+                }
+              }
+            ],
             "transform": "lang"
           }
         },

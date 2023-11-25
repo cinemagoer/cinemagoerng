@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any, Callable, Collection, Mapping, Union
 
 import html
 import json
@@ -22,96 +22,115 @@ from decimal import Decimal
 from functools import lru_cache
 
 from jmespath import compile as compile_jmespath
-from lxml.etree import XPath
+from jmespath.parser import ParsedResult as JmesPath
+from lxml.etree import XPath, _Element
 from lxml.html import fromstring as parse_html
 
 
-@lru_cache(maxsize=None)
-def make_jmespath(path: str, /) -> Callable:
-    compiled = compile_jmespath(path)
-    return compiled.search
+transformers: dict[str, Callable] = {
+    "decimal": lambda x: Decimal(str(x)),
+    "div60": lambda x: x // 60,
+    "json": json.loads,
+    "lang": lambda x: {x["lang"]: x["text"]},
+    "unescape": html.unescape,
+}
 
 
-@dataclass
-class JmesPathRule:
-    jmespath: str
+make_xpath = lru_cache(maxsize=None)(XPath)
+make_jmespath = lru_cache(maxsize=None)(compile_jmespath)
+
+
+@dataclass(kw_only=True)
+class Extractor:
     transform: str | None = None
-    apply: Callable = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.apply = make_jmespath(self.jmespath)
 
 
-@dataclass
-class PostMapRule:
-    key: str
-    extractor: JmesPathRule
-
-
-make_xpath: Callable[[str], XPath] = lru_cache(maxsize=None)(XPath)
-
-
-@dataclass
-class XPathRule:
+@dataclass(kw_only=True)
+class XPathExtractor(Extractor):
     xpath: str
-    transform: str | None = None
-    apply: XPath = field(init=False)
+    joiner: str = ""
+    _compiled: XPath = field(init=False)
 
     def __post_init__(self) -> None:
-        self.apply = make_xpath(self.xpath)
+        self._compiled = make_xpath(self.xpath)
+
+    def apply(self, data: _Element) -> str | None:
+        selected: list[str] = self._compiled(data)  # type: ignore
+        if len(selected) == 0:
+            return None
+        return self.joiner.join(selected)
 
 
-@dataclass
-class Rule:
+@dataclass(kw_only=True)
+class JmesPathExtractor(Extractor):
+    jmespath: str
+    _compiled: JmesPath = field(init=False)
+
+    def __post_init__(self) -> None:
+        self._compiled = make_jmespath(self.jmespath)
+
+    def apply(self, data: Mapping[str, Any]) -> Any:
+        return self._compiled.search(data)
+
+
+@dataclass(kw_only=True)
+class MapRule:
     key: str
-    extractor: XPathRule
+    extractor: Union[JmesPathExtractor, "MapRulesExtractor"]
+
+
+@dataclass(kw_only=True)
+class MapRulesExtractor(Extractor):
+    rules: list[MapRule] = field(default_factory=list)
+
+    def apply(self, data: Any) -> Mapping[str, Any]:
+        return apply_rules(self.rules, data)
+
+
+@dataclass(kw_only=True)
+class TreeRule:
+    key: str
+    extractor: XPathExtractor
     skip: bool = False
-    post_map: list[PostMapRule] = field(default_factory=list)
+    post_map: list[MapRule] = field(default_factory=list)
 
 
-@dataclass
+def apply_rules(rules: list[TreeRule] | list[MapRule],
+                data: Any) -> Mapping[str, Any]:
+    result: dict[str, Any] = {}
+    for rule in rules:
+        raw = rule.extractor.apply(data)
+        if (raw is None) or ((isinstance(raw, Collection) and len(raw) == 0)):
+            continue
+        if rule.extractor.transform is None:
+            value = raw
+        else:
+            multiple = rule.extractor.transform[-1] == "*"
+            transform_key = rule.extractor.transform if not multiple else \
+                rule.extractor.transform[:-1]
+            transform = transformers.get(transform_key)
+            if transform is None:
+                raise ValueError("Unknown transformer")
+            value = transform(raw) if not multiple else \
+                [transform(r) for r in raw]
+
+        match rule:
+            case TreeRule():
+                if not rule.skip:
+                    result[rule.key] = value
+                subresult = apply_rules(rule.post_map, value)
+                result.update(subresult)
+            case MapRule():
+                result[rule.key] = value
+    return result
+
+
+@dataclass(kw_only=True)
 class Spec:
     url: str
-    rules: list[Rule] = field(default_factory=list)
+    rules: list[TreeRule] = field(default_factory=list)
 
 
-def scrape(document: str, /, rules: list[Rule]) -> Mapping[str, Any]:
+def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:
     root = parse_html(document)
-    data: dict[str, Any] = {}
-    for rule in rules:
-        selected: Sequence[str] = rule.extractor.apply(root)  # type: ignore
-        if len(selected) == 0:
-            continue
-        raw = "".join(selected).strip()
-        match rule.extractor.transform:
-            case None:
-                value = raw
-            case "json":
-                value = json.loads(raw)
-            case _:
-                raise ValueError("Unknown transformer")
-        if not rule.skip:
-            data[rule.key] = value
-
-        for post_rule in rule.post_map:
-            post_raw = post_rule.extractor.apply(value)
-            if (post_raw is None) or \
-                    ((isinstance(post_raw, list) and len(post_raw) == 0)):
-                continue
-            match post_rule.extractor.transform:
-                case None:
-                    post_value = post_raw
-                case "unescape":
-                    post_value = [html.unescape(v) for v in post_raw]
-                case "div60":
-                    post_value = post_raw // 60
-                case "decimal":
-                    post_value = Decimal(str(post_raw))
-                case "lang":
-                    lang_key = f"{post_rule.key}.lang"
-                    post_value = {data[lang_key]: post_raw}
-                    del data[lang_key]
-                case _:
-                    raise ValueError("Unknown transformer")
-            data[post_rule.key] = post_value
-    return data
+    return apply_rules(rules, root)

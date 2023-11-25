@@ -45,6 +45,7 @@ SPECS_DIR = Path(__file__).parent / "specs"
 
 _loader = Loader()
 _loader.strconstructed = {Decimal}  # type: ignore
+_loader.pep563 = True
 
 _dumper = Dumper()
 _dumper.strconstructed = {Decimal}  # type: ignore
