@@ -100,7 +100,7 @@ def test_title_parser_should_set_runtime(imdb_id, runtime):
 
 
 @mark.parametrize(("imdb_id",), [
-    ("tt390244",),  # The Matrix Online
+    ("tt0390244",),  # The Matrix Online
 ])
 def test_title_parser_should_not_set_runtime_for_video_games(imdb_id):
     parsed = web.get_title(imdb_id=imdb_id)

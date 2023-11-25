@@ -13,11 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Callable, Mapping, Sequence, TypeAlias
+from typing import Any, Callable, Mapping, Sequence
 
 import html
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import lru_cache
 
@@ -39,22 +39,19 @@ class DictRule:
 class Rule:
     path: str
     transform: str | None = None
-    post_map: dict[str, DictRule] | None = None
+    post_map: dict[str, DictRule] = field(default_factory=dict)
+    skip: bool = False
 
 
 @dataclass
 class Spec:
     url: str
-    rules: dict[str, Rule]
+    rules: dict[str, Rule] = field(default_factory=dict)
 
 
-ParsedData: TypeAlias = str | int | dict | None
-
-
-def scrape(document: str, /,
-           rules: Mapping[str, Rule]) -> Mapping[str, ParsedData]:
+def scrape(document: str, /, rules: Mapping[str, Rule]) -> Mapping[str, Any]:
     root = parse_html(document)
-    data: dict[str, ParsedData] = {}
+    data: dict[str, Any] = {}
     for key, rule in rules.items():
         extract = xpath(rule.path)
         raw: Sequence[str] = extract(root)  # type: ignore
@@ -64,25 +61,23 @@ def scrape(document: str, /,
         match rule.transform:
             case "json":
                 value = json.loads(value)
-        if key[:2] != "__":
+        if not rule.skip:
             data[key] = value
 
-        if rule.post_map is not None:
-            for post_key, post_rule in rule.post_map.items():
-                post_value = jmespath.search(post_rule.path, value)
-                if post_value is None:
-                    continue
-                match post_rule.transform:
-                    case "unescape":
-                        post_value = [html.unescape(v) for v in post_value]
-                    case "div60":
-                        post_value = post_value // 60
-                    case "decimal":
-                        post_value = Decimal(str(post_value))
-                    case "lang":
-                        lang_key = f"{post_key}.lang"
-                        post_value = {data[lang_key]: post_value}
-                        del data[lang_key]
-                data[post_key] = post_value
-
+        for post_key, post_rule in rule.post_map.items():
+            post_value = jmespath.search(post_rule.path, value)
+            if post_value is None:
+                continue
+            match post_rule.transform:
+                case "unescape":
+                    post_value = [html.unescape(v) for v in post_value]
+                case "div60":
+                    post_value = post_value // 60
+                case "decimal":
+                    post_value = Decimal(str(post_value))
+                case "lang":
+                    lang_key = f"{post_key}.lang"
+                    post_value = {data[lang_key]: post_value}
+                    del data[lang_key]
+            data[post_key] = post_value
     return data
