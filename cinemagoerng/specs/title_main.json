@@ -1,47 +1,84 @@
 {
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
-  "rules": {
-    "json": {
+  "rules": [
+    {
+      "key": "json",
+      "extractor": {
+        "xpath": "//script[@id='__NEXT_DATA__']/text()",
+        "transform": "json"
+      },
       "skip": true,
-      "path": "//script[@id='__NEXT_DATA__']/text()",
-      "transform": "json",
-      "post_map": {
-        "imdb_id": {
-          "path": "props.pageProps.aboveTheFoldData.id"
+      "post_map": [
+        {
+          "key": "imdb_id",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.id"
+          }
         },
-        "type_id": {
-          "path": "props.pageProps.aboveTheFoldData.titleType.id"
+        {
+          "key": "type_id",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.titleType.id"
+          }
         },
-        "title": {
-          "path": "props.pageProps.aboveTheFoldData.originalTitleText.text"
+        {
+          "key": "title",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.originalTitleText.text"
+          }
         },
-        "year": {
-          "path": "props.pageProps.aboveTheFoldData.releaseYear.year"
+        {
+          "key": "year",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.releaseYear.year"
+          }
         },
-        "end_year": {
-          "path": "props.pageProps.aboveTheFoldData.releaseYear.endYear"
+        {
+          "key": "end_year",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.releaseYear.endYear"
+          }
         },
-        "runtime": {
-          "path": "props.pageProps.aboveTheFoldData.runtime.seconds",
-          "transform": "div60"
+        {
+          "key": "runtime",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.runtime.seconds",
+            "transform": "div60"
+          }
         },
-        "rating": {
-          "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
-          "transform": "decimal"
+        {
+          "key": "rating",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
+            "transform": "decimal"
+          }
         },
-        "vote_count": {
-          "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
+        {
+          "key": "vote_count",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
+          }
         },
-        "plot.lang": {
-          "path": "props.pageProps.aboveTheFoldData.plot.language.id"
+        {
+          "key": "plot.lang",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.plot.language.id"
+          }
         },
-        "plot": {
-          "path": "props.pageProps.aboveTheFoldData.plot.plotText.plainText",
-          "transform": "lang"
+        {
+          "key": "plot",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.plot.plotText.plainText",
+            "transform": "lang"
+          }
         },
-        "genres": {
-          "path": "props.pageProps.aboveTheFoldData.genres.genres[*].text"}
-      }
+        {
+          "key": "genres",
+          "extractor": {
+            "jmespath": "props.pageProps.aboveTheFoldData.genres.genres[*].text"
+          }
+        }
+      ]
     }
-  }
+  ]
 }

@@ -21,63 +21,97 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import lru_cache
 
-import jmespath
+from jmespath import compile as compile_jmespath
 from lxml.etree import XPath
 from lxml.html import fromstring as parse_html
 
 
-xpath: Callable[[str], XPath] = lru_cache(maxsize=None)(XPath)
+@lru_cache(maxsize=None)
+def make_jmespath(path: str, /) -> Callable:
+    compiled = compile_jmespath(path)
+    return compiled.search
 
 
 @dataclass
-class DictRule:
-    path: str
+class JmesPathRule:
+    jmespath: str
     transform: str | None = None
+    apply: Callable = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.apply = make_jmespath(self.jmespath)
+
+
+@dataclass
+class PostMapRule:
+    key: str
+    extractor: JmesPathRule
+
+
+make_xpath: Callable[[str], XPath] = lru_cache(maxsize=None)(XPath)
+
+
+@dataclass
+class XPathRule:
+    xpath: str
+    transform: str | None = None
+    apply: XPath = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.apply = make_xpath(self.xpath)
 
 
 @dataclass
 class Rule:
-    path: str
-    transform: str | None = None
-    post_map: dict[str, DictRule] = field(default_factory=dict)
+    key: str
+    extractor: XPathRule
     skip: bool = False
+    post_map: list[PostMapRule] = field(default_factory=list)
 
 
 @dataclass
 class Spec:
     url: str
-    rules: dict[str, Rule] = field(default_factory=dict)
+    rules: list[Rule] = field(default_factory=list)
 
 
-def scrape(document: str, /, rules: Mapping[str, Rule]) -> Mapping[str, Any]:
+def scrape(document: str, /, rules: list[Rule]) -> Mapping[str, Any]:
     root = parse_html(document)
     data: dict[str, Any] = {}
-    for key, rule in rules.items():
-        extract = xpath(rule.path)
-        raw: Sequence[str] = extract(root)  # type: ignore
-        if len(raw) == 0:
+    for rule in rules:
+        selected: Sequence[str] = rule.extractor.apply(root)  # type: ignore
+        if len(selected) == 0:
             continue
-        value = "".join(raw).strip()
-        match rule.transform:
+        raw = "".join(selected).strip()
+        match rule.extractor.transform:
+            case None:
+                value = raw
             case "json":
-                value = json.loads(value)
+                value = json.loads(raw)
+            case _:
+                raise ValueError("Unknown transformer")
         if not rule.skip:
-            data[key] = value
+            data[rule.key] = value
 
-        for post_key, post_rule in rule.post_map.items():
-            post_value = jmespath.search(post_rule.path, value)
-            if post_value is None:
+        for post_rule in rule.post_map:
+            post_raw = post_rule.extractor.apply(value)
+            if (post_raw is None) or \
+                    ((isinstance(post_raw, list) and len(post_raw) == 0)):
                 continue
-            match post_rule.transform:
+            match post_rule.extractor.transform:
+                case None:
+                    post_value = post_raw
                 case "unescape":
-                    post_value = [html.unescape(v) for v in post_value]
+                    post_value = [html.unescape(v) for v in post_raw]
                 case "div60":
-                    post_value = post_value // 60
+                    post_value = post_raw // 60
                 case "decimal":
-                    post_value = Decimal(str(post_value))
+                    post_value = Decimal(str(post_raw))
                 case "lang":
-                    lang_key = f"{post_key}.lang"
-                    post_value = {data[lang_key]: post_value}
+                    lang_key = f"{post_rule.key}.lang"
+                    post_value = {data[lang_key]: post_raw}
                     del data[lang_key]
-            data[post_key] = post_value
+                case _:
+                    raise ValueError("Unknown transformer")
+            data[post_rule.key] = post_value
     return data

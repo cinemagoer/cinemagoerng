@@ -1,15 +1,22 @@
 {
   "url": "https://www.imdb.com/title/%(imdb_id)s/taglines/",
-  "rules": {
-    "__json": {
-      "path": "//script[@id='__NEXT_DATA__']/text()",
-      "transform": "json",
-      "post_map": {
-        "taglines": {
-          "path": "props.pageProps.contentData.section.items[*].htmlContent",
-          "transform": "unescape"
+  "rules": [
+    {
+      "key": "json",
+      "extractor": {
+        "xpath": "//script[@id='__NEXT_DATA__']/text()",
+        "transform": "json"
+      },
+      "skip": true,
+      "post_map": [
+        {
+          "key": "taglines",
+          "extractor": {
+            "jmespath": "props.pageProps.contentData.section.items[*].htmlContent",
+            "transform": "unescape"
+          }
         }
-      }
+      ]
     }
-  }
+  ]
 }
