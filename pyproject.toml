@@ -58,6 +58,10 @@ cinemagoerng = ["specs/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "live: marks tests as using live network connection",
+]
+addopts = "-m 'not live'"
 
 [tool.coverage.run]
 source_pkgs = ["cinemagoerng"]

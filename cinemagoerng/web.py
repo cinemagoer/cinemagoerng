@@ -19,7 +19,9 @@ from typing import Literal, TypeAlias, TypeVar
 import json
 from decimal import Decimal
 from functools import lru_cache
+from http import HTTPStatus
 from pathlib import Path
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 import typedload
@@ -43,8 +45,8 @@ SPECS_DIR = Path(__file__).parent / "specs"
 def fetch(url: str, /) -> str:
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
-    with urlopen(request) as connection:
-        content: bytes = connection.read()
+    with urlopen(request) as response:
+        content: bytes = response.read()
     return content.decode("utf-8")
 
 
@@ -55,10 +57,15 @@ def _spec(name: str, /) -> Spec:
     return typedload.load(json.loads(content), Spec)
 
 
-def get_title(imdb_id: int, *, page: TitlePage = "main") -> Title:
+def get_title(imdb_id: int, *, page: TitlePage = "main") -> Title | None:
     spec = _spec(f"title_{page}")
     url = spec.url % {"imdb_id": f"{imdb_id:07d}"}
-    document = fetch(url)
+    try:
+        document = fetch(url)
+    except HTTPError as e:
+        if e.status == HTTPStatus.NOT_FOUND:
+            return None
+        raise e
     data = scrape(document, spec.rules)
     data["imdb_id"] = imdb_id
     type_id: str = data.pop("type_id", "")  # type: ignore

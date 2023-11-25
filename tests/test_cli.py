@@ -13,6 +13,14 @@ def test_cli_should_report_correct_version(capsys):
     assert std.out.strip() == __version__
 
 
+@mark.live
+def test_cli_get_title_should_report_error_for_nonexisting_imdb_id(capsys):
+    with raises(SystemExit):
+        cli.main(["get", "title", "133093133"])
+    std = capsys.readouterr()
+    assert std.out.strip() == "No title with this IMDb id was found."
+
+
 @mark.parametrize(("imdb_id",), [
     (133093,),  # The Matrix (Movie)
     (389150,),  # The Matrix Defence (TV Movie)

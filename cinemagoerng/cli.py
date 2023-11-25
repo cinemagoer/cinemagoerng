@@ -28,11 +28,15 @@ _LINE_WIDTH = 72
 
 def get_title(imdb_id: int, taglines: bool = False) -> None:
     item = web.get_title(imdb_id)
+    if item is None:
+        print("No title with this IMDb id was found.")
+        sys.exit()
+
     if taglines:
         item = web.update_title(item, page="taglines")
 
-    type_name = TITLE_TYPE_NAMES[item.__class__]
-    print(f"Title: {item.title} ({type_name})")
+    title_type = TITLE_TYPE_NAMES[item.__class__]
+    print(f"Title: {item.title} ({title_type})")
 
     if item.year is not None:
         print(f"Year: {item.year}")
@@ -97,9 +101,9 @@ def main(argv: list[str] | None = None) -> None:
         "--taglines", action="store_true",
         help="include taglines",
     )
-    parser_get_title.set_defaults(func=get_title)
+    parser_get_title.set_defaults(handler=get_title)
 
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
     arguments = vars(args)
-    handler = arguments.pop("func")
-    return handler(**arguments)
+    handler = arguments.pop("handler")
+    handler(**arguments)
