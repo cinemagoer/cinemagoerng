@@ -19,7 +19,6 @@ import textwrap
 from argparse import ArgumentParser
 
 from cinemagoerng import __version__, web
-from cinemagoerng.model import TITLE_TYPE_NAMES
 
 
 _INDENT = "  "
@@ -35,8 +34,7 @@ def get_title(imdb_id: int, taglines: bool = False) -> None:
     if taglines:
         item = web.update_title(item, page="taglines")
 
-    title_type = TITLE_TYPE_NAMES[item.__class__]
-    print(f"Title: {item.title} ({title_type})")
+    print(f"Title: {item.title} ({item.__class__.__name__})")
 
     if item.year is not None:
         print(f"Year: {item.year}")

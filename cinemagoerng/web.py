@@ -24,9 +24,10 @@ from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-import typedload
+from typedload.datadumper import Dumper
+from typedload.dataloader import Loader
 
-from .model import TITLE_TYPE_IDS, Title
+from .model import Title
 from .piculet import Spec, scrape
 
 
@@ -42,6 +43,13 @@ _USER_AGENT = " ".join([
 SPECS_DIR = Path(__file__).parent / "specs"
 
 
+_loader = Loader()
+_loader.strconstructed = {Decimal}  # type: ignore
+
+_dumper = Dumper()
+_dumper.strconstructed = {Decimal}  # type: ignore
+
+
 def fetch(url: str, /) -> str:
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
@@ -54,7 +62,7 @@ def fetch(url: str, /) -> str:
 def _spec(name: str, /) -> Spec:
     spec_path = SPECS_DIR / f"{name}.json"
     content = spec_path.read_text(encoding="utf-8")
-    return typedload.load(json.loads(content), Spec)
+    return _loader.load(json.loads(content), Spec)
 
 
 def get_title(imdb_id: int, *, page: TitlePage = "main") -> Title | None:
@@ -68,12 +76,7 @@ def get_title(imdb_id: int, *, page: TitlePage = "main") -> Title | None:
         raise e
     data = scrape(document, spec.rules)
     data["imdb_id"] = imdb_id
-    type_id: str = data.pop("type_id", "")  # type: ignore
-    TitleClass = TITLE_TYPE_IDS.get(type_id)
-    if TitleClass is None:
-        raise ValueError("Unknown title type")
-    return typedload.load(data, TitleClass,
-                          strconstructed={Decimal})  # type: ignore
+    return _loader.load(data, Title)  # type: ignore
 
 
 Title_ = TypeVar("Title_", bound=Title)
@@ -84,6 +87,5 @@ def update_title(title: Title_, /, *, page: TitlePage) -> Title_:
     url = spec.url % {"imdb_id": f"{title.imdb_id:07d}"}
     document = fetch(url)
     data = scrape(document, spec.rules)
-    current_data: dict = typedload.dump(title, strconstructed={Decimal})
-    return typedload.load(current_data | data, title.__class__,
-                          strconstructed={Decimal})  # type: ignore
+    current_data: dict = _dumper.dump(title)
+    return _loader.load(current_data | data, title.__class__)  # type: ignore

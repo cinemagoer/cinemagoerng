@@ -14,7 +14,7 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from typing import TypeAlias
+from typing import Literal, TypeAlias
 
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -34,58 +34,68 @@ class _Title:
 
 @dataclass(kw_only=True)
 class Movie(_Title):
+    type_id: Literal["movie"]
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class TVMovie(_Title):
+    type_id: Literal["tvMovie"]
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class ShortMovie(_Title):
+    type_id: Literal["short"]
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class TVShortMovie(_Title):
+    type_id: Literal["tvShort"]
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class VideoMovie(_Title):
+    type_id: Literal["video"]
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class MusicVideo(_Title):
+    type_id: Literal["musicVideo"]
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class VideoGame(_Title):
-    pass
+    type_id: Literal["videoGame"]
 
 
 @dataclass(kw_only=True)
 class TVSeries(_Title):
+    type_id: Literal["tvSeries"]
     end_year: int | None = None
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class TVMiniSeries(_Title):
+    type_id: Literal["tvMiniSeries"]
     end_year: int | None = None
     runtime: int | None = None
 
 
 @dataclass
 class TVEpisode(_Title):
+    type_id: Literal["tvEpisode"]
     runtime: int | None = None
 
 
 @dataclass
 class TVSpecial(_Title):
+    type_id: Literal["tvSpecial"]
     runtime: int | None = None
 
 
@@ -93,33 +103,3 @@ Title: TypeAlias = Movie | TVMovie | ShortMovie | TVShortMovie \
                  | VideoMovie | MusicVideo | VideoGame \
                  | TVSeries | TVMiniSeries | TVEpisode \
                  | TVSpecial  # noqa: E126
-
-
-TITLE_TYPE_IDS: dict[str, type] = {
-    "movie": Movie,
-    "tvMovie": TVMovie,
-    "short": ShortMovie,
-    "tvShort": TVShortMovie,
-    "video": VideoMovie,
-    "musicVideo": MusicVideo,
-    "videoGame": VideoGame,
-    "tvSeries": TVSeries,
-    "tvMiniSeries": TVMiniSeries,
-    "tvEpisode": TVEpisode,
-    "tvSpecial": TVSpecial,
-}
-
-
-TITLE_TYPE_NAMES: dict[type, str] = {
-    Movie: "Movie",
-    TVMovie: "TV Movie",
-    ShortMovie: "Short Movie",
-    TVShortMovie: "TV Short Movie",
-    VideoMovie: "Video Movie",
-    MusicVideo: "Music Video",
-    VideoGame: "Video Game",
-    TVSeries: "TV Series",
-    TVMiniSeries: "TV Mini-Series",
-    TVEpisode: "TV Episode",
-    TVSpecial: "TV Special",
-}

@@ -3,7 +3,6 @@ from pytest import mark, raises
 import re
 
 from cinemagoerng import __version__, cli
-from cinemagoerng.model import TITLE_TYPE_NAMES
 
 
 def test_cli_should_report_correct_version(capsys):
@@ -37,8 +36,7 @@ def test_cli_get_title_should_report_error_for_nonexisting_imdb_id(capsys):
 def test_cli_get_title_should_include_title_and_type(capsys, imdb_id):
     cli.main(["get", "title", str(imdb_id)])
     std = capsys.readouterr()
-    type_pattern = "|".join(TITLE_TYPE_NAMES.values())
-    assert re.search(r"Title: (\w|\s)+ \(%(p)s\)\n" % {"p": type_pattern}, std.out)
+    assert re.search(r"Title: (\w|\s|:|-|')+ \((\w|\s|-)+\)\n", std.out)
 
 
 @mark.parametrize(("imdb_id",), [
