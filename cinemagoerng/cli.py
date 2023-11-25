@@ -25,10 +25,10 @@ _INDENT = "  "
 _LINE_WIDTH = 72
 
 
-def get_title(imdb_id: int, taglines: bool = False) -> None:
-    item = web.get_title(imdb_id)
+def get_title(imdb_num: int, taglines: bool = False) -> None:
+    item = web.get_title(f"tt{imdb_num:07d}")
     if item is None:
-        print("No title with this IMDb id was found.")
+        print("No title with this IMDb number was found.")
         sys.exit()
 
     if taglines:
@@ -92,8 +92,8 @@ def main(argv: list[str] | None = None) -> None:
         help="retrieve information about a title",
     )
     parser_get_title.add_argument(
-        "imdb_id", type=int,
-        help="IMDb id of title",
+        "imdb_num", type=int,
+        help="IMDb number of title",
     )
     parser_get_title.add_argument(
         "--taglines", action="store_true",

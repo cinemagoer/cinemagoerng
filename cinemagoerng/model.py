@@ -22,7 +22,7 @@ from decimal import Decimal
 
 @dataclass(kw_only=True)
 class _Title:
-    imdb_id: int
+    imdb_id: str
     title: str
     year: int | None = None
     rating: Decimal | None = None

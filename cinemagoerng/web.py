@@ -65,9 +65,9 @@ def _spec(name: str, /) -> Spec:
     return _loader.load(json.loads(content), Spec)
 
 
-def get_title(imdb_id: int, *, page: TitlePage = "main") -> Title | None:
+def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
     spec = _spec(f"title_{page}")
-    url = spec.url % {"imdb_id": f"{imdb_id:07d}"}
+    url = spec.url % {"imdb_id": imdb_id}
     try:
         document = fetch(url)
     except HTTPError as e:
@@ -75,7 +75,6 @@ def get_title(imdb_id: int, *, page: TitlePage = "main") -> Title | None:
             return None
         raise e
     data = scrape(document, spec.rules)
-    data["imdb_id"] = imdb_id
     return _loader.load(data, Title)  # type: ignore
 
 
@@ -84,8 +83,8 @@ Title_ = TypeVar("Title_", bound=Title)
 
 def update_title(title: Title_, /, *, page: TitlePage) -> Title_:
     spec = _spec(f"title_{page}")
-    url = spec.url % {"imdb_id": f"{title.imdb_id:07d}"}
+    url = spec.url % {"imdb_id": title.imdb_id}
     document = fetch(url)
     data = scrape(document, spec.rules)
-    current_data: dict = _dumper.dump(title)
+    current_data = _dumper.dump(title)
     return _loader.load(current_data | data, title.__class__)  # type: ignore

@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2023 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2023 H. Turgut Uyar <uyar@tekir.org>
 #
 # Piculet is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Callable, Mapping, MutableMapping, Sequence, TypeAlias
+from typing import Callable, Mapping, Sequence, TypeAlias
 
 import html
 import json
@@ -52,7 +52,7 @@ ParsedData: TypeAlias = str | int | dict | None
 
 
 def scrape(document: str, /,
-           rules: Mapping[str, Rule]) -> MutableMapping[str, ParsedData]:
+           rules: Mapping[str, Rule]) -> Mapping[str, ParsedData]:
     root = parse_html(document)
     data: dict[str, ParsedData] = {}
     for key, rule in rules.items():

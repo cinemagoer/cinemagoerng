@@ -6,22 +6,22 @@ from cinemagoerng import model, web
 
 
 def test_title_parser_should_set_imdb_id():
-    parsed = web.get_title(imdb_id=133093)
-    assert parsed.imdb_id == 133093
+    parsed = web.get_title(imdb_id="tt0133093")
+    assert parsed.imdb_id == "tt0133093"
 
 
 @mark.parametrize(("imdb_id", "type_"), [
-    (133093, model.Movie),  # The Matrix
-    (389150, model.TVMovie),  # The Matrix Defence
-    (2971344, model.ShortMovie),  # Matrix: First Dream
-    (365467, model.TVShortMovie),  # Making 'The Matrix'
-    (109151, model.VideoMovie),  # Armitage III: Poly-Matrix
-    (7045440, model.MusicVideo),  # David Bowie: Ziggy Stardust
-    (390244, model.VideoGame),  # The Matrix Online
-    (436992, model.TVSeries),  # Doctor Who
-    (185906, model.TVMiniSeries),  # Band of Brothers
-    (1000252, model.TVEpisode),  # Blink
-    (14544192, model.TVSpecial),  # Bo Burnham: Inside
+    ("tt0133093", model.Movie),  # The Matrix
+    ("tt0389150", model.TVMovie),  # The Matrix Defence
+    ("tt2971344", model.ShortMovie),  # Matrix: First Dream
+    ("tt0365467", model.TVShortMovie),  # Making 'The Matrix'
+    ("tt0109151", model.VideoMovie),  # Armitage III: Poly-Matrix
+    ("tt7045440", model.MusicVideo),  # David Bowie: Ziggy Stardust
+    ("tt0390244", model.VideoGame),  # The Matrix Online
+    ("tt0436992", model.TVSeries),  # Doctor Who
+    ("tt0185906", model.TVMiniSeries),  # Band of Brothers
+    ("tt1000252", model.TVEpisode),  # Blink
+    ("tt0261024", model.TVSpecial),  # Live Aid
 ])
 def test_title_parser_should_instantiate_correct_type(imdb_id, type_):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -29,18 +29,18 @@ def test_title_parser_should_instantiate_correct_type(imdb_id, type_):
 
 
 @mark.parametrize(("imdb_id", "title"), [
-    (133093, "The Matrix"),
-    (389150, "The Matrix Defence"),
-    (2971344, "Matrix: First Dream"),
-    (365467, "Making 'The Matrix'"),
-    (109151, "Armitage III: Poly-Matrix"),
-    (7045440, "David Bowie: Ziggy Stardust"),
-    (390244, "The Matrix Online"),
-    (436992, "Doctor Who"),
-    (810788, "Burn Notice"),
-    (185906, "Band of Brothers"),
-    (1000252, "Blink"),
-    (14544192, "Bo Burnham: Inside"),
+    ("tt0133093", "The Matrix"),
+    ("tt0389150", "The Matrix Defence"),
+    ("tt2971344", "Matrix: First Dream"),
+    ("tt0365467", "Making 'The Matrix'"),
+    ("tt0109151", "Armitage III: Poly-Matrix"),
+    ("tt7045440", "David Bowie: Ziggy Stardust"),
+    ("tt0390244", "The Matrix Online"),
+    ("tt0436992", "Doctor Who"),
+    ("tt0810788", "Burn Notice"),
+    ("tt0185906", "Band of Brothers"),
+    ("tt1000252", "Blink"),
+    ("tt0261024", "Live Aid"),
 ])
 def test_title_parser_should_set_title_from_original_title(imdb_id, title):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -48,11 +48,11 @@ def test_title_parser_should_set_title_from_original_title(imdb_id, title):
 
 
 @mark.parametrize(("imdb_id", "year"), [
-    (133093, 1999),  # The Matrix
-    (436992, 2005),  # Doctor Who (2005-)
-    (412142, 2004),  # House M.D. (2004-2012)
-    (185906, 2001),  # Band of Brothers (2001-2001)
-    (3629794, None),  # Aslan
+    ("tt0133093", 1999),  # The Matrix
+    ("tt0436992", 2005),  # Doctor Who (2005-)
+    ("tt0412142", 2004),  # House M.D. (2004-2012)
+    ("tt0185906", 2001),  # Band of Brothers (2001-2001)
+    ("tt3629794", None),  # Aslan
 ])
 def test_title_parser_should_set_year(imdb_id, year):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -60,9 +60,9 @@ def test_title_parser_should_set_year(imdb_id, year):
 
 
 @mark.parametrize(("imdb_id", "end_year"), [
-    (436992, None),  # Doctor Who (2005-)
-    (412142, 2012),  # House M.D. (2004-2012)
-    (185906, 2001),  # Band of Brothers (2001-2001) (TV Mini-Series)
+    ("tt0436992", None),  # Doctor Who (2005-)
+    ("tt0412142", 2012),  # House M.D. (2004-2012)
+    ("tt0185906", 2001),  # Band of Brothers (2001-2001) (TV Mini-Series)
 ])
 def test_title_parser_should_set_end_year(imdb_id, end_year):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -70,15 +70,15 @@ def test_title_parser_should_set_end_year(imdb_id, end_year):
 
 
 @mark.parametrize(("imdb_id",), [
-    (133093,),  # The Matrix (Movie)
-    (389150,),  # The Matrix Defence (TV Movie)
-    (2971344,),  # Matrix: First Dream (Short Movie)
-    (365467,),  # Making 'The Matrix' (TV Short Movie)
-    (109151,),  # Armitage III: Poly-Matrix (Video Movie)
-    (7045440,),  # David Bowie: Ziggy Stardust (Music Video)
-    (390244,),  # The Matrix Online (Video Game)
-    (1000252,),  # Blink (TV Series Episode)
-    (14544192,),  # Bo Burnham: Inside
+    ("tt0133093",),  # The Matrix (Movie)
+    ("tt0389150",),  # The Matrix Defence (TV Movie)
+    ("tt2971344",),  # Matrix: First Dream (Short Movie)
+    ("tt0365467",),  # Making 'The Matrix' (TV Short Movie)
+    ("tt0109151",),  # Armitage III: Poly-Matrix (Video Movie)
+    ("tt7045440",),  # David Bowie: Ziggy Stardust (Music Video)
+    ("tt0390244",),  # The Matrix Online (Video Game)
+    ("tt1000252",),  # Blink (TV Series Episode)
+    ("tt0261024",),  # Live Aid
 ])
 def test_title_parser_should_not_set_end_year_for_other_than_series(imdb_id):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -86,13 +86,13 @@ def test_title_parser_should_not_set_end_year_for_other_than_series(imdb_id):
 
 
 @mark.parametrize(("imdb_id", "runtime"), [
-    (133093, 136),  # The Matrix (Movie)
-    (2971344, 28),  # Matrix: First Dream (Short Movie)
-    (365467, 26),  # Making 'The Matrix' (TV Short Movie)
-    (7045440, 3),  # David Bowie: Ziggy Stardust (Music Video)
-    (436992, 45),  # Doctor Who (TV Series)
-    (185906, 594),  # Band of Brothers (TV Mini-Series)
-    (3629794, None),  # Aslan
+    ("tt0133093", 136),  # The Matrix (Movie)
+    ("tt2971344", 28),  # Matrix: First Dream (Short Movie)
+    ("tt0365467", 26),  # Making 'The Matrix' (TV Short Movie)
+    ("tt7045440", 3),  # David Bowie: Ziggy Stardust (Music Video)
+    ("tt0436992", 45),  # Doctor Who (TV Series)
+    ("tt0185906", 594),  # Band of Brothers (TV Mini-Series)
+    ("tt3629794", None),  # Aslan
 ])
 def test_title_parser_should_set_runtime(imdb_id, runtime):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -100,7 +100,7 @@ def test_title_parser_should_set_runtime(imdb_id, runtime):
 
 
 @mark.parametrize(("imdb_id",), [
-    (390244,),  # The Matrix Online
+    ("tt390244",),  # The Matrix Online
 ])
 def test_title_parser_should_not_set_runtime_for_video_games(imdb_id):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -108,8 +108,8 @@ def test_title_parser_should_not_set_runtime_for_video_games(imdb_id):
 
 
 @mark.parametrize(("imdb_id", "rating"), [
-    (133093, Decimal("8.7")),  # The Matrix
-    (3629794, None),  # Aslan
+    ("tt0133093", Decimal("8.7")),  # The Matrix
+    ("tt3629794", None),  # Aslan
 ])
 def test_title_parser_should_set_rating(imdb_id, rating):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -117,8 +117,8 @@ def test_title_parser_should_set_rating(imdb_id, rating):
 
 
 @mark.parametrize(("imdb_id", "n"), [
-    (133093, 2_000_000),  # The Matrix
-    (3629794, 0),  # Aslan
+    ("tt0133093", 2_000_000),  # The Matrix
+    ("tt3629794", 0),  # Aslan
 ])
 def test_title_parser_should_set_number_of_votes(imdb_id, n):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -126,17 +126,17 @@ def test_title_parser_should_set_number_of_votes(imdb_id, n):
 
 
 @mark.parametrize(("imdb_id", "genres"), [
-    (133093, ["Action", "Sci-Fi"]),  # The Matrix
-    (389150, ["Documentary"]),  # The Matrix Defence
-    (2971344, ["Short"]),  # Matrix: First Dream (Short Movie)
-    (365467, ["Documentary", "Short", "Sci-Fi"]),  # Making 'The Matrix' (TV Short Movie)
-    (109151, ["Animation", "Action", "Drama", "Sci-Fi", "Thriller"]),  # Armitage III: Poly-Matrix (Video Movie)
-    (7045440, ["Short", "Music"]),  # David Bowie: Ziggy Stardust (Music Video)
-    (390244, ["Action", "Adventure", "Sci-Fi"]),  # The Matrix Online (Video Game)
-    (436992, ["Adventure", "Drama", "Sci-Fi"]),  # Doctor Who (TV Series)
-    (185906, ["Drama", "History", "War"]),  # Band of Brothers (TV Mini-Series)
-    (1000252, ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
-    (14544192, ["Documentary", "Comedy", "Drama", "Music"]),  # Bo Burnham: Inside
+    ("tt0133093", ["Action", "Sci-Fi"]),  # The Matrix
+    ("tt0389150", ["Documentary"]),  # The Matrix Defence
+    ("tt2971344", ["Short"]),  # Matrix: First Dream (Short Movie)
+    ("tt0365467", ["Documentary", "Short", "Sci-Fi"]),  # Making 'The Matrix' (TV Short Movie)
+    ("tt0109151", ["Animation", "Action", "Drama", "Sci-Fi", "Thriller"]),  # Armitage III: Poly-Matrix (Video Movie)
+    ("tt7045440", ["Short", "Music"]),  # David Bowie: Ziggy Stardust (Music Video)
+    ("tt0390244", ["Action", "Adventure", "Sci-Fi"]),  # The Matrix Online (Video Game)
+    ("tt0436992", ["Adventure", "Drama", "Sci-Fi"]),  # Doctor Who (TV Series)
+    ("tt0185906", ["Drama", "History", "War"]),  # Band of Brothers (TV Mini-Series)
+    ("tt1000252", ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
+    ("tt0261024", ["Documentary", "Music"]),  # Live Aid
 ])
 def test_title_parser_should_set_genres(imdb_id, genres):
     parsed = web.get_title(imdb_id=imdb_id)
@@ -144,8 +144,8 @@ def test_title_parser_should_set_genres(imdb_id, genres):
 
 
 @mark.parametrize(("imdb_id", "plot", "lang"), [
-    (133093, "When a beautiful stranger", "en-US"),  # The Matrix
-    (3629794, "Plot undisclosed.", "en-US"),  # Aslan
+    ("tt0133093", "When a beautiful stranger", "en-US"),  # The Matrix
+    ("tt3629794", "Plot undisclosed.", "en-US"),  # Aslan
 ])
 def test_title_parser_should_set_plot(imdb_id, plot, lang):
     parsed = web.get_title(imdb_id=imdb_id)
