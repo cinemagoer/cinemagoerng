@@ -13,6 +13,8 @@ fetch_orig = cinemagoerng.web.fetch
 
 def fetch_cached(url):
     cache_filename = "__".join(url.split("/")[3:])
+    if cache_filename.endswith("__"):
+        cache_filename = cache_filename[:-2]
     cache_path = cache_dir / cache_filename
     if cache_path.exists():
         return cache_path.read_text(encoding="utf-8")
