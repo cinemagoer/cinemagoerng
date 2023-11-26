@@ -1,4 +1,4 @@
-# Copyright (C) 2023 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2014-2023 H. Turgut Uyar <uyar@tekir.org>
 #
 # Piculet is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -26,26 +26,17 @@ from jmespath.parser import ParsedResult as JmesPath
 from lxml.etree import XPath, _Element
 from lxml.html import fromstring as parse_html
 
+from . import custom_transformers
+
 
 def parse_range(value: str, name: str) -> dict[str, int]:
     tokens = value.split("-")
+    if not tokens[0].isdigit():
+        return {}
     data = {name: int(tokens[0])}
-    if len(tokens) > 1 and tokens[1].isdigit():
+    if (len(tokens) > 1) and tokens[1].isdigit():
         data[f"end_{name}"] = int(tokens[1])
     return data
-
-
-def parse_type_id(value: str) -> str:
-    first, *rest = value.split(" ")
-    return "".join([first.lower()] + rest)
-
-
-def parse_runtime(value: str) -> int:
-    return int(value.replace(" min", ""))
-
-
-def parse_vote_count(value: str) -> int:
-    return int(value[1:-1].replace(",", ""))
 
 
 transformers: dict[str, Callable] = {
@@ -69,7 +60,7 @@ class Extractor:
 @dataclass(kw_only=True)
 class XPathExtractor(Extractor):
     xpath: str
-    joiner: str = ""
+    sep: str = ""
     _compiled: XPath = field(init=False)
 
     def __post_init__(self) -> None:
@@ -79,7 +70,7 @@ class XPathExtractor(Extractor):
         selected: list[str] = self._compiled(data)  # type: ignore
         if len(selected) == 0:
             return None
-        return self.joiner.join(selected).strip()
+        return self.sep.join(selected).strip()
 
 
 @dataclass(kw_only=True)
@@ -129,14 +120,14 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
             handle = rule.extractor.transform if not multiple else \
                 rule.extractor.transform[:-1]
             if handle.startswith("parse:"):
-                transform = globals()[handle.replace("parse:", "parse_")]
+                transform = getattr(custom_transformers,
+                                    handle.replace("parse:", "parse_"), None)
             elif handle.startswith("range:"):
-                name = handle.replace("range:", "")
-                transform = partial(parse_range, name=name)
+                transform = partial(parse_range, name=handle[6:])
             else:
                 transform = transformers.get(handle)
-                if transform is None:
-                    raise ValueError("Unknown transformer")
+            if transform is None:
+                raise ValueError("Unknown transformer")
             value = transform(raw) if not multiple else \
                 [transform(r) for r in raw]
 
