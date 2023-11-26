@@ -54,7 +54,29 @@ make_jmespath = lru_cache(maxsize=None)(compile_jmespath)
 
 @dataclass(kw_only=True)
 class Extractor:
-    transform: str | None = None
+    transformer: str | None = None
+    transform: Callable | None = field(init=False)
+
+    def __post_init__(self) -> None:
+        if self.transformer is None:
+            self.transform = None
+        else:
+            multiple = self.transformer[-1] == "*"
+            key = self.transformer if not multiple else self.transformer[:-1]
+            if key.startswith("parse:"):
+                transform: Callable | None = \
+                    getattr(custom_transformers,
+                            key.replace("parse:", "parse_"),
+                            None)
+            elif key.startswith("range:"):
+                transform = partial(parse_range, name=key[6:])
+            else:
+                transform = transformers.get(key)
+            if transform is None:
+                raise ValueError("Unknown transformer")
+            self.transform = transform if not multiple else \
+                lambda xs: [transform(x) for x in xs]
+
 
 
 @dataclass(kw_only=True)
@@ -64,6 +86,7 @@ class XPathExtractor(Extractor):
     _compiled: XPath = field(init=False)
 
     def __post_init__(self) -> None:
+        super().__post_init__()
         self._compiled = make_xpath(self.xpath)
 
     def apply(self, data: _Element) -> str | None:
@@ -79,6 +102,7 @@ class JmesPathExtractor(Extractor):
     _compiled: JmesPath = field(init=False)
 
     def __post_init__(self) -> None:
+        super().__post_init__()
         self._compiled = make_jmespath(self.jmespath)
 
     def apply(self, data: Mapping[str, Any]) -> Any:
@@ -113,23 +137,10 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
         raw = rule.extractor.apply(data)
         if (raw is None) or ((isinstance(raw, Collection) and len(raw) == 0)):
             continue
-        if rule.extractor.transform is None:
+        if rule.extractor.transformer is None:
             value = raw
         else:
-            multiple = rule.extractor.transform[-1] == "*"
-            handle = rule.extractor.transform if not multiple else \
-                rule.extractor.transform[:-1]
-            if handle.startswith("parse:"):
-                transform = getattr(custom_transformers,
-                                    handle.replace("parse:", "parse_"), None)
-            elif handle.startswith("range:"):
-                transform = partial(parse_range, name=handle[6:])
-            else:
-                transform = transformers.get(handle)
-            if transform is None:
-                raise ValueError("Unknown transformer")
-            value = transform(raw) if not multiple else \
-                [transform(r) for r in raw]
+            value = rule.extractor.transform(raw)
 
         result[rule.key] = value
         match rule:
