@@ -19,12 +19,33 @@ import html
 import json
 from dataclasses import dataclass, field
 from decimal import Decimal
-from functools import lru_cache
+from functools import lru_cache, partial
 
 from jmespath import compile as compile_jmespath
 from jmespath.parser import ParsedResult as JmesPath
 from lxml.etree import XPath, _Element
 from lxml.html import fromstring as parse_html
+
+
+def parse_range(value: str, name: str) -> dict[str, int]:
+    tokens = value.split("-")
+    data = {name: int(tokens[0])}
+    if len(tokens) > 1 and tokens[1].isdigit():
+        data[f"end_{name}"] = int(tokens[1])
+    return data
+
+
+def parse_type_id(value: str) -> str:
+    first, *rest = value.split(" ")
+    return "".join([first.lower()] + rest)
+
+
+def parse_runtime(value: str) -> int:
+    return int(value.replace(" min", ""))
+
+
+def parse_vote_count(value: str) -> int:
+    return int(value[1:-1].replace(",", ""))
 
 
 transformers: dict[str, Callable] = {
@@ -58,7 +79,7 @@ class XPathExtractor(Extractor):
         selected: list[str] = self._compiled(data)  # type: ignore
         if len(selected) == 0:
             return None
-        return self.joiner.join(selected)
+        return self.joiner.join(selected).strip()
 
 
 @dataclass(kw_only=True)
@@ -91,7 +112,6 @@ class MapRulesExtractor(Extractor):
 class TreeRule:
     key: str
     extractor: XPathExtractor
-    skip: bool = False
     post_map: list[MapRule] = field(default_factory=list)
 
 
@@ -106,22 +126,25 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
             value = raw
         else:
             multiple = rule.extractor.transform[-1] == "*"
-            transform_key = rule.extractor.transform if not multiple else \
+            handle = rule.extractor.transform if not multiple else \
                 rule.extractor.transform[:-1]
-            transform = transformers.get(transform_key)
-            if transform is None:
-                raise ValueError("Unknown transformer")
+            if handle.startswith("parse:"):
+                transform = globals()[handle.replace("parse:", "parse_")]
+            elif handle.startswith("range:"):
+                name = handle.replace("range:", "")
+                transform = partial(parse_range, name=name)
+            else:
+                transform = transformers.get(handle)
+                if transform is None:
+                    raise ValueError("Unknown transformer")
             value = transform(raw) if not multiple else \
                 [transform(r) for r in raw]
 
+        result[rule.key] = value
         match rule:
             case TreeRule():
-                if not rule.skip:
-                    result[rule.key] = value
                 subresult = apply_rules(rule.post_map, value)
                 result.update(subresult)
-            case MapRule():
-                result[rule.key] = value
     return result
 
 
@@ -133,4 +156,5 @@ class Spec:
 
 def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:
     root = parse_html(document)
-    return apply_rules(rules, root)
+    data = apply_rules(rules, root)
+    return data

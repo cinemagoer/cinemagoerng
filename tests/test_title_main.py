@@ -10,6 +10,7 @@ def test_title_parser_should_set_imdb_id():
     assert parsed.imdb_id == "tt0133093"
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id", "type_"), [
     ("tt0133093", model.Movie),  # The Matrix
     ("tt0389150", model.TVMovie),  # The Matrix Defence
@@ -23,11 +24,12 @@ def test_title_parser_should_set_imdb_id():
     ("tt1000252", model.TVEpisode),  # Blink
     ("tt0261024", model.TVSpecial),  # Live Aid
 ])
-def test_title_parser_should_instantiate_correct_type(imdb_id, type_):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_instantiate_correct_type(page, imdb_id, type_):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert isinstance(parsed, type_)
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id", "title"), [
     ("tt0133093", "The Matrix"),
     ("tt0389150", "The Matrix Defence"),
@@ -42,11 +44,12 @@ def test_title_parser_should_instantiate_correct_type(imdb_id, type_):
     ("tt1000252", "Blink"),
     ("tt0261024", "Live Aid"),
 ])
-def test_title_parser_should_set_title_from_original_title(imdb_id, title):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_set_title_from_original_title(page, imdb_id, title):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.title == title
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id", "year"), [
     ("tt0133093", 1999),  # The Matrix
     ("tt0436992", 2005),  # Doctor Who (2005-)
@@ -54,21 +57,23 @@ def test_title_parser_should_set_title_from_original_title(imdb_id, title):
     ("tt0185906", 2001),  # Band of Brothers (2001-2001)
     ("tt3629794", None),  # Aslan
 ])
-def test_title_parser_should_set_year(imdb_id, year):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_set_year(page, imdb_id, year):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.year == year
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id", "end_year"), [
     ("tt0436992", None),  # Doctor Who (2005-)
     ("tt0412142", 2012),  # House M.D. (2004-2012)
     ("tt0185906", 2001),  # Band of Brothers (2001-2001) (TV Mini-Series)
 ])
-def test_title_parser_should_set_end_year(imdb_id, end_year):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_set_end_year(page, imdb_id, end_year):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.end_year == end_year
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id",), [
     ("tt0133093",),  # The Matrix (Movie)
     ("tt0389150",),  # The Matrix Defence (TV Movie)
@@ -80,11 +85,12 @@ def test_title_parser_should_set_end_year(imdb_id, end_year):
     ("tt1000252",),  # Blink (TV Series Episode)
     ("tt0261024",),  # Live Aid
 ])
-def test_title_parser_should_not_set_end_year_for_other_than_series(imdb_id):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_not_set_end_year_for_other_than_series(page, imdb_id):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert not hasattr(parsed, "end_year")
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id", "runtime"), [
     ("tt0133093", 136),  # The Matrix (Movie)
     ("tt2971344", 28),  # Matrix: First Dream (Short Movie)
@@ -94,35 +100,38 @@ def test_title_parser_should_not_set_end_year_for_other_than_series(imdb_id):
     ("tt0185906", 594),  # Band of Brothers (TV Mini-Series)
     ("tt3629794", None),  # Aslan
 ])
-def test_title_parser_should_set_runtime(imdb_id, runtime):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_set_runtime(page, imdb_id, runtime):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.runtime == runtime
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id",), [
     ("tt0390244",),  # The Matrix Online
 ])
-def test_title_parser_should_not_set_runtime_for_video_games(imdb_id):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_not_set_runtime_for_video_games(page, imdb_id):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert not hasattr(parsed, "runtime")
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id", "rating"), [
     ("tt0133093", Decimal("8.7")),  # The Matrix
     ("tt3629794", None),  # Aslan
 ])
-def test_title_parser_should_set_rating(imdb_id, rating):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_set_rating(page, imdb_id, rating):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert (abs(parsed.rating) - rating < Decimal("0.3")) if rating is not None else (parsed.rating is None)
 
 
-@mark.parametrize(("imdb_id", "n"), [
+@mark.parametrize(("page",), [("main",), ("reference",)])
+@mark.parametrize(("imdb_id", "votes"), [
     ("tt0133093", 2_000_000),  # The Matrix
     ("tt3629794", 0),  # Aslan
 ])
-def test_title_parser_should_set_number_of_votes(imdb_id, n):
-    parsed = web.get_title(imdb_id=imdb_id)
-    assert (parsed.vote_count >= n) if n > 0 else (parsed.vote_count == 0)
+def test_title_parser_should_set_number_of_votes(page, imdb_id, votes):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert (parsed.vote_count >= votes) if votes > 0 else (parsed.vote_count == 0)
 
 
 @mark.parametrize(("imdb_id", "genres"), [

@@ -2,12 +2,11 @@
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "rules": [
     {
-      "key": "json",
+      "key": "_json",
       "extractor": {
         "xpath": "//script[@id='__NEXT_DATA__']/text()",
         "transform": "json"
       },
-      "skip": true,
       "post_map": [
         {
           "key": "imdb_id",

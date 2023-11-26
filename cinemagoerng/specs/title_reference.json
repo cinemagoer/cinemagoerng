@@ -1,4 +1,72 @@
 {
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
-  "rules": []
+  "rules": [
+    {
+      "key": "imdb_id",
+      "extractor": {
+        "xpath": "//meta[@property='pageId']/@content"
+      }
+    },
+    {
+      "key": "type_id",
+      "extractor": {
+        "xpath": "//h3[@itemprop='name']/following-sibling::ul/li[last()]/text()",
+        "transform": "parse:type_id"
+      }
+    },
+    {
+      "key": "title",
+      "extractor": {
+        "xpath": "//h3[@itemprop='name']/text()"
+      }
+    },
+    {
+      "key": "title",
+      "extractor": {
+        "xpath": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()"
+      }
+    },
+    {
+      "key": "_year",
+      "extractor": {
+        "xpath": "//span[@class='titlereference-title-year']//a/text()",
+        "transform": "range:year"
+      },
+      "post_map": [
+        {
+          "key": "year",
+          "extractor": {
+            "jmespath": "year"
+          }
+        },
+        {
+          "key": "end_year",
+          "extractor": {
+            "jmespath": "end_year"
+          }
+        }
+      ]
+    },
+    {
+      "key": "runtime",
+      "extractor": {
+        "xpath": "//td[text()='Runtime']/following-sibling::td//li/text()",
+        "transform": "parse:runtime"
+      }
+    },
+    {
+      "key": "rating",
+      "extractor": {
+        "xpath": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
+        "transform": "decimal"
+      }
+    },
+    {
+      "key": "vote_count",
+      "extractor": {
+        "xpath": "//span[@class='ipl-rating-star__total-votes']/text()",
+        "transform": "parse:vote_count"
+      }
+    }
+  ]
 }
