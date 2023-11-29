@@ -5,14 +5,14 @@
       "key": "_json",
       "extractor": {
         "xpath": "//script[@id='__NEXT_DATA__']/text()",
-        "transformer": "json"
+        "transform": "json"
       },
       "post_map": [
         {
           "key": "taglines",
           "extractor": {
             "jmespath": "props.pageProps.contentData.section.items[*].htmlContent",
-            "transformer": "unescape*"
+            "transform": "unescape*"
           }
         }
       ]

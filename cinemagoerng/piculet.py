@@ -16,11 +16,14 @@
 from typing import Any, Callable, Collection, Mapping, Union
 
 from dataclasses import dataclass, field
+from decimal import Decimal
 from functools import lru_cache, partial
 
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath, _Element
 from lxml.html import fromstring as parse_html
+from typedload.datadumper import Dumper
+from typedload.dataloader import Loader
 
 from .transformers import transformer_registry
 
@@ -29,22 +32,32 @@ make_xpath = lru_cache(maxsize=None)(XPath)
 make_jmespath = lru_cache(maxsize=None)(compile_jmespath)
 
 
+@lru_cache(maxsize=None)
+def make_transform(name: str) -> Callable:
+    multiple = name[-1] == "*"
+    key = name if not multiple else name[:-1]
+    transform = transformer_registry[key]
+    if not multiple:
+        return transform
+    else:
+        return partial(map, transform)
+
+
+class Transform:
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.__do = make_transform(name)
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        return self.__do(*args, **kwargs)
+
+
 @dataclass(kw_only=True)
 class Extractor:
-    transformer: str | None = None
-    transform: Callable | None = field(init=False, default=None)
-
-    def __post_init__(self) -> None:
-        if self.transformer is not None:
-            multiple = self.transformer[-1] == "*"
-            key = self.transformer if not multiple else self.transformer[:-1]
-            transform = transformer_registry.get(key)
-            if transform is None:
-                raise ValueError(f"Unknown transformer: {key}")
-            if not multiple:
-                self.transform = transform
-            else:
-                self.transform = partial(map, transform)
+    transform: Transform | None = None
 
 
 @dataclass(kw_only=True)
@@ -53,7 +66,6 @@ class XPathExtractor(Extractor):
     sep: str = ""
 
     def __post_init__(self) -> None:
-        super().__post_init__()
         self.__compiled = make_xpath(self.xpath)
 
     def apply(self, data: _Element) -> str | None:
@@ -68,7 +80,6 @@ class JmesPathExtractor(Extractor):
     jmespath: str
 
     def __post_init__(self) -> None:
-        super().__post_init__()
         self.__compiled = make_jmespath(self.jmespath)
 
     def apply(self, data: Mapping[str, Any]) -> Any:
@@ -125,3 +136,13 @@ def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:
     root = parse_html(document)
     data = apply_rules(rules, root)
     return data
+
+
+_loader = Loader()
+_loader.strconstructed = {Transform, Decimal}  # type: ignore
+_loader.pep563 = True
+deserialize = _loader.load
+
+_dumper = Dumper()
+_dumper.strconstructed = {Transform, Decimal}  # type: ignore
+serialize = _dumper.dump

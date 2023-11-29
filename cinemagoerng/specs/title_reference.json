@@ -11,7 +11,7 @@
       "key": "type_id",
       "extractor": {
         "xpath": "//h3[@itemprop='name']/following-sibling::ul/li[last()]/text()",
-        "transformer": "type_id"
+        "transform": "type_id"
       }
     },
     {
@@ -30,7 +30,7 @@
       "key": "_year",
       "extractor": {
         "xpath": "//span[@class='titlereference-title-year']//a/text()",
-        "transformer": "year_range"
+        "transform": "year_range"
       },
       "post_map": [
         {
@@ -51,21 +51,21 @@
       "key": "runtime",
       "extractor": {
         "xpath": "//td[text()='Runtime']/following-sibling::td//li/text()",
-        "transformer": "runtime"
+        "transform": "runtime"
       }
     },
     {
       "key": "rating",
       "extractor": {
         "xpath": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
-        "transformer": "decimal"
+        "transform": "decimal"
       }
     },
     {
       "key": "vote_count",
       "extractor": {
         "xpath": "//span[@class='ipl-rating-star__total-votes']/text()",
-        "transformer": "vote_count"
+        "transform": "vote_count"
       }
     }
   ]

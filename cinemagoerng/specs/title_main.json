@@ -5,7 +5,7 @@
       "key": "_json",
       "extractor": {
         "xpath": "//script[@id='__NEXT_DATA__']/text()",
-        "transformer": "json"
+        "transform": "json"
       },
       "post_map": [
         {
@@ -42,14 +42,14 @@
           "key": "runtime",
           "extractor": {
             "jmespath": "props.pageProps.aboveTheFoldData.runtime.seconds",
-            "transformer": "div60"
+            "transform": "div60"
           }
         },
         {
           "key": "rating",
           "extractor": {
             "jmespath": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
-            "transformer": "decimal"
+            "transform": "decimal"
           }
         },
         {
@@ -75,7 +75,7 @@
                 }
               }
             ],
-            "transformer": "lang"
+            "transform": "lang"
           }
         },
         {
