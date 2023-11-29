@@ -16,14 +16,13 @@
 from typing import Any, Callable, Collection, Mapping, Union
 
 from dataclasses import dataclass, field
-from functools import lru_cache
+from functools import lru_cache, partial
 
 from jmespath import compile as compile_jmespath
-from jmespath.parser import ParsedResult as JmesPath
 from lxml.etree import XPath, _Element
 from lxml.html import fromstring as parse_html
 
-from . import transformers
+from .transformers import transformer_registry
 
 
 make_xpath = lru_cache(maxsize=None)(XPath)
@@ -33,33 +32,32 @@ make_jmespath = lru_cache(maxsize=None)(compile_jmespath)
 @dataclass(kw_only=True)
 class Extractor:
     transformer: str | None = None
-    transform: Callable | None = field(init=False)
+    transform: Callable | None = field(init=False, default=None)
 
     def __post_init__(self) -> None:
-        if self.transformer is None:
-            self.transform = None
-        else:
+        if self.transformer is not None:
             multiple = self.transformer[-1] == "*"
             key = self.transformer if not multiple else self.transformer[:-1]
-            transform = getattr(transformers, key, None)
+            transform = transformer_registry.get(key)
             if transform is None:
-                raise ValueError("Unknown transformer")
-            self.transform = transform if not multiple else \
-                lambda xs: [transform(x) for x in xs]
+                raise ValueError(f"Unknown transformer: {key}")
+            if not multiple:
+                self.transform = transform
+            else:
+                self.transform = partial(map, transform)
 
 
 @dataclass(kw_only=True)
 class XPathExtractor(Extractor):
     xpath: str
     sep: str = ""
-    _compiled: XPath = field(init=False)
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        self._compiled = make_xpath(self.xpath)
+        self.__compiled = make_xpath(self.xpath)
 
     def apply(self, data: _Element) -> str | None:
-        selected: list[str] = self._compiled(data)  # type: ignore
+        selected: list[str] = self.__compiled(data)  # type: ignore
         if len(selected) == 0:
             return None
         return self.sep.join(selected).strip()
@@ -68,14 +66,13 @@ class XPathExtractor(Extractor):
 @dataclass(kw_only=True)
 class JmesPathExtractor(Extractor):
     jmespath: str
-    _compiled: JmesPath = field(init=False)
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        self._compiled = make_jmespath(self.jmespath)
+        self.__compiled = make_jmespath(self.jmespath)
 
     def apply(self, data: Mapping[str, Any]) -> Any:
-        return self._compiled.search(data)
+        return self.__compiled.search(data)
 
 
 @dataclass(kw_only=True)
@@ -99,6 +96,12 @@ class TreeRule:
     post_map: list[MapRule] = field(default_factory=list)
 
 
+@dataclass(kw_only=True)
+class Spec:
+    url: str
+    rules: list[TreeRule] = field(default_factory=list)
+
+
 def apply_rules(rules: list[TreeRule] | list[MapRule],
                 data: Any) -> Mapping[str, Any]:
     result: dict[str, Any] = {}
@@ -106,23 +109,16 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
         raw = rule.extractor.apply(data)
         if (raw is None) or ((isinstance(raw, Collection) and len(raw) == 0)):
             continue
-        if rule.extractor.transformer is None:
+        if rule.extractor.transform is None:
             value = raw
         else:
             value = rule.extractor.transform(raw)
-
         result[rule.key] = value
         match rule:
             case TreeRule():
                 subresult = apply_rules(rule.post_map, value)
                 result.update(subresult)
     return result
-
-
-@dataclass(kw_only=True)
-class Spec:
-    url: str
-    rules: list[TreeRule] = field(default_factory=list)
 
 
 def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:

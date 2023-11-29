@@ -14,35 +14,31 @@
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from typing import Any, Callable
+from typing import Callable
 
+import html
+import json
 from decimal import Decimal
-from html import unescape as unescape_html
-from json import loads as load_json
 
 
-json: Callable[[str], Any] = load_json
-unescape: Callable[[str], str] = unescape_html
+transformer_registry: dict[str, Callable] = {
+    "decimal": lambda x: Decimal(str(x)),
+    "div60": lambda x: x // 60,
+    "json": json.loads,
+    "lang": lambda x: {x["lang"]: x["text"]},
+    "unescape": html.unescape,
+}
 
 
-def decimal(value: float) -> Decimal:
-    return Decimal(str(value))
-
-
-def div60(value: int) -> int:
-    return value // 60
-
-
-def lang(value: dict[str, str]) -> dict[str, str]:
-    return {value["lang"]: value["text"]}
-
-
-def type_id(value: str) -> str:
+def parse_type_id(value: str) -> str:
     first, *rest = value.split(" ")
     return "".join([first.lower()] + rest)
 
 
-def year_range(value: str) -> dict[str, int]:
+transformer_registry["type_id"] = parse_type_id
+
+
+def parse_year_range(value: str) -> dict[str, int]:
     tokens = value.split("-")
     if not tokens[0].isdigit():
         return {}
@@ -52,9 +48,18 @@ def year_range(value: str) -> dict[str, int]:
     return data
 
 
-def runtime(value: str) -> int:
+transformer_registry["year_range"] = parse_year_range
+
+
+def parse_runtime(value: str) -> int:
     return int(value.replace(" min", ""))
 
 
-def vote_count(value: str) -> int:
+transformer_registry["runtime"] = parse_runtime
+
+
+def parse_vote_count(value: str) -> int:
     return int(value[1:-1].replace(",", ""))   # remove parens around value
+
+
+transformer_registry["vote_count"] = parse_vote_count
