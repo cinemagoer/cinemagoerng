@@ -13,11 +13,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Callable, Collection, Mapping, Union
+from typing import Any, Callable, Collection, List, Mapping
 
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import lru_cache, partial
+from types import MappingProxyType
 
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath, _Element
@@ -26,6 +27,9 @@ from typedload.datadumper import Dumper
 from typedload.dataloader import Loader
 
 from .transformers import transformer_registry
+
+
+_EMPTY: Mapping = MappingProxyType({})
 
 
 make_xpath = lru_cache(maxsize=None)(XPath)
@@ -68,10 +72,10 @@ class XPathExtractor(Extractor):
     def __post_init__(self) -> None:
         self.__compiled = make_xpath(self.xpath)
 
-    def apply(self, data: _Element) -> str | None:
+    def apply(self, data: _Element) -> str | Mapping:
         selected: list[str] = self.__compiled(data)  # type: ignore
         if len(selected) == 0:
-            return None
+            return _EMPTY
         return self.sep.join(selected).strip()
 
 
@@ -83,21 +87,25 @@ class JmesPathExtractor(Extractor):
         self.__compiled = make_jmespath(self.jmespath)
 
     def apply(self, data: Mapping[str, Any]) -> Any:
-        return self.__compiled.search(data)
+        selected = self.__compiled.search(data)
+        if (selected is None) or \
+                ((isinstance(selected, Collection) and len(selected) == 0)):
+            return _EMPTY
+        return selected
+
+
+@dataclass(kw_only=True)
+class MapRulesExtractor(Extractor):
+    rules: List["MapRule"] = field(default_factory=list)
+
+    def apply(self, data: Any) -> Mapping[str, Any]:
+        return apply_rules(self.rules, data)
 
 
 @dataclass(kw_only=True)
 class MapRule:
     key: str
-    extractor: Union[JmesPathExtractor, "MapRulesExtractor"]
-
-
-@dataclass(kw_only=True)
-class MapRulesExtractor(Extractor):
-    rules: list[MapRule] = field(default_factory=list)
-
-    def apply(self, data: Any) -> Mapping[str, Any]:
-        return apply_rules(self.rules, data)
+    extractor: JmesPathExtractor | MapRulesExtractor
 
 
 @dataclass(kw_only=True)
@@ -118,7 +126,7 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
     result: dict[str, Any] = {}
     for rule in rules:
         raw = rule.extractor.apply(data)
-        if (raw is None) or ((isinstance(raw, Collection) and len(raw) == 0)):
+        if raw is _EMPTY:
             continue
         if rule.extractor.transform is None:
             value = raw
@@ -128,7 +136,10 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
         match rule:
             case TreeRule():
                 subresult = apply_rules(rule.post_map, value)
-                result.update(subresult)
+                if subresult is not _EMPTY:
+                    result.update(subresult)
+    if len(result) == 0:
+        return _EMPTY
     return result
 
 
