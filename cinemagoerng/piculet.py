@@ -15,37 +15,15 @@
 
 from typing import Any, Callable, Collection, Mapping, Union
 
-import html
-import json
 from dataclasses import dataclass, field
-from decimal import Decimal
-from functools import lru_cache, partial
+from functools import lru_cache
 
 from jmespath import compile as compile_jmespath
 from jmespath.parser import ParsedResult as JmesPath
 from lxml.etree import XPath, _Element
 from lxml.html import fromstring as parse_html
 
-from . import custom_transformers
-
-
-def parse_range(value: str, name: str) -> dict[str, int]:
-    tokens = value.split("-")
-    if not tokens[0].isdigit():
-        return {}
-    data = {name: int(tokens[0])}
-    if (len(tokens) > 1) and tokens[1].isdigit():
-        data[f"end_{name}"] = int(tokens[1])
-    return data
-
-
-transformers: dict[str, Callable] = {
-    "decimal": lambda x: Decimal(str(x)),
-    "div60": lambda x: x // 60,
-    "json": json.loads,
-    "lang": lambda x: {x["lang"]: x["text"]},
-    "unescape": html.unescape,
-}
+from . import transformers
 
 
 make_xpath = lru_cache(maxsize=None)(XPath)
@@ -63,20 +41,11 @@ class Extractor:
         else:
             multiple = self.transformer[-1] == "*"
             key = self.transformer if not multiple else self.transformer[:-1]
-            if key.startswith("parse:"):
-                transform: Callable | None = \
-                    getattr(custom_transformers,
-                            key.replace("parse:", "parse_"),
-                            None)
-            elif key.startswith("range:"):
-                transform = partial(parse_range, name=key[6:])
-            else:
-                transform = transformers.get(key)
+            transform = getattr(transformers, key, None)
             if transform is None:
                 raise ValueError("Unknown transformer")
             self.transform = transform if not multiple else \
                 lambda xs: [transform(x) for x in xs]
-
 
 
 @dataclass(kw_only=True)

@@ -11,7 +11,7 @@
       "key": "type_id",
       "extractor": {
         "xpath": "//h3[@itemprop='name']/following-sibling::ul/li[last()]/text()",
-        "transformer": "parse:type_id"
+        "transformer": "type_id"
       }
     },
     {
@@ -30,7 +30,7 @@
       "key": "_year",
       "extractor": {
         "xpath": "//span[@class='titlereference-title-year']//a/text()",
-        "transformer": "range:year"
+        "transformer": "year_range"
       },
       "post_map": [
         {
@@ -51,7 +51,7 @@
       "key": "runtime",
       "extractor": {
         "xpath": "//td[text()='Runtime']/following-sibling::td//li/text()",
-        "transformer": "parse:runtime"
+        "transformer": "runtime"
       }
     },
     {
@@ -65,7 +65,7 @@
       "key": "vote_count",
       "extractor": {
         "xpath": "//span[@class='ipl-rating-star__total-votes']/text()",
-        "transformer": "parse:vote_count"
+        "transformer": "vote_count"
       }
     }
   ]
