@@ -15,16 +15,17 @@
 
 from typing import Any, Callable, Collection, List, Mapping
 
+import json
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import lru_cache, partial
+from pathlib import Path
 from types import MappingProxyType
 
+import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath, _Element
 from lxml.html import fromstring as parse_html
-from typedload.datadumper import Dumper
-from typedload.dataloader import Loader
 
 from .transformers import transformer_registry
 
@@ -121,6 +122,13 @@ class Spec:
     rules: list[TreeRule] = field(default_factory=list)
 
 
+@lru_cache(maxsize=None)
+def load_spec(path: Path, /) -> Spec:
+    content = path.read_text(encoding="utf-8")
+    return typedload.load(json.loads(content), Spec, pep563=True,
+                          strconstructed={Transform})
+
+
 def apply_rules(rules: list[TreeRule] | list[MapRule],
                 data: Any) -> Mapping[str, Any]:
     result: dict[str, Any] = {}
@@ -149,11 +157,5 @@ def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:
     return data
 
 
-_loader = Loader()
-_loader.strconstructed = {Transform, Decimal}  # type: ignore
-_loader.pep563 = True
-deserialize = _loader.load
-
-_dumper = Dumper()
-_dumper.strconstructed = {Transform, Decimal}  # type: ignore
-serialize = _dumper.dump
+deserialize = partial(typedload.load, strconstructed={Decimal})
+serialize = partial(typedload.dump, strconstructed={Decimal})

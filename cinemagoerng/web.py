@@ -16,18 +16,13 @@
 
 from typing import Literal, TypeAlias, TypeVar
 
-import json
-from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from .model import Title
-from .piculet import Spec, deserialize, scrape, serialize
-
-
-TitlePage: TypeAlias = Literal["main", "taglines"]
+from .piculet import deserialize, load_spec, scrape, serialize
 
 
 _USER_AGENT = " ".join([
@@ -35,8 +30,6 @@ _USER_AGENT = " ".join([
     "AppleWebKit/535.19 (KHTML, like Gecko)",
     "Chrome/18.0.1025.133 Mobile Safari/535.19",
 ])
-
-SPECS_DIR = Path(__file__).parent / "specs"
 
 
 def fetch(url: str, /) -> str:
@@ -47,15 +40,14 @@ def fetch(url: str, /) -> str:
     return content.decode("utf-8")
 
 
-@lru_cache(maxsize=None)
-def _spec(name: str, /) -> Spec:
-    spec_path = SPECS_DIR / f"{name}.json"
-    content = spec_path.read_text(encoding="utf-8")
-    return deserialize(json.loads(content), Spec)
+SPECS_DIR = Path(__file__).parent / "specs"
+
+Title_ = TypeVar("Title_", bound=Title)
+TitlePage: TypeAlias = Literal["main", "reference", "taglines"]
 
 
 def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
-    spec = _spec(f"title_{page}")
+    spec = load_spec(SPECS_DIR / f"title_{page}.json")
     url = spec.url % {"imdb_id": imdb_id}
     try:
         document = fetch(url)
@@ -67,13 +59,10 @@ def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
     return deserialize(data, Title)  # type: ignore
 
 
-Title_ = TypeVar("Title_", bound=Title)
-
-
 def update_title(title: Title_, /, *, page: TitlePage) -> Title_:
-    spec = _spec(f"title_{page}")
+    spec = load_spec(SPECS_DIR / f"title_{page}.json")
     url = spec.url % {"imdb_id": title.imdb_id}
     document = fetch(url)
     data = scrape(document, spec.rules)
     current_data = serialize(title)
-    return deserialize(current_data | data, title.__class__)  # type: ignore
+    return deserialize(current_data | data, title.__class__)
