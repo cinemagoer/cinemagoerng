@@ -92,6 +92,7 @@ class XPathExtractor:
     xpath: XPath
     sep: str = ""
     transform: Transform | None = None
+    foreach: XPath | None = None
 
     def __call__(self, data: _Element) -> str | Mapping:
         selected: list[str] = self.xpath(data)  # type: ignore
@@ -104,6 +105,7 @@ class XPathExtractor:
 class JmesPathExtractor:
     jmespath: JmesPath
     transform: Transform | None = None
+    foreach: JmesPath | None = None
 
     def __call__(self, data: Mapping[str, Any]) -> Any:
         selected = self.jmespath(data)
@@ -117,6 +119,7 @@ class JmesPathExtractor:
 class MapRulesExtractor:
     rules: List["MapRule"] = field(default_factory=list)
     transform: Transform | None = None
+    foreach: None = None
 
     def __call__(self, data: Any) -> Mapping[str, Any]:
         return apply_rules(self.rules, data)
@@ -152,11 +155,19 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
                 data: Any) -> Mapping[str, Any]:
     result: dict[str, Any] = {}
     for rule in rules:
-        raw = rule.extractor(data)
-        if raw is _EMPTY:
-            continue
-        value = raw if rule.extractor.transform is None else \
-            rule.extractor.transform(raw)
+        if rule.extractor.foreach is None:
+            raw = rule.extractor(data)
+            if raw is _EMPTY:
+                continue
+        else:
+            raw_ = [rule.extractor(r) for r in rule.extractor.foreach(data)]
+            raw = [v for v in raw_ if v is not _EMPTY]
+            if len(raw) == 0:
+                continue
+        if rule.extractor.transform is None:
+            value = raw
+        else:
+            value = rule.extractor.transform(raw)
         result[rule.key] = value
         match rule:
             case TreeRule():

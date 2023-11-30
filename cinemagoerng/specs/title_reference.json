@@ -50,7 +50,7 @@
     {
       "key": "runtime",
       "extractor": {
-        "xpath": "//td[text()='Runtime']/following-sibling::td//li/text()",
+        "xpath": "//td[text()='Runtime']/..//li/text()",
         "transform": "runtime"
       }
     },
@@ -66,6 +66,13 @@
       "extractor": {
         "xpath": "//span[@class='ipl-rating-star__total-votes']/text()",
         "transform": "vote_count"
+      }
+    },
+    {
+      "key": "genres",
+      "extractor": {
+        "foreach": "//td[text()='Genres']/..//li/a",
+        "xpath": "./text()"
       }
     }
   ]

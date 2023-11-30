@@ -134,6 +134,7 @@ def test_title_parser_should_set_number_of_votes(page, imdb_id, votes):
     assert (parsed.vote_count >= votes) if votes > 0 else (parsed.vote_count == 0)
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id", "genres"), [
     ("tt0133093", ["Action", "Sci-Fi"]),  # The Matrix
     ("tt0389150", ["Documentary"]),  # The Matrix Defence
@@ -147,8 +148,8 @@ def test_title_parser_should_set_number_of_votes(page, imdb_id, votes):
     ("tt1000252", ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
     ("tt0261024", ["Documentary", "Music"]),  # Live Aid
 ])
-def test_title_parser_should_set_genres(imdb_id, genres):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_set_genres(page, imdb_id, genres):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.genres == genres
 
 
