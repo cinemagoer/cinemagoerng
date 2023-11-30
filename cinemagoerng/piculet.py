@@ -129,13 +129,14 @@ class MapRulesExtractor:
 class MapRule:
     key: str
     extractor: JmesPathExtractor | MapRulesExtractor
+    post_map: List["MapRule"] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
 class TreeRule:
     key: str
     extractor: XPathExtractor
-    post_map: list[MapRule] = field(default_factory=list)
+    post_map: List["MapRule"] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -169,11 +170,11 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
         else:
             value = rule.extractor.transform(raw)
         result[rule.key] = value
-        match rule:
-            case TreeRule():
-                subresult = apply_rules(rule.post_map, value)
-                if subresult is not _EMPTY:
-                    result.update(subresult)
+
+        if len(rule.post_map) > 0:
+            subresult = apply_rules(rule.post_map, value)
+            if subresult is not _EMPTY:
+                result.update(subresult)
     if len(result) == 0:
         return _EMPTY
     return result
