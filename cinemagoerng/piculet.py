@@ -24,7 +24,8 @@ from types import MappingProxyType
 
 import typedload
 from jmespath import compile as compile_jmespath
-from lxml.etree import XPath, _Element
+from lxml.etree import XPath as compile_xpath
+from lxml.etree import _Element
 from lxml.html import fromstring as parse_html
 
 from .transformers import transformer_registry
@@ -33,8 +34,34 @@ from .transformers import transformer_registry
 _EMPTY: Mapping = MappingProxyType({})
 
 
-make_xpath = lru_cache(maxsize=None)(XPath)
+make_xpath = lru_cache(maxsize=None)(compile_xpath)
+
+
+class XPath:
+    def __init__(self, path: str) -> None:
+        self.path = path
+        self.__compiled = make_xpath(path)
+
+    def __str__(self) -> str:
+        return self.path
+
+    def __call__(self, data: _Element) -> list[str] | list[_Element]:
+        return self.__compiled(data)  # type: ignore
+
+
 make_jmespath = lru_cache(maxsize=None)(compile_jmespath)
+
+
+class JmesPath:
+    def __init__(self, path: str) -> None:
+        self.path = path
+        self.__compiled = make_jmespath(path)
+
+    def __str__(self) -> str:
+        return self.path
+
+    def __call__(self, data: Mapping[str, Any]) -> Any:
+        return self.__compiled.search(data)
 
 
 @lru_cache(maxsize=None)
@@ -56,39 +83,30 @@ class Transform:
     def __str__(self) -> str:
         return self.name
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return self.__do(*args, **kwargs)
+    def __call__(self, data: Any) -> Any:
+        return self.__do(data)
 
 
 @dataclass(kw_only=True)
-class Extractor:
+class XPathExtractor:
+    xpath: XPath
+    sep: str = ""
     transform: Transform | None = None
 
-
-@dataclass(kw_only=True)
-class XPathExtractor(Extractor):
-    xpath: str
-    sep: str = ""
-
-    def __post_init__(self) -> None:
-        self.__compiled = make_xpath(self.xpath)
-
-    def apply(self, data: _Element) -> str | Mapping:
-        selected: list[str] = self.__compiled(data)  # type: ignore
+    def __call__(self, data: _Element) -> str | Mapping:
+        selected: list[str] = self.xpath(data)  # type: ignore
         if len(selected) == 0:
             return _EMPTY
         return self.sep.join(selected).strip()
 
 
 @dataclass(kw_only=True)
-class JmesPathExtractor(Extractor):
-    jmespath: str
+class JmesPathExtractor:
+    jmespath: JmesPath
+    transform: Transform | None = None
 
-    def __post_init__(self) -> None:
-        self.__compiled = make_jmespath(self.jmespath)
-
-    def apply(self, data: Mapping[str, Any]) -> Any:
-        selected = self.__compiled.search(data)
+    def __call__(self, data: Mapping[str, Any]) -> Any:
+        selected = self.jmespath(data)
         if (selected is None) or \
                 ((isinstance(selected, Collection) and len(selected) == 0)):
             return _EMPTY
@@ -96,10 +114,11 @@ class JmesPathExtractor(Extractor):
 
 
 @dataclass(kw_only=True)
-class MapRulesExtractor(Extractor):
+class MapRulesExtractor:
     rules: List["MapRule"] = field(default_factory=list)
+    transform: Transform | None = None
 
-    def apply(self, data: Any) -> Mapping[str, Any]:
+    def __call__(self, data: Any) -> Mapping[str, Any]:
         return apply_rules(self.rules, data)
 
 
@@ -126,20 +145,18 @@ class Spec:
 def load_spec(path: Path, /) -> Spec:
     content = path.read_text(encoding="utf-8")
     return typedload.load(json.loads(content), Spec, pep563=True,
-                          strconstructed={Transform})
+                          strconstructed={XPath, JmesPath, Transform})
 
 
 def apply_rules(rules: list[TreeRule] | list[MapRule],
                 data: Any) -> Mapping[str, Any]:
     result: dict[str, Any] = {}
     for rule in rules:
-        raw = rule.extractor.apply(data)
+        raw = rule.extractor(data)
         if raw is _EMPTY:
             continue
-        if rule.extractor.transform is None:
-            value = raw
-        else:
-            value = rule.extractor.transform(raw)
+        value = raw if rule.extractor.transform is None else \
+            rule.extractor.transform(raw)
         result[rule.key] = value
         match rule:
             case TreeRule():
