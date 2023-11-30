@@ -93,6 +93,7 @@ class XPathExtractor:
     sep: str = ""
     transform: Transform | None = None
     foreach: XPath | None = None
+    post_map: List["MapRule"] = field(default_factory=list)
 
     def __call__(self, data: _Element) -> str | Mapping:
         selected: list[str] = self.xpath(data)  # type: ignore
@@ -106,6 +107,7 @@ class JmesPathExtractor:
     jmespath: JmesPath
     transform: Transform | None = None
     foreach: JmesPath | None = None
+    post_map: List["MapRule"] = field(default_factory=list)
 
     def __call__(self, data: Mapping[str, Any]) -> Any:
         selected = self.jmespath(data)
@@ -120,6 +122,7 @@ class MapRulesExtractor:
     rules: List["MapRule"] = field(default_factory=list)
     transform: Transform | None = None
     foreach: None = None
+    post_map: List["MapRule"] = field(default_factory=list)
 
     def __call__(self, data: Any) -> Mapping[str, Any]:
         return apply_rules(self.rules, data)
@@ -129,14 +132,12 @@ class MapRulesExtractor:
 class MapRule:
     key: str
     extractor: JmesPathExtractor | MapRulesExtractor
-    post_map: List["MapRule"] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
 class TreeRule:
     key: str
     extractor: XPathExtractor
-    post_map: List["MapRule"] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -171,8 +172,8 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
             value = rule.extractor.transform(raw)
         result[rule.key] = value
 
-        if len(rule.post_map) > 0:
-            subresult = apply_rules(rule.post_map, value)
+        if len(rule.extractor.post_map) > 0:
+            subresult = apply_rules(rule.extractor.post_map, value)
             if subresult is not _EMPTY:
                 result.update(subresult)
     if len(result) == 0:

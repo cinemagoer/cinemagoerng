@@ -30,22 +30,22 @@
       "key": "_year",
       "extractor": {
         "xpath": "//span[@class='titlereference-title-year']//a/text()",
-        "transform": "year_range"
-      },
-      "post_map": [
-        {
-          "key": "year",
-          "extractor": {
-            "jmespath": "year"
+        "transform": "year_range",
+        "post_map": [
+          {
+            "key": "year",
+            "extractor": {
+              "jmespath": "year"
+            }
+          },
+          {
+            "key": "end_year",
+            "extractor": {
+              "jmespath": "end_year"
+            }
           }
-        },
-        {
-          "key": "end_year",
-          "extractor": {
-            "jmespath": "end_year"
-          }
-        }
-      ]
+        ]
+      }
     },
     {
       "key": "runtime",
