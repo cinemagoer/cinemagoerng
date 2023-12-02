@@ -58,6 +58,12 @@
             }
           },
           {
+            "key": "genres",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.genres.genres[*].text"
+            }
+          },
+          {
             "key": "plot",
             "extractor": {
               "rules": [
@@ -78,9 +84,23 @@
             }
           },
           {
-            "key": "genres",
+            "key": "directors",
             "extractor": {
-              "path": "props.pageProps.aboveTheFoldData.genres.genres[*].text"
+              "foreach": "props.pageProps.mainColumnData.directors[0].credits[*].name",
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "id"
+                  }
+                },
+                {
+                  "key": "name",
+                  "extractor": {
+                    "path": "nameText.text"
+                  }
+                }
+              ]
             }
           }
         ]

@@ -31,6 +31,17 @@ transformer_registry: dict[str, Callable] = {
 }
 
 
+def parse_href_id(value: str) -> str:
+    if "?" in value:
+        value = value.split("?")[0]
+    if value[-1] == "/":
+        value = value[:-1]
+    return value.split("/")[-1]
+
+
+transformer_registry["href_id"] = parse_href_id
+
+
 def parse_type_id(value: str) -> str:
     first, *rest = value.split(" ")
     return "".join([first.lower()] + rest)

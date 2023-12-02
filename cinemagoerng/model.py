@@ -20,6 +20,12 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 
 
+@dataclass
+class Person:
+    imdb_id: str
+    name: str
+
+
 @dataclass(kw_only=True)
 class _Title:
     imdb_id: str
@@ -30,6 +36,7 @@ class _Title:
     genres: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
     taglines: list[str] = field(default_factory=list)
+    directors: list[Person] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)

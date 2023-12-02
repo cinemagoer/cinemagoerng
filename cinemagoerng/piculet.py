@@ -172,7 +172,7 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
                 continue
         else:
             raws = [rule.extractor(d)  # type: ignore
-                    for d in rule.extractor.foreach(data)]
+                    for d in rule.extractor.foreach(data) or []]
             raw = [v for v in raws if v is not _EMPTY]
             if len(raw) == 0:
                 continue

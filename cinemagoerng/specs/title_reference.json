@@ -69,6 +69,13 @@
       }
     },
     {
+      "key": "genres",
+      "extractor": {
+        "foreach": "//td[text()='Genres']/..//li/a",
+        "path": "./text()"
+      }
+    },
+    {
       "key": "plot",
       "extractor": {
         "rules": [
@@ -90,10 +97,24 @@
       }
     },
     {
-      "key": "genres",
+      "key": "directors",
       "extractor": {
-        "foreach": "//td[text()='Genres']/..//li/a",
-        "path": "./text()"
+        "foreach": "//h4[@id='directors']/ancestor::header/following-sibling::table[1]//tr//a",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "./@href",
+              "transform": "href_id"
+            }
+          },
+          {
+            "key": "name",
+            "extractor": {
+              "path": "./text()"
+            }
+          }
+        ]
       }
     }
   ]

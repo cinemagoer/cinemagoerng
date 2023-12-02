@@ -161,3 +161,14 @@ def test_title_parser_should_set_genres(page, imdb_id, genres):
 def test_title_parser_should_set_plot(page, imdb_id, plot, lang):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.plot[lang].startswith(plot)
+
+
+@mark.parametrize(("page",), [("main",), ("reference",)])
+@mark.parametrize(("imdb_id", "directors"), [
+    ("tt0133093", [("nm0905154", "Lana Wachowski"), ("nm0905152", "Lilly Wachowski"),]),  # The Matrix
+    ("tt1000252", [("nm0531751", "Hettie Macdonald")]),  # Blink
+    ("tt3629794", []),  # Aslan
+])
+def test_title_parser_should_set_directors(page, imdb_id, directors):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert [(d.imdb_id, d.name) for d in parsed.directors] == directors
