@@ -18,6 +18,7 @@ from typing import Callable
 
 import html
 import json
+import re
 from decimal import Decimal
 
 
@@ -63,3 +64,14 @@ def parse_vote_count(value: str) -> int:
 
 
 transformer_registry["vote_count"] = parse_vote_count
+
+
+_re_locale = re.compile(r"""locale: '([^']+)'""")
+
+
+def parse_locale(value: str) -> str | None:
+    matched = _re_locale.search(value)
+    return matched.group(1) if matched is not None else None
+
+
+transformer_registry["locale"] = parse_locale

@@ -25,7 +25,7 @@ from types import MappingProxyType
 import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
-from lxml.etree import _Element
+from lxml.etree import _Element as Node
 from lxml.html import fromstring as parse_html
 
 from .transformers import transformer_registry
@@ -45,8 +45,8 @@ class XPath:
     def __str__(self) -> str:
         return self.path
 
-    def __call__(self, data: _Element) -> list[str] | list[_Element]:
-        return self.__compiled(data)  # type: ignore
+    def __call__(self, node: Node) -> list[str] | list[Node]:
+        return self.__compiled(node)  # type: ignore
 
 
 make_jmespath = lru_cache(maxsize=None)(compile_jmespath)
@@ -78,24 +78,29 @@ def make_transform(name: str) -> Callable:
 class Transform:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.__do = make_transform(name)
+        self.__transform = make_transform(name)
 
     def __str__(self) -> str:
         return self.name
 
     def __call__(self, data: Any) -> Any:
-        return self.__do(data)
+        return self.__transform(data)
 
 
 @dataclass(kw_only=True)
-class XPathExtractor:
-    xpath: XPath
-    sep: str = ""
+class Extractor:
+    foreach: Callable | None = None
     transform: Transform | None = None
-    foreach: XPath | None = None
     post_map: List["MapRule"] = field(default_factory=list)
 
-    def __call__(self, data: _Element) -> str | Mapping:
+
+@dataclass(kw_only=True)
+class XPathExtractor(Extractor):
+    xpath: XPath
+    sep: str = ""
+    foreach: XPath | None = None
+
+    def __call__(self, data: Node) -> str | Mapping:
         selected: list[str] = self.xpath(data)  # type: ignore
         if len(selected) == 0:
             return _EMPTY
@@ -103,11 +108,9 @@ class XPathExtractor:
 
 
 @dataclass(kw_only=True)
-class JmesPathExtractor:
+class JmesPathExtractor(Extractor):
     jmespath: JmesPath
-    transform: Transform | None = None
     foreach: JmesPath | None = None
-    post_map: List["MapRule"] = field(default_factory=list)
 
     def __call__(self, data: Mapping[str, Any]) -> Any:
         selected = self.jmespath(data)
@@ -118,26 +121,31 @@ class JmesPathExtractor:
 
 
 @dataclass(kw_only=True)
-class MapRulesExtractor:
-    rules: List["MapRule"] = field(default_factory=list)
-    transform: Transform | None = None
-    foreach: None = None
-    post_map: List["MapRule"] = field(default_factory=list)
+class TreeRulesExtractor(Extractor):
+    rules: List["TreeRule"] = field(default_factory=list)
 
     def __call__(self, data: Any) -> Mapping[str, Any]:
         return apply_rules(self.rules, data)
 
 
 @dataclass(kw_only=True)
-class MapRule:
-    key: str
-    extractor: JmesPathExtractor | MapRulesExtractor
+class MapRulesExtractor(Extractor):
+    rules: List["MapRule"] = field(default_factory=list)
+
+    def __call__(self, data: Any) -> Mapping[str, Any]:
+        return apply_rules(self.rules, data)
 
 
 @dataclass(kw_only=True)
 class TreeRule:
     key: str
-    extractor: XPathExtractor
+    extractor: XPathExtractor | TreeRulesExtractor
+
+
+@dataclass(kw_only=True)
+class MapRule:
+    key: str
+    extractor: JmesPathExtractor | MapRulesExtractor
 
 
 @dataclass(kw_only=True)
@@ -183,8 +191,7 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
 
 def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:
     root = parse_html(document)
-    data = apply_rules(rules, root)
-    return data
+    return apply_rules(rules, root)
 
 
 deserialize = partial(typedload.load, strconstructed={Decimal})

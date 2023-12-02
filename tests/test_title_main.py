@@ -153,10 +153,11 @@ def test_title_parser_should_set_genres(page, imdb_id, genres):
     assert parsed.genres == genres
 
 
+@mark.parametrize(("page",), [("main",), ("reference",)])
 @mark.parametrize(("imdb_id", "plot", "lang"), [
     ("tt0133093", "When a beautiful stranger", "en-US"),  # The Matrix
     ("tt3629794", "Plot undisclosed.", "en-US"),  # Aslan
 ])
-def test_title_parser_should_set_plot(imdb_id, plot, lang):
-    parsed = web.get_title(imdb_id=imdb_id)
+def test_title_parser_should_set_plot(page, imdb_id, plot, lang):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.plot[lang].startswith(plot)

@@ -69,6 +69,27 @@
       }
     },
     {
+      "key": "plot",
+      "extractor": {
+        "rules": [
+          {
+            "key": "lang",
+            "extractor": {
+              "xpath": "//script/text()",
+              "transform": "locale"
+            }
+          },
+          {
+            "key": "text",
+            "extractor": {
+              "xpath": "//section[@class='titlereference-section-overview']/div[1]/text()"
+            }
+          }
+        ],
+        "transform": "lang"
+      }
+    },
+    {
       "key": "genres",
       "extractor": {
         "foreach": "//td[text()='Genres']/..//li/a",
