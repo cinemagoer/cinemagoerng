@@ -89,19 +89,18 @@ class Transform:
 
 @dataclass(kw_only=True)
 class Extractor:
-    foreach: Callable | None = None
     transform: Transform | None = None
     post_map: List["MapRule"] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
 class XPathExtractor(Extractor):
-    xpath: XPath
+    path: XPath
     sep: str = ""
     foreach: XPath | None = None
 
     def __call__(self, data: Node) -> str | Mapping:
-        selected: list[str] = self.xpath(data)  # type: ignore
+        selected: list[str] = self.path(data)  # type: ignore
         if len(selected) == 0:
             return _EMPTY
         return self.sep.join(selected).strip()
@@ -109,11 +108,11 @@ class XPathExtractor(Extractor):
 
 @dataclass(kw_only=True)
 class JmesPathExtractor(Extractor):
-    jmespath: JmesPath
+    path: JmesPath
     foreach: JmesPath | None = None
 
     def __call__(self, data: Mapping[str, Any]) -> Any:
-        selected = self.jmespath(data)
+        selected = self.path(data)
         if (selected is None) or \
                 ((isinstance(selected, Collection) and len(selected) == 0)):
             return _EMPTY
@@ -123,6 +122,7 @@ class JmesPathExtractor(Extractor):
 @dataclass(kw_only=True)
 class TreeRulesExtractor(Extractor):
     rules: List["TreeRule"] = field(default_factory=list)
+    foreach: XPath | None = None
 
     def __call__(self, data: Any) -> Mapping[str, Any]:
         return apply_rules(self.rules, data)
@@ -131,6 +131,7 @@ class TreeRulesExtractor(Extractor):
 @dataclass(kw_only=True)
 class MapRulesExtractor(Extractor):
     rules: List["MapRule"] = field(default_factory=list)
+    foreach: JmesPath | None = None
 
     def __call__(self, data: Any) -> Mapping[str, Any]:
         return apply_rules(self.rules, data)
@@ -170,8 +171,9 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
             if raw is _EMPTY:
                 continue
         else:
-            raw_ = [rule.extractor(r) for r in rule.extractor.foreach(data)]
-            raw = [v for v in raw_ if v is not _EMPTY]
+            raws = [rule.extractor(d)  # type: ignore
+                    for d in rule.extractor.foreach(data)]
+            raw = [v for v in raws if v is not _EMPTY]
             if len(raw) == 0:
                 continue
         if rule.extractor.transform is None:

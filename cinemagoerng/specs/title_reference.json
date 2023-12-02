@@ -4,44 +4,44 @@
     {
       "key": "imdb_id",
       "extractor": {
-        "xpath": "//meta[@property='pageId']/@content"
+        "path": "//meta[@property='pageId']/@content"
       }
     },
     {
       "key": "type_id",
       "extractor": {
-        "xpath": "//h3[@itemprop='name']/following-sibling::ul/li[last()]/text()",
+        "path": "//h3[@itemprop='name']/following-sibling::ul/li[last()]/text()",
         "transform": "type_id"
       }
     },
     {
       "key": "title",
       "extractor": {
-        "xpath": "//h3[@itemprop='name']/text()"
+        "path": "//h3[@itemprop='name']/text()"
       }
     },
     {
       "key": "title",
       "extractor": {
-        "xpath": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()"
+        "path": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()"
       }
     },
     {
       "key": "_year",
       "extractor": {
-        "xpath": "//span[@class='titlereference-title-year']//a/text()",
+        "path": "//span[@class='titlereference-title-year']//a/text()",
         "transform": "year_range",
         "post_map": [
           {
             "key": "year",
             "extractor": {
-              "jmespath": "year"
+              "path": "year"
             }
           },
           {
             "key": "end_year",
             "extractor": {
-              "jmespath": "end_year"
+              "path": "end_year"
             }
           }
         ]
@@ -50,21 +50,21 @@
     {
       "key": "runtime",
       "extractor": {
-        "xpath": "//td[text()='Runtime']/..//li/text()",
+        "path": "//td[text()='Runtime']/..//li/text()",
         "transform": "runtime"
       }
     },
     {
       "key": "rating",
       "extractor": {
-        "xpath": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
+        "path": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
         "transform": "decimal"
       }
     },
     {
       "key": "vote_count",
       "extractor": {
-        "xpath": "//span[@class='ipl-rating-star__total-votes']/text()",
+        "path": "//span[@class='ipl-rating-star__total-votes']/text()",
         "transform": "vote_count"
       }
     },
@@ -75,14 +75,14 @@
           {
             "key": "lang",
             "extractor": {
-              "xpath": "//script/text()",
+              "path": "//script/text()",
               "transform": "locale"
             }
           },
           {
             "key": "text",
             "extractor": {
-              "xpath": "//section[@class='titlereference-section-overview']/div[1]/text()"
+              "path": "//section[@class='titlereference-section-overview']/div[1]/text()"
             }
           }
         ],
@@ -93,7 +93,7 @@
       "key": "genres",
       "extractor": {
         "foreach": "//td[text()='Genres']/..//li/a",
-        "xpath": "./text()"
+        "path": "./text()"
       }
     }
   ]
