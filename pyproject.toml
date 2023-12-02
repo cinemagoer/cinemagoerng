@@ -35,7 +35,7 @@ dependencies = ["lxml", "jmespath", "typedload"]
 [project.optional-dependencies]
 tests = ["pytest", "pytest-cov"]
 types = ["mypy", "lxml-stubs", "types-jmespath"]
-style = ["flake8", "flake8-isort", "flake8-pyproject"]
+style = ["flake8", "flake8-isort", "flake8-builtins", "flake8-pyproject"]
 dev = [
     "cinemagoerng[tests,types,style]",
     "build",
@@ -119,6 +119,7 @@ skip_install = true
 deps =
     flake8
     flake8-isort
+    flake8-builtins
     flake8-pyproject
 commands =
     flake8 cinemagoerng tests
