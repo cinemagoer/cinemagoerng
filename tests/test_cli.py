@@ -21,6 +21,14 @@ def test_cli_get_title_should_report_error_for_nonexisting_imdb_num(cov, capsys)
     assert std.out.strip() == "No title with this IMDb number was found."
 
 
+def test_cli_get_title_should_fetch_page_in_coverage_mode(cov, capsys):
+    if cov is None:
+        pytest.skip("uses live network connection")
+    cli.main(["get", "title", "1"])
+    std = capsys.readouterr()
+    assert re.search(r"Title: (\w|\s|:|-|')+ \((\w|\s|-)+\)\n", std.out)
+
+
 @pytest.mark.parametrize(("imdb_num",), [
     (133093,),  # The Matrix (Movie)
     (389150,),  # The Matrix Defence (TV Movie)

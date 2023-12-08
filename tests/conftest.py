@@ -16,6 +16,8 @@ def fetch_cached(url):
     if cache_filename.endswith("__"):
         cache_filename = cache_filename[:-2]
     cache_path = cache_dir / cache_filename
+    if cache_filename == "title__tt0000001":
+        cache_path.unlink(missing_ok=True)
     if cache_path.exists():
         return cache_path.read_text(encoding="utf-8")
     content = fetch_orig(url)

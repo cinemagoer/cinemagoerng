@@ -25,8 +25,10 @@ from decimal import Decimal
 transformer_registry: dict[str, Callable] = {
     "decimal": lambda x: Decimal(str(x)),
     "div60": lambda x: x // 60,
+    "int": int,
     "json": json.loads,
     "lang": lambda x: {x["lang"]: x["text"]},
+    "lower": str.lower,
     "unescape": html.unescape,
 }
 
@@ -52,10 +54,8 @@ transformer_registry["type_id"] = parse_type_id
 
 def parse_year_range(value: str) -> dict[str, int]:
     tokens = value.split("-")
-    if not tokens[0].isdigit():
-        return {}
     data = {"year": int(tokens[0])}
-    if (len(tokens) > 1) and tokens[1].isdigit():
+    if (len(tokens) > 1) and len(tokens[1]) > 0:
         data["end_year"] = int(tokens[1])
     return data
 

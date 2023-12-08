@@ -16,13 +16,15 @@
 
 from typing import Literal, TypeAlias, TypeVar
 
+import json
+from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from .model import Title
-from .piculet import deserialize, load_spec, scrape, serialize
+from .piculet import Spec, deserialize, load_spec, scrape, serialize
 
 
 _USER_AGENT = " ".join([
@@ -46,21 +48,28 @@ Title_ = TypeVar("Title_", bound=Title)
 TitlePage: TypeAlias = Literal["main", "reference", "taglines"]
 
 
+@lru_cache(maxsize=None)
+def _spec(page: str, /) -> Spec:
+    path = SPECS_DIR / f"{page}.json"
+    content = path.read_text(encoding="utf-8")
+    return load_spec(json.loads(content))
+
+
 def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
-    spec = load_spec(SPECS_DIR / f"title_{page}.json")
+    spec = _spec(f"title_{page}")
     url = spec.url % {"imdb_id": imdb_id}
     try:
         document = fetch(url)
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
-        raise e
+        raise e  # pragma: no cover
     data = scrape(document, spec.rules)
     return deserialize(data, Title)  # type: ignore
 
 
 def update_title(title: Title_, /, *, page: TitlePage) -> Title_:
-    spec = load_spec(SPECS_DIR / f"title_{page}.json")
+    spec = _spec(f"title_{page}")
     url = spec.url % {"imdb_id": title.imdb_id}
     document = fetch(url)
     data = scrape(document, spec.rules)

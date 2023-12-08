@@ -15,11 +15,9 @@
 
 from typing import Any, Callable, Collection, List, Mapping
 
-import json
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import lru_cache, partial
-from pathlib import Path
 from types import MappingProxyType
 
 import typedload
@@ -155,11 +153,13 @@ class Spec:
     rules: list[TreeRule] = field(default_factory=list)
 
 
-@lru_cache(maxsize=None)
-def load_spec(path: Path, /) -> Spec:
-    content = path.read_text(encoding="utf-8")
-    return typedload.load(json.loads(content), Spec, pep563=True,
+def load_spec(document: dict, /) -> Spec:
+    return typedload.load(document, Spec, pep563=True,
                           strconstructed={XPath, JmesPath, Transform})
+
+
+def dump_spec(spec: Spec, /) -> str:
+    return typedload.dump(spec, strconstructed={XPath, JmesPath, Transform})
 
 
 def apply_rules(rules: list[TreeRule] | list[MapRule],
@@ -180,6 +180,8 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
             value = raw
         else:
             value = rule.extractor.transform(raw)
+            if isinstance(value, map):
+                value = list(value)
         result[rule.key] = value
 
         if len(rule.extractor.post_map) > 0:
