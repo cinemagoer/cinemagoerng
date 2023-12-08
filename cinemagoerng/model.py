@@ -26,6 +26,12 @@ class Person:
     name: str
 
 
+@dataclass
+class Credit(Person):
+    as_name: str | None = None
+    notes: list[str] = field(default_factory=list)
+
+
 @dataclass(kw_only=True)
 class _Title:
     imdb_id: str
@@ -36,7 +42,7 @@ class _Title:
     genres: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
     taglines: list[str] = field(default_factory=list)
-    directors: list[Person] = field(default_factory=list)
+    directors: list[Credit] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)

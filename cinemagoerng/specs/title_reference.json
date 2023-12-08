@@ -113,6 +113,27 @@
             "extractor": {
               "path": "./text()"
             }
+          },
+          {
+            "key": "_notes",
+            "extractor": {
+              "path": ".//ancestor::tr/td[text()='...']/following-sibling::td/text()",
+              "transform": "credit_notes",
+              "post_map": [
+                {
+                  "key": "notes",
+                  "extractor": {
+                    "path": "notes"
+                  }
+                },
+                {
+                  "key": "as_name",
+                  "extractor": {
+                    "path": "as_name"
+                  }
+                }
+              ]
+            }
           }
         ]
       }

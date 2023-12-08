@@ -14,7 +14,7 @@
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from typing import Callable
+from typing import Callable, TypedDict
 
 import html
 import json
@@ -86,3 +86,24 @@ def parse_locale(value: str) -> str | None:
 
 
 transformer_registry["locale"] = parse_locale
+
+
+class CreditNotes(TypedDict):
+    notes: list[str]
+    as_name: str | None
+
+
+def parse_credit_notes(value: str) -> CreditNotes:
+    parsed: CreditNotes = {"notes": [], "as_name": None}
+    for note in value.splitlines():
+        text = note.strip()
+        if (text[0] == "(") and (text[-1] == ")"):
+            text = text[1:-1]
+            if text.startswith("as "):
+                parsed["as_name"] = text[3:]
+            else:
+                parsed["notes"].append(text)
+    return parsed
+
+
+transformer_registry["credit_notes"] = parse_credit_notes
