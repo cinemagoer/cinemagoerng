@@ -155,7 +155,8 @@ class Spec:
 
 def load_spec(document: dict, /) -> Spec:
     return typedload.load(document, Spec, pep563=True,
-                          strconstructed={XPath, JmesPath, Transform})
+                          strconstructed={XPath, JmesPath, Transform},
+                          failonextra=True, basiccast=False)
 
 
 def dump_spec(spec: Spec, /) -> str:
@@ -182,7 +183,8 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
             value = rule.extractor.transform(raw)
             if isinstance(value, map):
                 value = list(value)
-        result[rule.key] = value
+        if rule.key[0] != "_":
+            result[rule.key] = value
 
         if len(rule.extractor.post_map) > 0:
             subresult = apply_rules(rule.extractor.post_map, value)
@@ -198,5 +200,6 @@ def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:
     return apply_rules(rules, root)
 
 
-deserialize = partial(typedload.load, strconstructed={Decimal})
+deserialize = partial(typedload.load, strconstructed={Decimal},
+                      failonextra=True, basiccast=False)
 serialize = partial(typedload.dump, strconstructed={Decimal})
