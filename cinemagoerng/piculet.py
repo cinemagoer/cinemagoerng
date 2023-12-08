@@ -137,14 +137,16 @@ class MapRulesExtractor(Extractor):
 
 @dataclass(kw_only=True)
 class TreeRule:
-    key: str
+    key: str | XPathExtractor
     extractor: XPathExtractor | TreeRulesExtractor
+    foreach: XPath | None = None
 
 
 @dataclass(kw_only=True)
 class MapRule:
-    key: str
+    key: str | JmesPathExtractor
     extractor: JmesPathExtractor | MapRulesExtractor
+    foreach: JmesPath | None = None
 
 
 @dataclass(kw_only=True)
@@ -167,25 +169,34 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
                 data: Any) -> Mapping[str, Any]:
     result: dict[str, Any] = {}
     for rule in rules:
-        if rule.extractor.foreach is None:
-            raw = rule.extractor(data)
-            if raw is _EMPTY:
-                continue
-        else:
-            raws = [rule.extractor(d)  # type: ignore
-                    for d in rule.extractor.foreach(data) or []]
-            raw = [v for v in raws if v is not _EMPTY]
-            if len(raw) == 0:
-                continue
-        if rule.extractor.transform is None:
-            value = raw
-        else:
-            value = rule.extractor.transform(raw)
-            if isinstance(value, map):
-                value = list(value)
-        if rule.key[0] != "_":
-            result[rule.key] = value
-
+        subroots = [data] if rule.foreach is None else rule.foreach(data)
+        for subroot in subroots:
+            if rule.extractor.foreach is None:
+                raw = rule.extractor(subroot)
+                if raw is _EMPTY:
+                    continue
+            else:
+                raws = [rule.extractor(d)  # type: ignore
+                        for d in rule.extractor.foreach(subroot) or []]
+                raw = [v for v in raws if v is not _EMPTY]
+                if len(raw) == 0:
+                    continue
+            if rule.extractor.transform is None:
+                value = raw
+            else:
+                value = rule.extractor.transform(raw)
+                if isinstance(value, map):
+                    value = list(value)
+            if isinstance(rule.key, str):
+                key = rule.key
+            else:
+                raw_key = rule.key(subroot)
+                if rule.key.transform is not None:
+                    key = rule.key.transform(raw_key)
+                else:
+                    key = raw_key
+            if key[0] != "_":
+                result[key] = value
         if len(rule.extractor.post_map) > 0:
             subresult = apply_rules(rule.extractor.post_map, value)
             if subresult is not _EMPTY:
@@ -201,5 +212,5 @@ def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:
 
 
 deserialize = partial(typedload.load, strconstructed={Decimal},
-                      failonextra=True, basiccast=False)
+                      basiccast=False)
 serialize = partial(typedload.dump, strconstructed={Decimal})

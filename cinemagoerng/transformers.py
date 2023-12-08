@@ -88,25 +88,42 @@ def parse_locale(value: str) -> str | None:
 transformer_registry["locale"] = parse_locale
 
 
-class CreditNotes(TypedDict):
-    notes: list[str]
+CREDIT_SECTIONS = {
+    "production_managers_": "production_managers",
+    "costume_departmen": "costume_department",
+    "miscellaneous": "additional_crew",
+}
+
+
+def parse_credit_section_id(value: str) -> str:
+    return CREDIT_SECTIONS.get(value, value)
+
+
+transformer_registry["credit_section_id"] = parse_credit_section_id
+
+
+class CreditInfo(TypedDict):
+    job: str | None
     as_name: str | None
+    notes: list[str]
 
 
-def parse_credit_notes(value: str) -> CreditNotes:
-    parsed: CreditNotes = {"notes": [], "as_name": None}
-    for note in value.splitlines():
-        text = note.strip().removesuffix(" &")
-        if (text[0] != "(") or (text[-1] != ")"):
-            continue
-        text = text[1:-1]
-        if len(text) == 0:
-            continue
-        if text.startswith("as "):
-            parsed["as_name"] = text[3:]
+_re_credit_notes = re.compile(r"""\(([^)]+)\)*""")
+
+
+def parse_credit_info(value: str) -> CreditInfo:
+    parsed: CreditInfo = {"job": None, "as_name": None, "notes": []}
+    notes = _re_credit_notes.findall(value)
+    if len(notes) > 0:
+        if notes[-1].startswith("as "):
+            parsed["as_name"] = notes[-1][3:]
+            parsed["notes"] = notes[:-1]
         else:
-            parsed["notes"].append(text)
+            parsed["notes"] = notes
+    parens = value.find("(")
+    if parens > 0:
+        parsed["job"] = value[:parens].strip()
     return parsed
 
 
-transformer_registry["credit_notes"] = parse_credit_notes
+transformer_registry["credit_info"] = parse_credit_info

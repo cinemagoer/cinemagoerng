@@ -44,7 +44,7 @@ def test_title_reference_parser_should_set_all_directors(imdb_id, directors):
         (None, ['segment "Rigoletto"']),
     ]),
 ])
-def test_title_reference_parser_should_set_director_notes(imdb_id, directors):
+def test_title_reference_parser_should_set_director_info(imdb_id, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert [(credit.as_name, credit.notes) for credit in parsed.directors] == directors
 
@@ -76,6 +76,6 @@ def test_title_reference_parser_should_set_all_writers(imdb_id, writers):
         (None, ['book "Suspiria de Profundis"', "uncredited"]),
     ]),
 ])
-def test_title_reference_parser_should_set_writer_notes(imdb_id, writers):
+def test_title_reference_parser_should_set_writer_info(imdb_id, writers):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert [(credit.as_name, credit.notes) for credit in parsed.writers] == writers

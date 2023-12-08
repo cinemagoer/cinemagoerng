@@ -28,6 +28,7 @@ class Person:
 
 @dataclass
 class Credit(Person):
+    job: str | None = None
     as_name: str | None = None
     notes: list[str] = field(default_factory=list)
 
@@ -42,8 +43,36 @@ class _Title:
     genres: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
     taglines: list[str] = field(default_factory=list)
+
     directors: list[Credit] = field(default_factory=list)
     writers: list[Credit] = field(default_factory=list)
+    producers: list[Credit] = field(default_factory=list)
+    composers: list[Credit] = field(default_factory=list)
+    cinematographers: list[Credit] = field(default_factory=list)
+    editors: list[Credit] = field(default_factory=list)
+    editorial_department: list[Credit] = field(default_factory=list)
+    casting_directors: list[Credit] = field(default_factory=list)
+    production_designers: list[Credit] = field(default_factory=list)
+    art_directors: list[Credit] = field(default_factory=list)
+    set_decorators: list[Credit] = field(default_factory=list)
+    costume_designers: list[Credit] = field(default_factory=list)
+    make_up_department: list[Credit] = field(default_factory=list)
+    production_managers: list[Credit] = field(default_factory=list)
+    assistant_directors: list[Credit] = field(default_factory=list)
+    art_department: list[Credit] = field(default_factory=list)
+    sound_department: list[Credit] = field(default_factory=list)
+    special_effects: list[Credit] = field(default_factory=list)
+    visual_effects: list[Credit] = field(default_factory=list)
+    stunts: list[Credit] = field(default_factory=list)
+    camera_department: list[Credit] = field(default_factory=list)
+    animation_department: list[Credit] = field(default_factory=list)
+    casting_department: list[Credit] = field(default_factory=list)
+    costume_department: list[Credit] = field(default_factory=list)
+    location_management: list[Credit] = field(default_factory=list)
+    music_department: list[Credit] = field(default_factory=list)
+    script_department: list[Credit] = field(default_factory=list)
+    transportation_department: list[Credit] = field(default_factory=list)
+    additional_crew: list[Credit] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
