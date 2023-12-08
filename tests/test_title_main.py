@@ -5,8 +5,9 @@ from decimal import Decimal
 from cinemagoerng import model, web
 
 
-def test_title_parser_should_set_imdb_id():
-    parsed = web.get_title(imdb_id="tt0133093")
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+def test_title_parser_should_set_imdb_id(page):
+    parsed = web.get_title(imdb_id="tt0133093", page=page)
     assert parsed.imdb_id == "tt0133093"
 
 
@@ -163,12 +164,16 @@ def test_title_parser_should_set_plot(page, imdb_id, plot, lang):
     assert parsed.plot[lang].startswith(plot)
 
 
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "directors"), [
-    ("tt0133093", [("nm0905154", "Lana Wachowski"), ("nm0905152", "Lilly Wachowski"),]),  # The Matrix
     ("tt1000252", [("nm0531751", "Hettie Macdonald")]),  # Blink
+    ("tt0133093", [("nm0905154", "Lana Wachowski"), ("nm0905152", "Lilly Wachowski"),]),  # The Matrix
+    ("tt0092580", [  # Aria
+        ("nm0000265", "Robert Altman"),
+        ("nm0000915", "Bruce Beresford"),
+        ("nm0117317", "Bill Bryden"),
+    ]),
     ("tt3629794", []),  # Aslan
 ])
-def test_title_parser_should_set_directors(page, imdb_id, directors):
-    parsed = web.get_title(imdb_id=imdb_id, page=page)
+def test_title_main_parser_should_set_main_directors(imdb_id, directors):
+    parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert [(d.imdb_id, d.name) for d in parsed.directors] == directors
