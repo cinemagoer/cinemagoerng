@@ -102,6 +102,26 @@
                 }
               ]
             }
+          },
+          {
+            "key": "writers",
+            "extractor": {
+              "foreach": "props.pageProps.mainColumnData.writers[0].credits[*].name",
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "id"
+                  }
+                },
+                {
+                  "key": "name",
+                  "extractor": {
+                    "path": "nameText.text"
+                  }
+                }
+              ]
+            }
           }
         ]
       }

@@ -137,6 +137,48 @@
           }
         ]
       }
+    },
+    {
+      "key": "writers",
+      "extractor": {
+        "foreach": "//h4[@id='writers']/ancestor::header/following-sibling::table[1]//tr//a",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "./@href",
+              "transform": "href_id"
+            }
+          },
+          {
+            "key": "name",
+            "extractor": {
+              "path": "./text()"
+            }
+          },
+          {
+            "key": "_notes",
+            "extractor": {
+              "path": ".//ancestor::tr/td[text()='...']/following-sibling::td/text()",
+              "transform": "credit_notes",
+              "post_map": [
+                {
+                  "key": "notes",
+                  "extractor": {
+                    "path": "notes"
+                  }
+                },
+                {
+                  "key": "as_name",
+                  "extractor": {
+                    "path": "as_name"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }

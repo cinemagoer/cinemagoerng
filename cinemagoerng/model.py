@@ -43,6 +43,7 @@ class _Title:
     plot: dict[str, str] = field(default_factory=dict)
     taglines: list[str] = field(default_factory=list)
     directors: list[Credit] = field(default_factory=list)
+    writers: list[Credit] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)

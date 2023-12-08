@@ -96,13 +96,16 @@ class CreditNotes(TypedDict):
 def parse_credit_notes(value: str) -> CreditNotes:
     parsed: CreditNotes = {"notes": [], "as_name": None}
     for note in value.splitlines():
-        text = note.strip()
-        if (text[0] == "(") and (text[-1] == ")"):
-            text = text[1:-1]
-            if text.startswith("as "):
-                parsed["as_name"] = text[3:]
-            else:
-                parsed["notes"].append(text)
+        text = note.strip().removesuffix(" &")
+        if (text[0] != "(") or (text[-1] != ")"):
+            continue
+        text = text[1:-1]
+        if len(text) == 0:
+            continue
+        if text.startswith("as "):
+            parsed["as_name"] = text[3:]
+        else:
+            parsed["notes"].append(text)
     return parsed
 
 
