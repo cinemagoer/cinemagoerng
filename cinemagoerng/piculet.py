@@ -13,11 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Callable, Collection, List, Mapping
+from typing import Any, Collection, List, Mapping, TypeAlias
 
 from dataclasses import dataclass, field
 from decimal import Decimal
-from functools import lru_cache, partial
+from functools import partial
 from types import MappingProxyType
 
 import typedload
@@ -29,54 +29,52 @@ from lxml.html import fromstring as parse_html
 from .transformers import transformer_registry
 
 
-_EMPTY: Mapping = MappingProxyType({})
+StrMap: TypeAlias = Mapping[str, Any]
 
 
-make_xpath = lru_cache(maxsize=None)(compile_xpath)
+_EMPTY: StrMap = MappingProxyType({})
 
 
 class XPath:
     def __init__(self, path: str) -> None:
         self.path = path
-        self.__compiled = make_xpath(path)
+        self.__compiled = compile_xpath(path)
 
     def __str__(self) -> str:
         return self.path
 
-    def __call__(self, node: Node) -> list[str] | list[Node]:
-        return self.__compiled(node)  # type: ignore
+    def apply(self, root: Node) -> list[str]:
+        return self.__compiled(root)  # type: ignore
 
-
-make_jmespath = lru_cache(maxsize=None)(compile_jmespath)
+    def select(self, root: Node) -> list[Node]:
+        return self.__compiled(root)  # type: ignore
 
 
 class JmesPath:
     def __init__(self, path: str) -> None:
         self.path = path
-        self.__compiled = make_jmespath(path)
+        self.__compiled = compile_jmespath(path)
 
     def __str__(self) -> str:
         return self.path
 
-    def __call__(self, data: Mapping[str, Any]) -> Any:
-        return self.__compiled.search(data)
+    def apply(self, root: StrMap) -> Any:
+        return self.__compiled.search(root)
 
-
-@lru_cache(maxsize=None)
-def make_transform(name: str) -> Callable:
-    multiple = name[-1] == "*"
-    key = name if not multiple else name[:-1]
-    transform = transformer_registry[key]
-    if not multiple:
-        return transform
-    else:
-        return partial(map, transform)
+    def select(self, root: StrMap) -> list[StrMap]:
+        return self.__compiled.search(root)
 
 
 class Transform:
     def __init__(self, name: str) -> None:
         self.name = name
-        self.__transform = make_transform(name)
+        multiple = name[-1] == "*"
+        key = name if not multiple else name[:-1]
+        transform = transformer_registry[key]
+        if not multiple:
+            self.__transform = transform
+        else:
+            self.__transform = lambda xs: [transform(x) for x in xs]
 
     def __str__(self) -> str:
         return self.name
@@ -86,67 +84,119 @@ class Transform:
 
 
 @dataclass(kw_only=True)
-class Extractor:
-    transform: Transform | None = None
-    post_map: List["MapRule"] = field(default_factory=list)
-
-
-@dataclass(kw_only=True)
-class XPathExtractor(Extractor):
+class TreeExtractor:
     path: XPath
     sep: str = ""
+    transform: Transform | None = None
+    post_map: List["MapRule"] = field(default_factory=list)
     foreach: XPath | None = None
 
-    def __call__(self, data: Node) -> str | Mapping:
-        selected: list[str] = self.path(data)  # type: ignore
-        if len(selected) == 0:
+    def extract(self, root: Node) -> str | StrMap:
+        value = self.path.apply(root)
+        if len(value) == 0:
             return _EMPTY
-        return self.sep.join(selected).strip()
+        return self.sep.join(value).strip()
 
 
 @dataclass(kw_only=True)
-class JmesPathExtractor(Extractor):
+class MapExtractor:
     path: JmesPath
+    transform: Transform | None = None
+    post_map: List["MapRule"] = field(default_factory=list)
     foreach: JmesPath | None = None
 
-    def __call__(self, data: Mapping[str, Any]) -> Any:
-        selected = self.path(data)
-        if (selected is None) or \
-                ((isinstance(selected, Collection) and len(selected) == 0)):
+    def extract(self, root: StrMap) -> Any:
+        value = self.path.apply(root)
+        if (value is None) or \
+                ((isinstance(value, Collection) and len(value) == 0)):
             return _EMPTY
-        return selected
+        return value
 
 
 @dataclass(kw_only=True)
-class TreeRulesExtractor(Extractor):
+class TreeRulesExtractor:
     rules: List["TreeRule"] = field(default_factory=list)
+    transform: Transform | None = None
+    post_map: List["MapRule"] = field(default_factory=list)
     foreach: XPath | None = None
 
-    def __call__(self, data: Any) -> Mapping[str, Any]:
-        return apply_rules(self.rules, data)
+    def extract(self, root: Node) -> StrMap:
+        return apply_rules(self.rules, root)
 
 
 @dataclass(kw_only=True)
-class MapRulesExtractor(Extractor):
+class MapRulesExtractor:
     rules: List["MapRule"] = field(default_factory=list)
+    transform: Transform | None = None
+    post_map: List["MapRule"] = field(default_factory=list)
     foreach: JmesPath | None = None
 
-    def __call__(self, data: Any) -> Mapping[str, Any]:
-        return apply_rules(self.rules, data)
+    def extract(self, root: StrMap) -> StrMap:
+        return apply_rules(self.rules, root)
 
 
 @dataclass(kw_only=True)
 class TreeRule:
-    key: str | XPathExtractor
-    extractor: XPathExtractor | TreeRulesExtractor
+    key: str | TreeExtractor
+    extractor: TreeExtractor | TreeRulesExtractor
     foreach: XPath | None = None
 
 
 @dataclass(kw_only=True)
 class MapRule:
-    key: str | JmesPathExtractor
-    extractor: JmesPathExtractor | MapRulesExtractor
+    key: str | MapExtractor
+    extractor: MapExtractor | MapRulesExtractor
     foreach: JmesPath | None = None
+
+
+def apply_rule(rule: TreeRule | MapRule, root: Node | StrMap) -> StrMap:
+    data: dict[str, Any] = {}
+    subroots = [root] if rule.foreach is None else rule.foreach.select(root)
+    for subroot in subroots:
+        if rule.extractor.foreach is None:
+            raw = rule.extractor.extract(subroot)
+            if raw is _EMPTY:
+                continue
+        else:
+            raws = [rule.extractor.extract(node)  # type: ignore
+                    for node in rule.extractor.foreach.select(subroot) or []]
+            raw = [v for v in raws if v is not _EMPTY]
+            if len(raw) == 0:
+                continue
+
+        value = raw if rule.extractor.transform is None else \
+            rule.extractor.transform(raw)
+
+        match rule.key:
+            case str():
+                key = rule.key
+            case TreeExtractor() | MapExtractor():
+                raw_key = rule.key.extract(subroot)
+                key = raw_key if rule.key.transform is None else \
+                    rule.key.transform(raw_key)
+        if key[0] != "_":
+            data[key] = value
+
+        if len(rule.extractor.post_map) > 0:
+            subresult = apply_rules(rule.extractor.post_map, value)
+            if len(subresult) > 0:
+                data.update(subresult)
+    return data if len(data) > 0 else _EMPTY
+
+
+def apply_rules(rules: list[TreeRule] | list[MapRule],
+                root: Node | StrMap) -> StrMap:
+    data: dict[str, Any] = {}
+    for rule in rules:
+        subdata = apply_rule(rule, root)
+        if len(subdata) > 0:
+            data.update(subdata)
+    return data if len(data) > 0 else _EMPTY
+
+
+def scrape(document: str, /, rules: list[TreeRule]) -> StrMap:
+    root = parse_html(document)
+    return apply_rules(rules, root)
 
 
 @dataclass(kw_only=True)
@@ -166,52 +216,6 @@ def dump_spec(spec: Spec, /) -> str:
     return typedload.dump(spec, strconstructed={XPath, JmesPath, Transform})
 
 
-def apply_rules(rules: list[TreeRule] | list[MapRule],
-                data: Any) -> Mapping[str, Any]:
-    result: dict[str, Any] = {}
-    for rule in rules:
-        subroots = [data] if rule.foreach is None else rule.foreach(data)
-        for subroot in subroots:
-            if rule.extractor.foreach is None:
-                raw = rule.extractor(subroot)
-                if raw is _EMPTY:
-                    continue
-            else:
-                raws = [rule.extractor(d)  # type: ignore
-                        for d in rule.extractor.foreach(subroot) or []]
-                raw = [v for v in raws if v is not _EMPTY]
-                if len(raw) == 0:
-                    continue
-            if rule.extractor.transform is None:
-                value = raw
-            else:
-                value = rule.extractor.transform(raw)
-                if isinstance(value, map):
-                    value = list(value)
-            if isinstance(rule.key, str):
-                key = rule.key
-            else:
-                raw_key = rule.key(subroot)
-                if rule.key.transform is not None:
-                    key = rule.key.transform(raw_key)
-                else:
-                    key = raw_key
-            if key[0] != "_":
-                result[key] = value
-        if len(rule.extractor.post_map) > 0:
-            subresult = apply_rules(rule.extractor.post_map, value)
-            if subresult is not _EMPTY:
-                result.update(subresult)
-    if len(result) == 0:
-        return _EMPTY
-    return result
-
-
-def scrape(document: str, /, rules: list[TreeRule]) -> Mapping[str, Any]:
-    root = parse_html(document)
-    return apply_rules(rules, root)
-
-
-deserialize = partial(typedload.load, strconstructed={Decimal},
+deserialize = partial(typedload.load, strconstructed={Decimal}, pep563=True,
                       basiccast=False)
 serialize = partial(typedload.dump, strconstructed={Decimal})
