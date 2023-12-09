@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -37,7 +36,6 @@ _EMPTY: StrMap = MappingProxyType({})
 transformer_registry: dict[str, Callable] = {
     "decimal": lambda x: Decimal(str(x)),
     "int": int,
-    "json": json.loads,
     "lower": str.lower,
 }
 

@@ -14,6 +14,7 @@
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
 import html
+import json
 import re
 from collections.abc import Callable
 from typing import TypedDict
@@ -104,6 +105,7 @@ def parse_credit_info(value: str) -> CreditInfo:
 
 def update_registry(registry: dict[str, Callable]) -> None:
     registry.update({
+        "json": json.loads,
         "div60": lambda x: x // 60,
         "lang": lambda x: {x["lang"]: x["text"]},
         "unescape": html.unescape,
