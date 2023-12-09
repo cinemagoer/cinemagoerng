@@ -76,17 +76,6 @@ max-line-length = 79
 [tool.isort]
 lines_after_imports = 2
 multi_line_output = 2
-known_test = ["pytest", "unittest"]
-known_typing = ["typing"]
-sections = [
-    "FUTURE",
-    "TYPING",
-    "TEST",
-    "STDLIB",
-    "THIRDPARTY",
-    "FIRSTPARTY",
-    "LOCALFOLDER",
-]
 
 [tool.tox]
 legacy_tox_ini = """

@@ -14,12 +14,11 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from typing import Literal, TypeAlias, TypeVar
-
 import json
 from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
+from typing import Literal, TypeAlias, TypeVar
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 

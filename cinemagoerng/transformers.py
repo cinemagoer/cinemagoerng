@@ -13,13 +13,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from typing import Callable, TypedDict
-
 import html
 import json
 import re
+from collections.abc import Callable
 from decimal import Decimal
+from typing import TypedDict
 
 
 transformer_registry: dict[str, Callable] = {

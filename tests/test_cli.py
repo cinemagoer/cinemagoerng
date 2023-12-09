@@ -1,6 +1,6 @@
-import pytest
-
 import re
+
+import pytest
 
 from cinemagoerng import __version__, cli
 

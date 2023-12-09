@@ -13,12 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Collection, List, Mapping, TypeAlias
-
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from types import MappingProxyType
+from typing import Any, Collection, List, Mapping, TypeAlias
 
 import typedload
 from jmespath import compile as compile_jmespath
