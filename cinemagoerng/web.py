@@ -22,8 +22,9 @@ from typing import Literal, TypeAlias, TypeVar
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
+from . import piculet
 from .model import Title
-from .piculet import Spec, deserialize, load_spec, scrape, serialize
+from .transformers import update_registry
 
 
 _USER_AGENT = " ".join([
@@ -43,15 +44,17 @@ def fetch(url: str, /) -> str:
 
 SPECS_DIR = Path(__file__).parent / "specs"
 
+update_registry(piculet.transformer_registry)
+
 Title_ = TypeVar("Title_", bound=Title)
 TitlePage: TypeAlias = Literal["main", "reference", "taglines"]
 
 
 @lru_cache(maxsize=None)
-def _spec(page: str, /) -> Spec:
+def _spec(page: str, /) -> piculet.Spec:
     path = SPECS_DIR / f"{page}.json"
     content = path.read_text(encoding="utf-8")
-    return load_spec(json.loads(content))
+    return piculet.load_spec(json.loads(content))
 
 
 def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
@@ -63,14 +66,14 @@ def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
         raise e  # pragma: no cover
-    data = scrape(document, spec.rules)
-    return deserialize(data, Title)  # type: ignore
+    data = piculet.scrape(document, spec.rules)
+    return piculet.deserialize(data, Title)  # type: ignore
 
 
 def update_title(title: Title_, /, *, page: TitlePage) -> Title_:
     spec = _spec(f"title_{page}")
     url = spec.url % {"imdb_id": title.imdb_id}
     document = fetch(url)
-    data = scrape(document, spec.rules)
-    current_data = serialize(title)
-    return deserialize(current_data | data, title.__class__)
+    data = piculet.scrape(document, spec.rules)
+    current_data = piculet.serialize(title)
+    return piculet.deserialize(current_data | data, title.__class__)

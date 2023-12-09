@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
@@ -25,13 +27,19 @@ from lxml.etree import XPath as compile_xpath
 from lxml.etree import _Element as Node
 from lxml.html import fromstring as parse_html
 
-from .transformers import transformer_registry
-
 
 StrMap: TypeAlias = Mapping[str, Any]
 
 
 _EMPTY: StrMap = MappingProxyType({})
+
+
+transformer_registry: dict[str, Callable] = {
+    "decimal": lambda x: Decimal(str(x)),
+    "int": int,
+    "json": json.loads,
+    "lower": str.lower,
+}
 
 
 class XPath:

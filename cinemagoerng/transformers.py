@@ -14,22 +14,9 @@
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
 import html
-import json
 import re
 from collections.abc import Callable
-from decimal import Decimal
 from typing import TypedDict
-
-
-transformer_registry: dict[str, Callable] = {
-    "decimal": lambda x: Decimal(str(x)),
-    "div60": lambda x: x // 60,
-    "int": int,
-    "json": json.loads,
-    "lang": lambda x: {x["lang"]: x["text"]},
-    "lower": str.lower,
-    "unescape": html.unescape,
-}
 
 
 def parse_href_id(value: str) -> str:
@@ -40,15 +27,9 @@ def parse_href_id(value: str) -> str:
     return value.split("/")[-1]
 
 
-transformer_registry["href_id"] = parse_href_id
-
-
 def parse_type_id(value: str) -> str:
     first, *rest = value.split(" ")
     return "".join([first.lower()] + rest)
-
-
-transformer_registry["type_id"] = parse_type_id
 
 
 def parse_year_range(value: str) -> dict[str, int]:
@@ -59,21 +40,12 @@ def parse_year_range(value: str) -> dict[str, int]:
     return data
 
 
-transformer_registry["year_range"] = parse_year_range
-
-
 def parse_runtime(value: str) -> int:
     return int(value.replace(" min", ""))
 
 
-transformer_registry["runtime"] = parse_runtime
-
-
 def parse_vote_count(value: str) -> int:
     return int(value[1:-1].replace(",", ""))   # remove parens around value
-
-
-transformer_registry["vote_count"] = parse_vote_count
 
 
 _re_locale = re.compile(r"""locale: '([^']+)'""")
@@ -82,9 +54,6 @@ _re_locale = re.compile(r"""locale: '([^']+)'""")
 def parse_locale(value: str) -> str | None:
     matched = _re_locale.search(value)
     return matched.group(1) if matched is not None else None
-
-
-transformer_registry["locale"] = parse_locale
 
 
 CREDIT_SECTIONS = {
@@ -96,9 +65,6 @@ CREDIT_SECTIONS = {
 
 def parse_credit_section_id(value: str) -> str:
     return CREDIT_SECTIONS.get(value, value)
-
-
-transformer_registry["credit_section_id"] = parse_credit_section_id
 
 
 class CreditInfo(TypedDict):
@@ -136,4 +102,17 @@ def parse_credit_info(value: str) -> CreditInfo:
     return parsed
 
 
-transformer_registry["credit_info"] = parse_credit_info
+def update_registry(registry: dict[str, Callable]) -> None:
+    registry.update({
+        "div60": lambda x: x // 60,
+        "lang": lambda x: {x["lang"]: x["text"]},
+        "unescape": html.unescape,
+        "href_id": parse_href_id,
+        "type_id": parse_type_id,
+        "year_range": parse_year_range,
+        "runtime": parse_runtime,
+        "vote_count": parse_vote_count,
+        "locale": parse_locale,
+        "credit_section_id": parse_credit_section_id,
+        "credit_info": parse_credit_info,
+    })
