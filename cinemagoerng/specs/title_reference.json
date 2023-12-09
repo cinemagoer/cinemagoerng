@@ -138,6 +138,12 @@
                   }
                 },
                 {
+                  "key": "uncredited",
+                  "extractor": {
+                    "path": "uncredited"
+                  }
+                },
+                {
                   "key": "notes",
                   "extractor": {
                     "path": "notes"

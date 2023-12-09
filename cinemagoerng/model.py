@@ -30,6 +30,7 @@ class Person:
 class Credit(Person):
     job: str | None = None
     as_name: str | None = None
+    uncredited: bool = False
     notes: list[str] = field(default_factory=list)
 
 

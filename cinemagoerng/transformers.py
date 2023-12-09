@@ -105,6 +105,7 @@ transformer_registry["credit_section_id"] = parse_credit_section_id
 class CreditInfo(TypedDict):
     job: str | None
     as_name: str | None
+    uncredited: bool
     notes: list[str]
 
 
@@ -112,8 +113,16 @@ _re_credit_notes = re.compile(r"""\(([^)]+)\)*""")
 
 
 def parse_credit_info(value: str) -> CreditInfo:
-    parsed: CreditInfo = {"job": None, "as_name": None, "notes": []}
+    parsed: CreditInfo = {
+        "job": None,
+        "as_name": None,
+        "uncredited": False,
+        "notes": [],
+    }
     notes = _re_credit_notes.findall(value)
+    if "uncredited" in notes:
+        parsed["uncredited"] = True
+        notes.remove("uncredited")
     if len(notes) > 0:
         if notes[-1].startswith("as "):
             parsed["as_name"] = notes[-1][3:]
