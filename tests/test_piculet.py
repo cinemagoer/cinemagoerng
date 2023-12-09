@@ -162,7 +162,7 @@ def test_scrape_should_transform_each_item_in_multivalued_result(movie, movie_sp
         "extractor": {
             "foreach": '//ul[@class="genres"]/li',
             "path": "./text()",
-            "transform": "lower*",
+            "transform": "lower",
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})

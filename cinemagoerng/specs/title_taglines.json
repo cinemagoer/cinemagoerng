@@ -11,8 +11,9 @@
           {
             "key": "taglines",
             "extractor": {
-              "path": "props.pageProps.contentData.section.items[*].htmlContent",
-              "transform": "unescape*"
+              "foreach": "props.pageProps.contentData.section.items[*]",
+              "path": "htmlContent",
+              "transform": "unescape"
             }
           }
         ]

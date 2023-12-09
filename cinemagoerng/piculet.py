@@ -66,22 +66,16 @@ class JmesPath:
         return self.path
 
     def apply(self, root: StrMap) -> Any:
-        return self.__compiled.search(root)
+        return self.__compiled.search(root)  # type: ignore
 
     def select(self, root: StrMap) -> list[StrMap]:
-        return self.__compiled.search(root)
+        return self.__compiled.search(root)  # type: ignore
 
 
 class Transform:
     def __init__(self, name: str) -> None:
         self.name = name
-        multiple = name[-1] == "*"
-        key = name if not multiple else name[:-1]
-        transform = transformer_registry[key]
-        if not multiple:
-            self.__transform = transform
-        else:
-            self.__transform = lambda xs: [transform(x) for x in xs]
+        self.__transform = transformer_registry[name]
 
     def __str__(self) -> str:
         return self.name
@@ -128,7 +122,7 @@ class TreeRulesExtractor:
     foreach: XPath | None = None
 
     def extract(self, root: Node) -> StrMap:
-        return apply_rules(self.rules, root)
+        return scrape_tree(root, self.rules)
 
 
 @dataclass(kw_only=True)
@@ -139,7 +133,7 @@ class MapRulesExtractor:
     foreach: JmesPath | None = None
 
     def extract(self, root: StrMap) -> StrMap:
-        return apply_rules(self.rules, root)
+        return scrape_map(root, self.rules)
 
 
 @dataclass(kw_only=True)
@@ -156,7 +150,7 @@ class MapRule:
     foreach: JmesPath | None = None
 
 
-def apply_rule(rule: TreeRule | MapRule, root: Node | StrMap) -> StrMap:
+def extract_tree(root: Node, rule: TreeRule) -> StrMap:
     data: dict[str, Any] = {}
     subroots = [root] if rule.foreach is None else rule.foreach.select(root)
     for subroot in subroots:
@@ -164,20 +158,21 @@ def apply_rule(rule: TreeRule | MapRule, root: Node | StrMap) -> StrMap:
             raw = rule.extractor.extract(subroot)
             if raw is _EMPTY:
                 continue
+            value = raw if rule.extractor.transform is None else \
+                rule.extractor.transform(raw)
         else:
-            raws = [rule.extractor.extract(node)  # type: ignore
+            raws = [rule.extractor.extract(node)
                     for node in rule.extractor.foreach.select(subroot) or []]
-            raw = [v for v in raws if v is not _EMPTY]
-            if len(raw) == 0:
+            raws = [v for v in raws if v is not _EMPTY]
+            if len(raws) == 0:
                 continue
-
-        value = raw if rule.extractor.transform is None else \
-            rule.extractor.transform(raw)
+            value = raws if rule.extractor.transform is None else \
+                [rule.extractor.transform(r) for r in raws]
 
         match rule.key:
             case str():
                 key = rule.key
-            case TreeExtractor() | MapExtractor():
+            case TreeExtractor():
                 raw_key = rule.key.extract(subroot)
                 key = raw_key if rule.key.transform is None else \
                     rule.key.transform(raw_key)
@@ -185,17 +180,61 @@ def apply_rule(rule: TreeRule | MapRule, root: Node | StrMap) -> StrMap:
             data[key] = value
 
         if len(rule.extractor.post_map) > 0:
-            subresult = apply_rules(rule.extractor.post_map, value)
+            subresult = scrape_map(value, rule.extractor.post_map)
             if len(subresult) > 0:
                 data.update(subresult)
     return data if len(data) > 0 else _EMPTY
 
 
-def apply_rules(rules: list[TreeRule] | list[MapRule],
-                root: Node | StrMap) -> StrMap:
+def extract_map(root: StrMap, rule: MapRule) -> StrMap:
+    data: dict[str, Any] = {}
+    subroots = [root] if rule.foreach is None else rule.foreach.select(root)
+    for subroot in subroots:
+        if rule.extractor.foreach is None:
+            raw = rule.extractor.extract(subroot)
+            if raw is _EMPTY:
+                continue
+            value = raw if rule.extractor.transform is None else \
+                rule.extractor.transform(raw)
+        else:
+            raws = [rule.extractor.extract(node)
+                    for node in rule.extractor.foreach.select(subroot) or []]
+            raws = [v for v in raws if v is not _EMPTY]
+            if len(raws) == 0:
+                continue
+            value = raws if rule.extractor.transform is None else \
+                [rule.extractor.transform(r) for r in raws]
+
+        match rule.key:
+            case str():
+                key = rule.key
+            case MapExtractor():
+                raw_key = rule.key.extract(subroot)
+                key = raw_key if rule.key.transform is None else \
+                    rule.key.transform(raw_key)
+        if key[0] != "_":
+            data[key] = value
+
+        if len(rule.extractor.post_map) > 0:
+            subresult = scrape_map(value, rule.extractor.post_map)
+            if len(subresult) > 0:
+                data.update(subresult)
+    return data if len(data) > 0 else _EMPTY
+
+
+def scrape_tree(root: Node, rules: list[TreeRule]) -> StrMap:
     data: dict[str, Any] = {}
     for rule in rules:
-        subdata = apply_rule(rule, root)
+        subdata = extract_tree(root, rule)
+        if len(subdata) > 0:
+            data.update(subdata)
+    return data if len(data) > 0 else _EMPTY
+
+
+def scrape_map(root: StrMap, rules: list[MapRule]) -> StrMap:
+    data: dict[str, Any] = {}
+    for rule in rules:
+        subdata = extract_map(root, rule)
         if len(subdata) > 0:
             data.update(subdata)
     return data if len(data) > 0 else _EMPTY
@@ -203,7 +242,7 @@ def apply_rules(rules: list[TreeRule] | list[MapRule],
 
 def scrape(document: str, /, rules: list[TreeRule]) -> StrMap:
     root = parse_html(document)
-    return apply_rules(rules, root)
+    return scrape_tree(root, rules)
 
 
 @dataclass(kw_only=True)
