@@ -10,7 +10,7 @@ from cinemagoerng import piculet
 @pytest.fixture(scope="module")
 def movie_spec():
     """Empty scraping spec for Piculet tests."""
-    return {"url": "", "rules": []}
+    return {"version": "1", "url": "", "rules": []}
 
 
 @pytest.fixture(scope="module")

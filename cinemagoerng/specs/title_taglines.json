@@ -1,4 +1,5 @@
 {
+  "version": "20231209",
   "url": "https://www.imdb.com/title/%(imdb_id)s/taglines/",
   "rules": [
     {

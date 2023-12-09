@@ -151,6 +151,7 @@ class MapRule:
 
 @dataclass(kw_only=True)
 class Spec:
+    version: str
     url: str
     rules: list[TreeRule] = field(default_factory=list)
 
