@@ -119,7 +119,7 @@ def parse_credit_info(value: str) -> CreditInfo:
         "uncredited": False,
         "notes": [],
     }
-    notes = _re_credit_notes.findall(value)
+    notes: list[str] = _re_credit_notes.findall(value)
     if "uncredited" in notes:
         parsed["uncredited"] = True
         notes.remove("uncredited")
@@ -132,6 +132,8 @@ def parse_credit_info(value: str) -> CreditInfo:
     parens = value.find("(")
     if parens > 0:
         parsed["job"] = value[:parens].strip()
+    else:
+        parsed["job"] = value
     return parsed
 
 

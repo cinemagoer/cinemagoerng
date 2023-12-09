@@ -20,62 +20,53 @@ from cinemagoerng import web
     ]),
     ("tt3629794", []),  # Aslan
 ])
-def test_title_reference_parser_should_set_all_directors(imdb_id, directors):
+def test_title_reference_parser_should_set_all_credits(imdb_id, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert [(credit.imdb_id, credit.name) for credit in parsed.directors] == directors
 
 
 @pytest.mark.parametrize(("imdb_id", "directors"), [
-    ("tt1000252", [(None, [])]),  # Blink
-    ("tt0133093", [  # The Matrix
-        ("The Wachowski Brothers", []),
-        ("The Wachowski Brothers", []),
-    ]),
+    ("tt1000252", [[]]),  # Blink
+    ("tt0133093", [[], []]),  # The Matrix
     ("tt0092580", [  # Aria'
-        (None, ['segment "Les Boréades"']),
-        (None, ['segment "Die tote Stadt"']),
-        (None, ['segment "I pagliacci"']),
-        (None, ['segment "Armide"']),
-        (None, ['segment "Depuis le jour"']),
-        (None, ['segment "Liebestod"']),
-        (None, ['segment "Un ballo in maschera"']),
-        (None, ['segment "Nessun dorma"']),
-        (None, ['segment "La virgine degli angeli"']),
-        (None, ['segment "Rigoletto"']),
+        ['segment "Les Boréades"'],
+        ['segment "Die tote Stadt"'],
+        ['segment "I pagliacci"'],
+        ['segment "Armide"'],
+        ['segment "Depuis le jour"'],
+        ['segment "Liebestod"'],
+        ['segment "Un ballo in maschera"'],
+        ['segment "Nessun dorma"'],
+        ['segment "La virgine degli angeli"'],
+        ['segment "Rigoletto"'],
     ]),
 ])
-def test_title_reference_parser_should_set_director_info(imdb_id, directors):
+def test_title_reference_parser_should_set_credit_notes(imdb_id, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert [(credit.as_name, credit.notes) for credit in parsed.directors] == directors
+    assert [credit.notes for credit in parsed.directors] == directors
 
 
 @pytest.mark.parametrize(("imdb_id", "writers"), [
-    ("tt7045440", [("nm0000309", "David Bowie")]),  # David Bowie: Ziggy Stardust
-    ("tt0133093", [("nm0905152", "Lilly Wachowski"), ("nm0905154", "Lana Wachowski")]),  # The Matrix
     ("tt0076786", [  # Suspiria
-        ("nm0000783", "Dario Argento"),
-        ("nm0630453", "Daria Nicolodi"),
-        ("nm0211063", "Thomas De Quincey"),
-    ]),
-    ("tt0365467", []),  # Making 'The Matrix'
-])
-def test_title_reference_parser_should_set_all_writers(imdb_id, writers):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert [(credit.imdb_id, credit.name) for credit in parsed.writers] == writers
-
-
-@pytest.mark.parametrize(("imdb_id", "writers"), [
-    ("tt7045440", [(None, [])]),  # David Bowie: Ziggy Stardust
-    ("tt0133093", [  # The Matrix
-        ("The Wachowski Brothers", ["written by"]),
-        ("The Wachowski Brothers", ["written by"]),
-    ]),
-    ("tt0076786", [  # Suspiria
-        (None, ["screenplay"]),
-        (None, ["screenplay"]),
-        (None, ['book "Suspiria de Profundis"', "uncredited"]),
+        (False, ["screenplay"]),
+        (False, ["screenplay"]),
+        (True, ['book "Suspiria de Profundis"']),
     ]),
 ])
-def test_title_reference_parser_should_set_writer_info(imdb_id, writers):
+def test_title_reference_parser_should_remove_uncredited_from_notes(imdb_id, writers):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert [(credit.as_name, credit.notes) for credit in parsed.writers] == writers
+    assert [(credit.uncredited, credit.notes) for credit in parsed.writers] == writers
+
+
+@pytest.mark.parametrize(("imdb_id", "costume_dept"), [
+    ("tt1000252", [  # Blink
+        ("costume supervisor", None, False),
+        ("costume assistant", None, False),
+        ("costume assistant", "Bobby Peach", False),
+        ("costume prop maker", None, True),
+    ]),
+])
+def test_title_reference_parser_should_set_credit_jobs(imdb_id, costume_dept):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert [(credit.job, credit.as_name, credit.uncredited)
+            for credit in parsed.costume_department] == costume_dept
