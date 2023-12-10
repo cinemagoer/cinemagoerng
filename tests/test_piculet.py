@@ -37,7 +37,7 @@ def test_serialize_should_support_decimal():
 def test_load_spec_should_load_transform_from_str(movie_spec):
     rule = {"key": "a", "extractor": {"path": "//a", "transform": "lower"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.transform, piculet.Transform)
+    assert isinstance(spec.rules[0].extractor.transform, piculet.Transformer)
 
 
 def test_dump_spec_should_dump_transform_as_str(movie_spec):
@@ -49,7 +49,7 @@ def test_dump_spec_should_dump_transform_as_str(movie_spec):
 def test_load_spec_should_load_xpath_from_str(movie_spec):
     rule = {"key": "a", "extractor": {"path": "//a"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.path, piculet.XPath)
+    assert isinstance(spec.rules[0].extractor.path, piculet.TreePath)
 
 
 def test_dump_spec_should_dump_xpath_as_str(movie_spec):
@@ -67,7 +67,7 @@ def test_load_spec_should_load_jmespath_from_str(movie_spec):
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.post_map[0].extractor.path, piculet.JmesPath)
+    assert isinstance(spec.rules[0].extractor.post_map[0].extractor.path, piculet.MapPath)
 
 
 def test_dump_spec_should_dump_jmespath_as_str(movie_spec):

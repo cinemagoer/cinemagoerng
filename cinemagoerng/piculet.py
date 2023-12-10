@@ -40,55 +40,44 @@ transformer_registry: dict[str, Callable] = {
 }
 
 
-class XPath:
-    def __init__(self, path: str) -> None:
-        self.path = path
-        self.__compiled = compile_xpath(path)
-
-    def __str__(self) -> str:
-        return self.path
-
-    def apply(self, root: Node) -> list[str]:
-        return self.__compiled(root)  # type: ignore
-
-    def select(self, root: Node) -> list[Node]:
-        return self.__compiled(root)  # type: ignore
-
-
-class JmesPath:
-    def __init__(self, path: str) -> None:
-        self.path = path
-        self.__compiled = compile_jmespath(path)
-
-    def __str__(self) -> str:
-        return self.path
-
-    def apply(self, root: StrMap) -> Any:
-        return self.__compiled.search(root)  # type: ignore
-
-    def select(self, root: StrMap) -> list[StrMap]:
-        return self.__compiled.search(root)  # type: ignore
-
-
-class Transform:
+class Transformer:
     def __init__(self, name: str) -> None:
-        self.name = name
-        self.__transform = transformer_registry[name]
+        self.name: str = name
+        self.apply: Callable = transformer_registry[name]
 
     def __str__(self) -> str:
         return self.name
 
-    def __call__(self, data: Any) -> Any:
-        return self.__transform(data)
+
+class TreePath:
+    def __init__(self, path: str) -> None:
+        self.path: str = path
+        compiled = compile_xpath(path)
+        self.apply: Callable[[Node], list[str]] = compiled  # type: ignore
+        self.select: Callable[[Node], list[Node]] = compiled  # type: ignore
+
+    def __str__(self) -> str:
+        return self.path
+
+
+class MapPath:
+    def __init__(self, path: str) -> None:
+        self.path: str = path
+        compiled = compile_jmespath(path).search
+        self.apply: Callable[[StrMap], Any] = compiled
+        self.select: Callable[[StrMap], list[StrMap]] = compiled
+
+    def __str__(self) -> str:
+        return self.path
 
 
 @dataclass(kw_only=True)
-class TreeExtractor:
-    path: XPath
+class TreePicker:
+    path: TreePath
     sep: str = ""
-    transform: Transform | None = None
+    transform: Transformer | None = None
     post_map: List["MapRule"] = field(default_factory=list)
-    foreach: XPath | None = None
+    foreach: TreePath | None = None
 
     def extract(self, root: Node) -> str | StrMap:
         value = self.path.apply(root)
@@ -98,11 +87,11 @@ class TreeExtractor:
 
 
 @dataclass(kw_only=True)
-class MapExtractor:
-    path: JmesPath
-    transform: Transform | None = None
+class MapPicker:
+    path: MapPath
+    transform: Transformer | None = None
     post_map: List["MapRule"] = field(default_factory=list)
-    foreach: JmesPath | None = None
+    foreach: MapPath | None = None
 
     def extract(self, root: StrMap) -> Any:
         value = self.path.apply(root)
@@ -113,22 +102,22 @@ class MapExtractor:
 
 
 @dataclass(kw_only=True)
-class TreeRulesExtractor:
+class TreeCollector:
     rules: List["TreeRule"] = field(default_factory=list)
-    transform: Transform | None = None
+    transform: Transformer | None = None
     post_map: List["MapRule"] = field(default_factory=list)
-    foreach: XPath | None = None
+    foreach: TreePath | None = None
 
     def extract(self, root: Node) -> StrMap:
         return scrape_tree(root, self.rules)
 
 
 @dataclass(kw_only=True)
-class MapRulesExtractor:
+class MapCollector:
     rules: List["MapRule"] = field(default_factory=list)
-    transform: Transform | None = None
+    transform: Transformer | None = None
     post_map: List["MapRule"] = field(default_factory=list)
-    foreach: JmesPath | None = None
+    foreach: MapPath | None = None
 
     def extract(self, root: StrMap) -> StrMap:
         return scrape_map(root, self.rules)
@@ -136,16 +125,16 @@ class MapRulesExtractor:
 
 @dataclass(kw_only=True)
 class TreeRule:
-    key: str | TreeExtractor
-    extractor: TreeExtractor | TreeRulesExtractor
-    foreach: XPath | None = None
+    key: str | TreePicker
+    extractor: TreePicker | TreeCollector
+    foreach: TreePath | None = None
 
 
 @dataclass(kw_only=True)
 class MapRule:
-    key: str | MapExtractor
-    extractor: MapExtractor | MapRulesExtractor
-    foreach: JmesPath | None = None
+    key: str | MapPicker
+    extractor: MapPicker | MapCollector
+    foreach: MapPath | None = None
 
 
 def extract_tree(root: Node, rule: TreeRule) -> StrMap:
@@ -157,7 +146,7 @@ def extract_tree(root: Node, rule: TreeRule) -> StrMap:
             if raw is _EMPTY:
                 continue
             value = raw if rule.extractor.transform is None else \
-                rule.extractor.transform(raw)
+                rule.extractor.transform.apply(raw)
         else:
             raws = [rule.extractor.extract(node)
                     for node in rule.extractor.foreach.select(subroot) or []]
@@ -165,15 +154,15 @@ def extract_tree(root: Node, rule: TreeRule) -> StrMap:
             if len(raws) == 0:
                 continue
             value = raws if rule.extractor.transform is None else \
-                [rule.extractor.transform(r) for r in raws]
+                [rule.extractor.transform.apply(r) for r in raws]
 
         match rule.key:
             case str():
                 key = rule.key
-            case TreeExtractor():
+            case TreePicker():
                 raw_key = rule.key.extract(subroot)
                 key = raw_key if rule.key.transform is None else \
-                    rule.key.transform(raw_key)
+                    rule.key.transform.apply(raw_key)
         if key[0] != "_":
             data[key] = value
 
@@ -193,7 +182,7 @@ def extract_map(root: StrMap, rule: MapRule) -> StrMap:
             if raw is _EMPTY:
                 continue
             value = raw if rule.extractor.transform is None else \
-                rule.extractor.transform(raw)
+                rule.extractor.transform.apply(raw)
         else:
             raws = [rule.extractor.extract(node)
                     for node in rule.extractor.foreach.select(subroot) or []]
@@ -201,15 +190,15 @@ def extract_map(root: StrMap, rule: MapRule) -> StrMap:
             if len(raws) == 0:
                 continue
             value = raws if rule.extractor.transform is None else \
-                [rule.extractor.transform(r) for r in raws]
+                [rule.extractor.transform.apply(r) for r in raws]
 
         match rule.key:
             case str():
                 key = rule.key
-            case MapExtractor():
+            case MapPicker():
                 raw_key = rule.key.extract(subroot)
                 key = raw_key if rule.key.transform is None else \
-                    rule.key.transform(raw_key)
+                    rule.key.transform.apply(raw_key)
         if key[0] != "_":
             data[key] = value
 
@@ -252,12 +241,13 @@ class Spec:
 
 def load_spec(document: dict, /) -> Spec:
     return typedload.load(document, Spec, pep563=True,
-                          strconstructed={XPath, JmesPath, Transform},
+                          strconstructed={TreePath, MapPath, Transformer},
                           failonextra=True, basiccast=False)
 
 
 def dump_spec(spec: Spec, /) -> str:
-    return typedload.dump(spec, strconstructed={XPath, JmesPath, Transform})
+    return typedload.dump(spec,
+                          strconstructed={TreePath, MapPath, Transformer})
 
 
 deserialize = partial(typedload.load, strconstructed={Decimal}, pep563=True,
