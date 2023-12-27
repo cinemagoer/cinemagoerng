@@ -200,17 +200,21 @@ class Spec:
     rules: list[TreeRule] = field(default_factory=list)
 
 
+_spec_classes = {TreePath, MapPath, Transformer}
+
+
 def load_spec(document: dict, /) -> Spec:
-    return typedload.load(document, Spec, pep563=True,
-                          strconstructed={TreePath, MapPath, Transformer},
-                          failonextra=True, basiccast=False)
+    return typedload.load(document, Spec, strconstructed=_spec_classes,
+                          pep563=True, failonextra=True, basiccast=False)
 
 
 def dump_spec(spec: Spec, /) -> str:
-    return typedload.dump(spec,
-                          strconstructed={TreePath, MapPath, Transformer})
+    return typedload.dump(spec, strconstructed=_spec_classes)
 
 
-deserialize = partial(typedload.load, strconstructed={Decimal}, pep563=True,
-                      basiccast=False)
-serialize = partial(typedload.dump, strconstructed={Decimal})
+_data_classes = {Decimal}
+
+
+deserialize = partial(typedload.load, strconstructed=_data_classes,
+                      pep563=True, basiccast=False)
+serialize = partial(typedload.dump, strconstructed=_data_classes)
