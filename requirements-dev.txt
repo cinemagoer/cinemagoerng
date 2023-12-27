@@ -15,6 +15,7 @@ filelock==3.13.0
 flake8==6.1.0
 flake8-builtins==2.2.0
 flake8-isort==6.1.0
+flake8-print==5.0.0
 Flake8-pyproject==1.2.3
 idna==3.4
 importlib-metadata==6.8.0

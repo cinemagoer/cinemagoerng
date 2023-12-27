@@ -35,7 +35,13 @@ dependencies = ["lxml", "jmespath", "typedload"]
 [project.optional-dependencies]
 tests = ["pytest", "pytest-cov"]
 types = ["mypy", "lxml-stubs", "types-jmespath"]
-style = ["flake8", "flake8-isort", "flake8-builtins", "flake8-pyproject"]
+style = [
+    "flake8",
+    "flake8-pyproject",
+    "flake8-isort",
+    "flake8-builtins",
+    "flake8-print"
+]
 dev = [
     "cinemagoerng[tests,types,style]",
     "build",
@@ -69,6 +75,7 @@ skip_covered = true
 [tool.flake8]
 ignore = ["E731"]
 per-file-ignores = [
+    "cli.py: T20",
     "tests/*: E501",
 ]
 max-line-length = 79
@@ -103,9 +110,10 @@ commands =
 skip_install = true
 deps =
     flake8
+    flake8-pyproject
     flake8-isort
     flake8-builtins
-    flake8-pyproject
+    flake8-print
 commands =
     flake8 cinemagoerng tests
 
