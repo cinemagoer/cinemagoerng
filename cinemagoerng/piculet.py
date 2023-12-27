@@ -53,23 +53,32 @@ class Transformer:
 class TreePath:
     def __init__(self, path: str) -> None:
         self.path: str = path
-        compiled = compile_xpath(path)
-        self.apply: Callable[[TreeNode], list[str]] = compiled  # type: ignore
-        self.select: Callable[[TreeNode], list[TreeNode]] = compiled  # type: ignore
+        self._compiled = compile_xpath(path)
 
     def __str__(self) -> str:
         return self.path
+
+    def apply(self, root: TreeNode) -> list[str]:
+        return self._compiled(root)  # type: ignore
+
+    def select(self, root: TreeNode) -> list[TreeNode]:
+        return self._compiled(root)  # type: ignore
 
 
 class MapPath:
     def __init__(self, path: str) -> None:
         self.path: str = path
-        compiled = compile_jmespath(path).search
-        self.apply: Callable[[MapNode], Any] = compiled
-        self.select: Callable[[MapNode], list[MapNode]] = compiled
+        self._compiled = compile_jmespath(path).search
 
     def __str__(self) -> str:
         return self.path
+
+    def apply(self, root: MapNode) -> Any:
+        return self._compiled(root)
+
+    def select(self, root: MapNode) -> list[MapNode]:
+        selected = self._compiled(root)
+        return selected if selected is not None else []
 
 
 @dataclass(kw_only=True)
@@ -86,9 +95,7 @@ class TreePicker(Extractor):
 
     def extract(self, root: TreeNode) -> str | None:
         selected = self.path.apply(root)
-        if len(selected) == 0:
-            return None
-        return self.sep.join(selected)
+        return self.sep.join(selected) if len(selected) > 0 else None
 
 
 @dataclass(kw_only=True)
@@ -144,8 +151,7 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
         if rule.extractor.foreach is None:
             nodes = [subroot]
         else:
-            selected = rule.extractor.foreach.select(subroot)  # type: ignore
-            nodes = selected if selected is not None else []  # type: ignore
+            nodes = rule.extractor.foreach.select(subroot)  # type: ignore
 
         raws = [rule.extractor.extract(n) for n in nodes]  # type: ignore
         raws = [v for v in raws if (v is not _EMPTY) and (v is not None)]
