@@ -37,6 +37,7 @@ transformer_registry: dict[str, Callable] = {
     "decimal": lambda x: Decimal(str(x)),
     "int": int,
     "lower": str.lower,
+    "strip": str.strip,
 }
 
 
@@ -83,7 +84,7 @@ class TreePicker:
         value = self.path.apply(root)
         if len(value) == 0:
             return _EMPTY
-        return self.sep.join(value).strip()
+        return self.sep.join(value)
 
 
 @dataclass(kw_only=True)

@@ -1,5 +1,5 @@
 {
-  "version": "20231209",
+  "version": "20231227",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "rules": [
     {
@@ -18,13 +18,15 @@
     {
       "key": "title",
       "extractor": {
-        "path": "//h3[@itemprop='name']/text()"
+        "path": "//h3[@itemprop='name']/text()",
+        "transform": "strip"
       }
     },
     {
       "key": "title",
       "extractor": {
-        "path": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()"
+        "path": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()",
+        "transform": "strip"
       }
     },
     {
@@ -90,7 +92,8 @@
           {
             "key": "text",
             "extractor": {
-              "path": "//section[@class='titlereference-section-overview']/div[1]/text()"
+              "path": "//section[@class='titlereference-section-overview']/div[1]/text()",
+              "transform": "strip"
             }
           }
         ],

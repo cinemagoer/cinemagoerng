@@ -29,12 +29,12 @@ def parse_href_id(value: str) -> str:
 
 
 def parse_type_id(value: str) -> str:
-    first, *rest = value.split(" ")
+    first, *rest = value.strip().split(" ")
     return "".join([first.lower()] + rest)
 
 
 def parse_year_range(value: str) -> dict[str, int]:
-    tokens = value.split("-")
+    tokens = value.strip().split("-")
     data = {"year": int(tokens[0])}
     if (len(tokens) > 1) and len(tokens[1]) > 0:
         data["end_year"] = int(tokens[1])

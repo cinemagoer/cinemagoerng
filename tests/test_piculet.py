@@ -114,14 +114,6 @@ def test_scrape_should_produce_concatenated_text_using_given_separator(movie, mo
     assert data == {"cast_names": "Jack Nicholson, Shelley Duvall"}
 
 
-def test_scrape_should_produce_stripped_text(movie, movie_spec):
-    rule = {"key": "review", "extractor": {"path": "//div[@class='review']//text()"}}
-    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules)
-    review = data["review"]
-    assert review.startswith("Fantastic") and review.endswith("recommended.")
-
-
 def test_scrape_should_transform_text(movie, movie_spec):
     rule = {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transform": "int"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
