@@ -1,5 +1,5 @@
 {
-  "version": "20231209",
+  "version": "20231227",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "rules": [
     {
@@ -85,29 +85,13 @@
             }
           },
           {
-            "key": "directors",
+            "foreach": "props.pageProps.mainColumnData.*[?credits][]",
+            "key": {
+              "path": "category.text",
+              "transform": "credit_key"
+            },
             "extractor": {
-              "foreach": "props.pageProps.mainColumnData.directors[0].credits[*].name",
-              "rules": [
-                {
-                  "key": "imdb_id",
-                  "extractor": {
-                    "path": "id"
-                  }
-                },
-                {
-                  "key": "name",
-                  "extractor": {
-                    "path": "nameText.text"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "key": "writers",
-            "extractor": {
-              "foreach": "props.pageProps.mainColumnData.writers[0].credits[*].name",
+              "foreach": "credits[*].name",
               "rules": [
                 {
                   "key": "imdb_id",

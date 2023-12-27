@@ -57,6 +57,11 @@ def parse_locale(value: str) -> str | None:
     return matched.group(1) if matched is not None else None
 
 
+def parse_credit_key(value: str) -> str:
+    value = value.lower()
+    return f"{value}s" if value[-1] != "s" else value
+
+
 CREDIT_SECTIONS = {
     "production_managers_": "production_managers",
     "costume_departmen": "costume_department",
@@ -115,6 +120,7 @@ def update_registry(registry: dict[str, Callable]) -> None:
         "runtime": parse_runtime,
         "vote_count": parse_vote_count,
         "locale": parse_locale,
+        "credit_key": parse_credit_key,
         "credit_section_id": parse_credit_section_id,
         "credit_info": parse_credit_info,
     })
