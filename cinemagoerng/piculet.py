@@ -80,10 +80,10 @@ class TreePicker:
     post_map: List["MapRule"] = field(default_factory=list)
     foreach: TreePath | None = None
 
-    def extract(self, root: Node) -> str | StrMap:
+    def extract(self, root: Node) -> str | None:
         value = self.path.apply(root)
         if len(value) == 0:
-            return _EMPTY
+            return None
         return self.sep.join(value)
 
 
@@ -95,11 +95,7 @@ class MapPicker:
     foreach: MapPath | None = None
 
     def extract(self, root: StrMap) -> Any:
-        value = self.path.apply(root)
-        if (value is None) or \
-                ((isinstance(value, Collection) and len(value) == 0)):
-            return _EMPTY
-        return value
+        return self.path.apply(root)
 
 
 @dataclass(kw_only=True)
@@ -144,7 +140,7 @@ def extract_tree(root: Node, rule: TreeRule) -> StrMap:
     for subroot in subroots:
         if rule.extractor.foreach is None:
             raw = rule.extractor.extract(subroot)
-            if raw is _EMPTY:
+            if (raw is None) or (raw is _EMPTY):
                 continue
             value = raw if rule.extractor.transform is None else \
                 rule.extractor.transform.apply(raw)
@@ -180,7 +176,7 @@ def extract_map(root: StrMap, rule: MapRule) -> StrMap:
     for subroot in subroots:
         if rule.extractor.foreach is None:
             raw = rule.extractor.extract(subroot)
-            if raw is _EMPTY:
+            if (raw is None) or (raw is _EMPTY):
                 continue
             value = raw if rule.extractor.transform is None else \
                 rule.extractor.transform.apply(raw)
