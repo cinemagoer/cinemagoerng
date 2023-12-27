@@ -23,14 +23,14 @@ from typing import Any, List, Mapping, TypeAlias
 import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
-from lxml.etree import _Element as Node
+from lxml.etree import _Element as TreeNode
 from lxml.html import fromstring as parse_html
 
 
-StrMap: TypeAlias = Mapping[str, Any]
+MapNode: TypeAlias = Mapping[str, Any]
 
 
-_EMPTY: StrMap = MappingProxyType({})
+_EMPTY: MapNode = MappingProxyType({})
 
 
 transformer_registry: dict[str, Callable] = {
@@ -54,8 +54,8 @@ class TreePath:
     def __init__(self, path: str) -> None:
         self.path: str = path
         compiled = compile_xpath(path)
-        self.apply: Callable[[Node], list[str]] = compiled  # type: ignore
-        self.select: Callable[[Node], list[Node]] = compiled  # type: ignore
+        self.apply: Callable[[TreeNode], list[str]] = compiled  # type: ignore
+        self.select: Callable[[TreeNode], list[TreeNode]] = compiled  # type: ignore
 
     def __str__(self) -> str:
         return self.path
@@ -65,8 +65,8 @@ class MapPath:
     def __init__(self, path: str) -> None:
         self.path: str = path
         compiled = compile_jmespath(path).search
-        self.apply: Callable[[StrMap], Any] = compiled
-        self.select: Callable[[StrMap], list[StrMap]] = compiled
+        self.apply: Callable[[MapNode], Any] = compiled
+        self.select: Callable[[MapNode], list[MapNode]] = compiled
 
     def __str__(self) -> str:
         return self.path
@@ -84,7 +84,7 @@ class TreePicker(Extractor):
     sep: str = ""
     foreach: TreePath | None = None
 
-    def extract(self, root: Node) -> str | None:
+    def extract(self, root: TreeNode) -> str | None:
         selected = self.path.apply(root)
         if len(selected) == 0:
             return None
@@ -96,7 +96,7 @@ class MapPicker(Extractor):
     path: MapPath
     foreach: MapPath | None = None
 
-    def extract(self, root: StrMap) -> Any:
+    def extract(self, root: MapNode) -> Any:
         return self.path.apply(root)
 
 
@@ -105,7 +105,7 @@ class TreeCollector(Extractor):
     rules: List["TreeRule"] = field(default_factory=list)
     foreach: TreePath | None = None
 
-    def extract(self, root: Node) -> StrMap:
+    def extract(self, root: TreeNode) -> MapNode:
         return collect(root, self.rules)
 
 
@@ -114,7 +114,7 @@ class MapCollector(Extractor):
     rules: List["MapRule"] = field(default_factory=list)
     foreach: MapPath | None = None
 
-    def extract(self, root: StrMap) -> StrMap:
+    def extract(self, root: MapNode) -> MapNode:
         return collect(root, self.rules)
 
 
@@ -132,7 +132,7 @@ class MapRule:
     foreach: MapPath | None = None
 
 
-def extract(root: Node | StrMap, rule: TreeRule | MapRule) -> StrMap:
+def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
     data: dict[str, Any] = {}
 
     if rule.foreach is None:
@@ -172,8 +172,8 @@ def extract(root: Node | StrMap, rule: TreeRule | MapRule) -> StrMap:
     return data if len(data) > 0 else _EMPTY
 
 
-def collect(root: Node | StrMap,
-            rules: list[TreeRule] | list[MapRule]) -> StrMap:
+def collect(root: TreeNode | MapNode,
+            rules: list[TreeRule] | list[MapRule]) -> MapNode:
     data: dict[str, Any] = {}
     for rule in rules:
         subdata = extract(root, rule)
@@ -182,7 +182,7 @@ def collect(root: Node | StrMap,
     return data if len(data) > 0 else _EMPTY
 
 
-def scrape(document: str, rules: list[TreeRule]) -> StrMap:
+def scrape(document: str, rules: list[TreeRule]) -> MapNode:
     root = parse_html(document)
     return collect(root, rules)
 
