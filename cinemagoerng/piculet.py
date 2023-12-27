@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from types import MappingProxyType
-from typing import Any, Collection, List, Mapping, TypeAlias
+from typing import Any, List, Mapping, TypeAlias
 
 import typedload
 from jmespath import compile as compile_jmespath
@@ -73,25 +73,27 @@ class MapPath:
 
 
 @dataclass(kw_only=True)
-class TreePicker:
-    path: TreePath
-    sep: str = ""
+class Extractor:
     transform: Transformer | None = None
     post_map: List["MapRule"] = field(default_factory=list)
-    foreach: TreePath | None = None
-
-    def extract(self, root: Node) -> str | None:
-        value = self.path.apply(root)
-        if len(value) == 0:
-            return None
-        return self.sep.join(value)
 
 
 @dataclass(kw_only=True)
-class MapPicker:
+class TreePicker(Extractor):
+    path: TreePath
+    sep: str = ""
+    foreach: TreePath | None = None
+
+    def extract(self, root: Node) -> str | None:
+        selected = self.path.apply(root)
+        if len(selected) == 0:
+            return None
+        return self.sep.join(selected)
+
+
+@dataclass(kw_only=True)
+class MapPicker(Extractor):
     path: MapPath
-    transform: Transformer | None = None
-    post_map: List["MapRule"] = field(default_factory=list)
     foreach: MapPath | None = None
 
     def extract(self, root: StrMap) -> Any:
@@ -99,25 +101,21 @@ class MapPicker:
 
 
 @dataclass(kw_only=True)
-class TreeCollector:
+class TreeCollector(Extractor):
     rules: List["TreeRule"] = field(default_factory=list)
-    transform: Transformer | None = None
-    post_map: List["MapRule"] = field(default_factory=list)
     foreach: TreePath | None = None
 
     def extract(self, root: Node) -> StrMap:
-        return scrape_tree(root, self.rules)
+        return collect(root, self.rules)
 
 
 @dataclass(kw_only=True)
-class MapCollector:
+class MapCollector(Extractor):
     rules: List["MapRule"] = field(default_factory=list)
-    transform: Transformer | None = None
-    post_map: List["MapRule"] = field(default_factory=list)
     foreach: MapPath | None = None
 
     def extract(self, root: StrMap) -> StrMap:
-        return scrape_map(root, self.rules)
+        return collect(root, self.rules)
 
 
 @dataclass(kw_only=True)
@@ -134,99 +132,59 @@ class MapRule:
     foreach: MapPath | None = None
 
 
-def extract_tree(root: Node, rule: TreeRule) -> StrMap:
+def extract(root: Node | StrMap, rule: TreeRule | MapRule) -> StrMap:
     data: dict[str, Any] = {}
-    subroots = [root] if rule.foreach is None else rule.foreach.select(root)
+
+    if rule.foreach is None:
+        subroots = [root]
+    else:
+        subroots = rule.foreach.select(root)  # type: ignore
+
     for subroot in subroots:
         if rule.extractor.foreach is None:
-            raw = rule.extractor.extract(subroot)
-            if (raw is None) or (raw is _EMPTY):
-                continue
-            value = raw if rule.extractor.transform is None else \
-                rule.extractor.transform.apply(raw)
+            nodes = [subroot]
         else:
-            raws = [rule.extractor.extract(node)
-                    for node in rule.extractor.foreach.select(subroot) or []]
-            raws = [v for v in raws if v is not _EMPTY]
-            if len(raws) == 0:
-                continue
-            value = raws if rule.extractor.transform is None else \
-                [rule.extractor.transform.apply(r) for r in raws]
+            selected = rule.extractor.foreach.select(subroot)  # type: ignore
+            nodes = selected if selected is not None else []  # type: ignore
+
+        raws = [rule.extractor.extract(n) for n in nodes]  # type: ignore
+        raws = [v for v in raws if (v is not _EMPTY) and (v is not None)]
+        if len(raws) == 0:
+            continue
+        values = raws if rule.extractor.transform is None else \
+            [rule.extractor.transform.apply(r) for r in raws]
+        value = values[0] if rule.extractor.foreach is None else values
 
         match rule.key:
             case str():
                 key = rule.key
-            case TreePicker():
-                raw_key = rule.key.extract(subroot)
+            case TreePicker() | MapPicker():
+                raw_key = rule.key.extract(subroot)  # type: ignore
                 key = raw_key if rule.key.transform is None else \
                     rule.key.transform.apply(raw_key)
         if key[0] != "_":
             data[key] = value
 
         if len(rule.extractor.post_map) > 0:
-            subresult = scrape_map(value, rule.extractor.post_map)
+            subresult = collect(value, rule.extractor.post_map)  # type: ignore
             if len(subresult) > 0:
                 data.update(subresult)
     return data if len(data) > 0 else _EMPTY
 
 
-def extract_map(root: StrMap, rule: MapRule) -> StrMap:
-    data: dict[str, Any] = {}
-    subroots = [root] if rule.foreach is None else rule.foreach.select(root)
-    for subroot in subroots:
-        if rule.extractor.foreach is None:
-            raw = rule.extractor.extract(subroot)
-            if (raw is None) or (raw is _EMPTY):
-                continue
-            value = raw if rule.extractor.transform is None else \
-                rule.extractor.transform.apply(raw)
-        else:
-            raws = [rule.extractor.extract(node)
-                    for node in rule.extractor.foreach.select(subroot) or []]
-            raws = [v for v in raws if v is not _EMPTY]
-            if len(raws) == 0:
-                continue
-            value = raws if rule.extractor.transform is None else \
-                [rule.extractor.transform.apply(r) for r in raws]
-
-        match rule.key:
-            case str():
-                key = rule.key
-            case MapPicker():
-                raw_key = rule.key.extract(subroot)
-                key = raw_key if rule.key.transform is None else \
-                    rule.key.transform.apply(raw_key)
-        if key[0] != "_":
-            data[key] = value
-
-        if len(rule.extractor.post_map) > 0:
-            subresult = scrape_map(value, rule.extractor.post_map)
-            if len(subresult) > 0:
-                data.update(subresult)
-    return data if len(data) > 0 else _EMPTY
-
-
-def scrape_tree(root: Node, rules: list[TreeRule]) -> StrMap:
+def collect(root: Node | StrMap,
+            rules: list[TreeRule] | list[MapRule]) -> StrMap:
     data: dict[str, Any] = {}
     for rule in rules:
-        subdata = extract_tree(root, rule)
+        subdata = extract(root, rule)
         if len(subdata) > 0:
             data.update(subdata)
     return data if len(data) > 0 else _EMPTY
 
 
-def scrape_map(root: StrMap, rules: list[MapRule]) -> StrMap:
-    data: dict[str, Any] = {}
-    for rule in rules:
-        subdata = extract_map(root, rule)
-        if len(subdata) > 0:
-            data.update(subdata)
-    return data if len(data) > 0 else _EMPTY
-
-
-def scrape(document: str, /, rules: list[TreeRule]) -> StrMap:
+def scrape(document: str, rules: list[TreeRule]) -> StrMap:
     root = parse_html(document)
-    return scrape_tree(root, rules)
+    return collect(root, rules)
 
 
 @dataclass(kw_only=True)
