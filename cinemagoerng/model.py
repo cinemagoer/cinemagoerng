@@ -37,6 +37,9 @@ class Credit(Person):
 class _Title:
     imdb_id: str
     title: str
+
+    primary_image: str | None = None
+
     year: int | None = None
     rating: Decimal | None = None
     vote_count: int = 0

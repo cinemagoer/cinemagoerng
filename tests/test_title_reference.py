@@ -3,6 +3,15 @@ import pytest
 from cinemagoerng import web
 
 
+@pytest.mark.parametrize(("imdb_id", "primary_image"), [
+    ("tt0133093", "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX101_CR0,0,101,150_.jpg"),  # The Matrix
+    ("tt3629794", None),  # Aslan
+])
+def test_title_parser_should_set_primary_image_from_thumbnail(imdb_id, primary_image):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert parsed.primary_image == primary_image
+
+
 @pytest.mark.parametrize(("imdb_id", "directors"), [
     ("tt1000252", [("nm0531751", "Hettie Macdonald")]),  # Blink
     ("tt0133093", [("nm0905154", "Lana Wachowski"), ("nm0905152", "Lilly Wachowski"),]),  # The Matrix

@@ -1,5 +1,5 @@
 {
-  "version": "20231227",
+  "version": "20240101",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "rules": [
     {
@@ -24,6 +24,12 @@
             "key": "title",
             "extractor": {
               "path": "props.pageProps.aboveTheFoldData.originalTitleText.text"
+            }
+          },
+          {
+            "key": "primary_image",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.primaryImage.url"
             }
           },
           {

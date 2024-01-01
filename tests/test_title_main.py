@@ -50,6 +50,15 @@ def test_title_parser_should_set_title_from_original_title(page, imdb_id, title)
     assert parsed.title == title
 
 
+@pytest.mark.parametrize(("imdb_id", "primary_image"), [
+    ("tt0133093", "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_.jpg"),  # The Matrix
+    ("tt3629794", None),  # Aslan
+])
+def test_title_parser_should_set_primary_image(imdb_id, primary_image):
+    parsed = web.get_title(imdb_id=imdb_id, page="main")
+    assert parsed.primary_image == primary_image
+
+
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "year"), [
     ("tt0133093", 1999),  # The Matrix

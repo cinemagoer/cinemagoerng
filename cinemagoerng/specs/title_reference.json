@@ -30,6 +30,12 @@
       }
     },
     {
+      "key": "primary_image",
+      "extractor": {
+        "path": "//img[@class='titlereference-primary-image']/@src"
+      }
+    },
+    {
       "key": "_year",
       "extractor": {
         "path": "//span[@class='titlereference-title-year']//a/text()",
