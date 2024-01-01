@@ -40,7 +40,7 @@ style = [
     "flake8-pyproject",
     "flake8-isort",
     "flake8-builtins",
-    "flake8-print"
+    "flake8-print",
 ]
 dev = [
     "cinemagoerng[tests,types,style]",
