@@ -45,6 +45,18 @@
             }
           },
           {
+            "key": "country_codes",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.countriesOfOrigin.countries[*].id"
+            }
+          },
+          {
+            "key": "language_codes",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.spokenLanguages.spokenLanguages[*].id"
+            }
+          },
+          {
             "key": "runtime",
             "extractor": {
               "path": "props.pageProps.aboveTheFoldData.runtime.seconds",

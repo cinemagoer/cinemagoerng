@@ -57,6 +57,22 @@
       }
     },
     {
+      "key": "country_codes",
+      "extractor": {
+        "foreach": "//td[text()='Country']/..//li/a",
+        "path": "./@href",
+        "transform": "country_code"
+      }
+    },
+    {
+      "key": "language_codes",
+      "extractor": {
+        "foreach": "//td[text()='Language']/..//li/a",
+        "path": "./@href",
+        "transform": "language_code"
+      }
+    },
+    {
       "key": "runtime",
       "extractor": {
         "path": "//td[text()='Runtime']/..//li/text()",

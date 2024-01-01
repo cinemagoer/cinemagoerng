@@ -101,6 +101,27 @@ def test_title_parser_should_not_set_end_year_for_other_than_series(page, imdb_i
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "country_codes"), [
+    ("tt0133093", ["US", "AU"]),  # The Matrix
+    ("tt0389150", ["GB"]),  # The Matrix Defence
+])
+def test_title_parser_should_set_country_codes(page, imdb_id, country_codes):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert parsed.country_codes == country_codes
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "language_codes"), [
+    ("tt0133093", ["en"]),  # The Matrix
+    ("tt0043338", ["en", "es", "la"]),  # Ace in the Hole
+    ("tt2971344", ["zxx"]),  # Matrix: First Dream (language: None)
+])
+def test_title_parser_should_set_language_codes(page, imdb_id, language_codes):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert parsed.language_codes == language_codes
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "runtime"), [
     ("tt0133093", 136),  # The Matrix (Movie)
     ("tt2971344", 28),  # Matrix: First Dream (Short Movie)

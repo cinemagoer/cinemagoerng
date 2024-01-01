@@ -41,6 +41,14 @@ def parse_year_range(value: str) -> dict[str, int]:
     return data
 
 
+def parse_country_code(value: str) -> str:
+    return value.split("/country/")[-1]
+
+
+def parse_language_code(value: str) -> str:
+    return value.split("/language/")[-1]
+
+
 def parse_runtime(value: str) -> int:
     return int(value.replace(" min", ""))
 
@@ -117,6 +125,8 @@ def update_registry(registry: dict[str, Callable]) -> None:
         "href_id": parse_href_id,
         "type_id": parse_type_id,
         "year_range": parse_year_range,
+        "country_code": parse_country_code,
+        "language_code": parse_language_code,
         "runtime": parse_runtime,
         "vote_count": parse_vote_count,
         "locale": parse_locale,

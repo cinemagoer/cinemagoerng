@@ -18,6 +18,8 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Literal, TypeAlias
 
+from . import lookup
+
 
 @dataclass
 class Person:
@@ -41,6 +43,8 @@ class _Title:
     primary_image: str | None = None
 
     year: int | None = None
+    country_codes: list[str] = field(default_factory=list)
+    language_codes: list[str] = field(default_factory=list)
     genres: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
     taglines: list[str] = field(default_factory=list)
@@ -77,6 +81,14 @@ class _Title:
     script_department: list[Credit] = field(default_factory=list)
     transportation_department: list[Credit] = field(default_factory=list)
     additional_crew: list[Credit] = field(default_factory=list)
+
+    @property
+    def countries(self):
+        return [lookup.COUNTRY_CODES[c] for c in self.country_codes]
+
+    @property
+    def languages(self):
+        return [lookup.LANGUAGE_CODES[c.upper()] for c in self.language_codes]
 
 
 @dataclass(kw_only=True)
