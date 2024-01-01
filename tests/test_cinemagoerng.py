@@ -15,7 +15,7 @@ def test_installed_version_should_match_tested_version():
     ("tt0389150", ["GB"], ["United Kingdom"]),  # The Matrix Defence
 ])
 def test_title_countries_property_should_return_country_names(imdb_id, country_codes, countries):
-    movie = Movie(imdb_id=imdb_id, type_id="movie", title="The Matrix", country_codes=country_codes)
+    movie = Movie(imdb_id=imdb_id, title="The Matrix", country_codes=country_codes)
     assert movie.countries == countries
 
 
@@ -25,5 +25,5 @@ def test_title_countries_property_should_return_country_names(imdb_id, country_c
     ("tt2971344", ["zxx"], ["None"]),  # Matrix: First Dream
 ])
 def test_title_languages_property_should_return_language_names(imdb_id, language_codes, languages):
-    movie = Movie(imdb_id=imdb_id, type_id="movie", title="The Matrix", language_codes=language_codes)
+    movie = Movie(imdb_id=imdb_id, title="The Matrix", language_codes=language_codes)
     assert movie.languages == languages

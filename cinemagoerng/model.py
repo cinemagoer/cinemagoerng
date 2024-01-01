@@ -93,68 +93,68 @@ class _Title:
 
 @dataclass(kw_only=True)
 class Movie(_Title):
-    type_id: Literal["movie"]
+    type_id: Literal["movie"] = "movie"
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class TVMovie(_Title):
-    type_id: Literal["tvMovie"]
+    type_id: Literal["tvMovie"] = "tvMovie"
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class ShortMovie(_Title):
-    type_id: Literal["short"]
+    type_id: Literal["short"] = "short"
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class TVShortMovie(_Title):
-    type_id: Literal["tvShort"]
+    type_id: Literal["tvShort"] = "tvShort"
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class VideoMovie(_Title):
-    type_id: Literal["video"]
+    type_id: Literal["video"] = "video"
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class MusicVideo(_Title):
-    type_id: Literal["musicVideo"]
+    type_id: Literal["musicVideo"] = "musicVideo"
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class VideoGame(_Title):
-    type_id: Literal["videoGame"]
+    type_id: Literal["videoGame"] = "videoGame"
 
 
 @dataclass(kw_only=True)
 class TVSeries(_Title):
-    type_id: Literal["tvSeries"]
+    type_id: Literal["tvSeries"] = "tvSeries"
     end_year: int | None = None
     runtime: int | None = None
 
 
 @dataclass(kw_only=True)
 class TVMiniSeries(_Title):
-    type_id: Literal["tvMiniSeries"]
+    type_id: Literal["tvMiniSeries"] = "tvMiniSeries"
     end_year: int | None = None
     runtime: int | None = None
 
 
 @dataclass
 class TVEpisode(_Title):
-    type_id: Literal["tvEpisode"]
+    type_id: Literal["tvEpisode"] = "tvEpisode"
     runtime: int | None = None
 
 
 @dataclass
 class TVSpecial(_Title):
-    type_id: Literal["tvSpecial"]
+    type_id: Literal["tvSpecial"] = "tvSpecial"
     runtime: int | None = None
 
 
