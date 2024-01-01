@@ -1,4 +1,4 @@
-# Copyright 2023 H. Turgut Uyar <uyar@tekir.org>
+# Copyright 2024 H. Turgut Uyar <uyar@tekir.org>
 #
 # CinemagoerNG is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -98,7 +98,10 @@ class _Title:
             if articles is not None:
                 first, *rest = self.title.split(" ")
                 if (len(rest) > 0) and (first.lower() in articles):
-                    return " ".join(rest)
+                    title = " ".join(rest)
+                    if self.title[0].isupper() and title[0].islower():
+                        title = title[0].upper() + title[1:]
+                    return title
         return self.title
 
 

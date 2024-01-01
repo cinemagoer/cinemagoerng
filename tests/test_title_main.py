@@ -113,7 +113,7 @@ def test_title_parser_should_set_country_codes(page, imdb_id, country_codes):
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "language_codes"), [
     ("tt0133093", ["en"]),  # The Matrix
-    ("tt0043338", ["en", "es", "la"]),  # Ace in the Hole
+    ("tt0429489", ["tr", "en", "it"]),  # A Ay
     ("tt2971344", ["zxx"]),  # Matrix: First Dream (language: None)
 ])
 def test_title_parser_should_set_language_codes(page, imdb_id, language_codes):
