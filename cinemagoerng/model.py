@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Literal, TypeAlias
 
-from . import lookup
+from . import linguistics, lookup
 
 
 @dataclass
@@ -83,12 +83,23 @@ class _Title:
     additional_crew: list[Credit] = field(default_factory=list)
 
     @property
-    def countries(self):
+    def countries(self) -> list[str]:
         return [lookup.COUNTRY_CODES[c] for c in self.country_codes]
 
     @property
-    def languages(self):
+    def languages(self) -> list[str]:
         return [lookup.LANGUAGE_CODES[c.upper()] for c in self.language_codes]
+
+    @property
+    def sort_title(self) -> str:
+        if len(self.language_codes) > 0:
+            primary_lang = self.language_codes[0].upper()
+            articles = linguistics.ARTICLES.get(primary_lang)
+            if articles is not None:
+                first, *rest = self.title.split(" ")
+                if (len(rest) > 0) and (first.lower() in articles):
+                    return " ".join(rest)
+        return self.title
 
 
 @dataclass(kw_only=True)
