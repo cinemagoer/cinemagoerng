@@ -52,19 +52,6 @@
             }
           },
           {
-            "key": "rating",
-            "extractor": {
-              "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
-              "transform": "decimal"
-            }
-          },
-          {
-            "key": "vote_count",
-            "extractor": {
-              "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
-            }
-          },
-          {
             "key": "genres",
             "extractor": {
               "path": "props.pageProps.aboveTheFoldData.genres.genres[*].text"
@@ -88,6 +75,19 @@
                 }
               ],
               "transform": "lang"
+            }
+          },
+          {
+            "key": "rating",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
+              "transform": "decimal"
+            }
+          },
+          {
+            "key": "vote_count",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
             }
           },
           {

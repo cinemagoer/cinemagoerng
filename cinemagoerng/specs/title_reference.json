@@ -1,5 +1,5 @@
 {
-  "version": "20231227",
+  "version": "20240101",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "rules": [
     {
@@ -64,20 +64,6 @@
       }
     },
     {
-      "key": "rating",
-      "extractor": {
-        "path": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
-        "transform": "decimal"
-      }
-    },
-    {
-      "key": "vote_count",
-      "extractor": {
-        "path": "//span[@class='ipl-rating-star__total-votes']/text()",
-        "transform": "vote_count"
-      }
-    },
-    {
       "key": "genres",
       "extractor": {
         "foreach": "//td[text()='Genres']/..//li/a",
@@ -104,6 +90,20 @@
           }
         ],
         "transform": "lang"
+      }
+    },
+    {
+      "key": "rating",
+      "extractor": {
+        "path": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
+        "transform": "decimal"
+      }
+    },
+    {
+      "key": "vote_count",
+      "extractor": {
+        "path": "//span[@class='ipl-rating-star__total-votes']/text()",
+        "transform": "vote_count"
       }
     },
     {
