@@ -1,6 +1,6 @@
 [project]
 name = "cinemagoerng"
-version = "0.1a20240101"
+version = "0.1a20240103"
 description = "Retrieve data from the IMDb."
 readme = "README.rst"
 
@@ -30,11 +30,11 @@ classifiers = [
 ]
 
 requires-python = "~=3.10"
-dependencies = ["lxml", "jmespath", "typedload"]
+dependencies = ["lxml", "typedload"]
 
 [project.optional-dependencies]
 tests = ["pytest", "pytest-cov"]
-types = ["mypy", "lxml-stubs", "types-jmespath"]
+types = ["mypy", "lxml-stubs"]
 style = [
     "flake8",
     "flake8-pyproject",

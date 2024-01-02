@@ -24,7 +24,8 @@ from urllib.request import Request, urlopen
 
 from . import piculet
 from .model import Title
-from .transformers import update_registry
+from .registry import update_postprocessors, update_preprocessors, \
+    update_transformers
 
 
 _USER_AGENT = " ".join([
@@ -42,12 +43,12 @@ def fetch(url: str, /) -> str:
     return content.decode("utf-8")
 
 
+update_preprocessors(piculet.preprocessors)
+update_postprocessors(piculet.postprocessors)
+update_transformers(piculet.transformers)
+
+
 SPECS_DIR = Path(__file__).parent / "specs"
-
-update_registry(piculet.transformer_registry)
-
-Title_ = TypeVar("Title_", bound=Title)
-TitlePage: TypeAlias = Literal["main", "reference", "taglines"]
 
 
 @lru_cache(maxsize=None)
@@ -55,6 +56,10 @@ def _spec(page: str, /) -> piculet.Spec:
     path = SPECS_DIR / f"{page}.json"
     content = path.read_text(encoding="utf-8")
     return piculet.load_spec(json.loads(content))
+
+
+Title_ = TypeVar("Title_", bound=Title)
+TitlePage: TypeAlias = Literal["main", "reference", "taglines"]
 
 
 def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
@@ -67,7 +72,7 @@ def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
             return None
         raise e  # pragma: no cover
     data = piculet.scrape(document, spec.rules)
-    return piculet.deserialize(data, Title)  # type: ignore
+    return piculet.deserialize(data, Title)
 
 
 def update_title(title: Title_, /, *, page: TitlePage) -> Title_:

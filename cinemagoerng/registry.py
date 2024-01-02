@@ -16,8 +16,70 @@
 import html
 import json
 import re
-from collections.abc import Callable
-from typing import TypedDict
+from typing import Any, TypedDict
+
+from lxml.etree import Element
+
+from .piculet import Postprocessor, Preprocessor, StrMap, Transformer, TreeNode
+
+
+def scalar_to_xml(tag: str, data: Any) -> TreeNode:
+    element = Element(tag)
+    element.text = str(data)
+    return element
+
+
+def list_to_xml(tag: str, data: list[Any]) -> TreeNode:
+    element = Element(tag)
+    key = "item"
+    for value in data:
+        match value:
+            case None:
+                continue
+            case dict():
+                child = dict_to_xml(key, value)
+            case list():
+                child = list_to_xml(key, value)
+            case _:
+                child = scalar_to_xml(key, value)
+        element.append(child)
+    return element
+
+
+def dict_to_xml(tag: str, data: StrMap) -> TreeNode:
+    element = Element(tag)
+    for key, value in data.items():
+        match value:
+            case None:
+                continue
+            case dict():
+                child = dict_to_xml(key, value)
+            case list():
+                child = list_to_xml(key, value)
+            case _:
+                child = scalar_to_xml(key, value)
+        element.append(child)
+    return element
+
+
+def parse_next_data(root: TreeNode) -> TreeNode:
+    next_data_path = "//script[@id='__NEXT_DATA__']/text()"
+    script: str = root.xpath(next_data_path)[0]  # type:ignore
+    data = json.loads(script)
+    xml_data: dict[str, Any] = {}
+    for section in ["aboveTheFoldData", "mainColumnData", "contentData"]:
+        section_data: StrMap | None = data["props"]["pageProps"].get(section)
+        if section_data is not None:
+            xml_data[section] = section_data
+    return dict_to_xml("NEXT_DATA", xml_data)
+
+
+def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
+    registry.update({"next_data": parse_next_data})
+
+
+def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
+    registry.update({})
 
 
 def parse_href_id(value: str) -> str:
@@ -63,11 +125,6 @@ _re_locale = re.compile(r"""locale: '([^']+)'""")
 def parse_locale(value: str) -> str | None:
     matched = _re_locale.search(value)
     return matched.group(1) if matched is not None else None
-
-
-def parse_credit_key(value: str) -> str:
-    value = value.lower()
-    return f"{value}s" if value[-1] != "s" else value
 
 
 CREDIT_SECTIONS = {
@@ -116,10 +173,10 @@ def parse_credit_info(value: str) -> CreditInfo:
     return parsed
 
 
-def update_registry(registry: dict[str, Callable]) -> None:
+def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update({
         "json": json.loads,
-        "div60": lambda x: x // 60,
+        "div60": lambda x: int(x) // 60,
         "lang": lambda x: {x["lang"]: x["text"]},
         "unescape": html.unescape,
         "href_id": parse_href_id,
@@ -130,7 +187,6 @@ def update_registry(registry: dict[str, Callable]) -> None:
         "runtime": parse_runtime,
         "vote_count": parse_vote_count,
         "locale": parse_locale,
-        "credit_key": parse_credit_key,
         "credit_section_id": parse_credit_section_id,
         "credit_info": parse_credit_info,
     })

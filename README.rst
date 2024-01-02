@@ -38,5 +38,5 @@ Usage example (subject to change):
    <class 'cinemagoerng.model.VideoGame'>
    >>> matrix_game.title
    'The Matrix Online'
-   >>> matrix_game.runtime)
+   >>> matrix_game.runtime
    AttributeError: 'VideoGame' object has no attribute 'runtime'
