@@ -60,7 +60,7 @@ Title_ = TypeVar("Title_", bound=Title)
 TitlePage: TypeAlias = Literal["main", "reference", "taglines"]
 
 
-def get_title(imdb_id: str, *, page: TitlePage = "main") -> Title | None:
+def get_title(imdb_id: str, *, page: TitlePage = "reference") -> Title | None:
     spec = _spec(f"title_{page}")
     url = spec.url % {"imdb_id": imdb_id}
     try:
