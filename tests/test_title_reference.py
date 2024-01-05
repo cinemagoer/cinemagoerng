@@ -12,10 +12,24 @@ def test_title_parser_should_set_primary_image_from_thumbnail(imdb_id, primary_i
     assert parsed.primary_image == primary_image
 
 
-@pytest.mark.parametrize(("imdb_id", "directors"), [
-    ("tt1000252", [("nm0531751", "Hettie Macdonald")]),  # Blink
-    ("tt0133093", [("nm0905154", "Lana Wachowski"), ("nm0905152", "Lilly Wachowski"),]),  # The Matrix
-    ("tt0092580", [  # Aria
+@pytest.mark.parametrize(("imdb_id", "n", "cast"), [
+    ("tt7045440", 1, [("nm0000309", "David Bowie")]),  # David Bowie: Ziggy Stardust
+    ("tt0101597", 2, [("nm0000614", "Alan Rickman"), ("nm0000656", "Madeleine Stowe")]),  # Closet Land
+    ("tt1000252", 12, []),  # Blink
+    ("tt0133093", 41, []),  # The Matrix
+    ("tt3629794", 0, []),  # Aslan
+])
+def test_title_reference_parser_should_set_all_cast(imdb_id, n, cast):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert len(parsed.cast) == n
+    if len(cast) > 0:
+        assert [(credit.imdb_id, credit.name) for credit in parsed.cast] == cast
+
+
+@pytest.mark.parametrize(("imdb_id", "n", "directors"), [
+    ("tt1000252", 1, [("nm0531751", "Hettie Macdonald")]),  # Blink
+    ("tt0133093", 2, [("nm0905154", "Lana Wachowski"), ("nm0905152", "Lilly Wachowski")]),  # The Matrix
+    ("tt0092580", 10, [  # Aria
         ("nm0000265", "Robert Altman"),
         ("nm0000915", "Bruce Beresford"),
         ("nm0117317", "Bill Bryden"),
@@ -27,17 +41,19 @@ def test_title_parser_should_set_primary_image_from_thumbnail(imdb_id, primary_i
         ("nm0836430", "Charles Sturridge"),
         ("nm0854697", "Julien Temple"),
     ]),
-    ("tt3629794", []),  # Aslan
+    ("tt3629794", 0, []),  # Aslan
 ])
-def test_title_reference_parser_should_set_all_credits(imdb_id, directors):
+def test_title_reference_parser_should_set_all_credits(imdb_id, n, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert [(credit.imdb_id, credit.name) for credit in parsed.directors] == directors
+    assert len(parsed.directors) == n
+    if len(directors) > 0:
+        assert [(credit.imdb_id, credit.name) for credit in parsed.directors] == directors
 
 
-@pytest.mark.parametrize(("imdb_id", "directors"), [
-    ("tt1000252", [[]]),  # Blink
-    ("tt0133093", [[], []]),  # The Matrix
-    ("tt0092580", [  # Aria'
+@pytest.mark.parametrize(("imdb_id", "n", "directors"), [
+    ("tt1000252", 1, [[]]),  # Blink
+    ("tt0133093", 2, [[], []]),  # The Matrix
+    ("tt0092580", 10, [  # Aria'
         ['segment "Les Boréades"'],
         ['segment "Die tote Stadt"'],
         ['segment "I pagliacci"'],
@@ -50,9 +66,11 @@ def test_title_reference_parser_should_set_all_credits(imdb_id, directors):
         ['segment "Rigoletto"'],
     ]),
 ])
-def test_title_reference_parser_should_set_credit_notes(imdb_id, directors):
+def test_title_reference_parser_should_set_credit_notes(imdb_id, n, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert [credit.notes for credit in parsed.directors] == directors
+    assert len(parsed.directors) == n
+    if len(directors) > 0:
+        assert [credit.notes for credit in parsed.directors] == directors
 
 
 @pytest.mark.parametrize(("imdb_id", "writers"), [

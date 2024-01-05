@@ -195,31 +195,49 @@ def test_title_parser_should_set_plot(page, imdb_id, plot, lang):
     assert parsed.plot[lang].startswith(plot)
 
 
-@pytest.mark.parametrize(("imdb_id", "directors"), [
-    ("tt1000252", [("nm0531751", "Hettie Macdonald")]),  # Blink
-    ("tt0133093", [("nm0905154", "Lana Wachowski"), ("nm0905152", "Lilly Wachowski")]),  # The Matrix
-    ("tt0092580", [  # Aria
+@pytest.mark.parametrize(("imdb_id", "n", "cast"), [
+    ("tt7045440", 1, [("nm0000309", "David Bowie")]),  # David Bowie: Ziggy Stardust
+    ("tt0101597", 2, [("nm0000656", "Madeleine Stowe"), ("nm0000614", "Alan Rickman")]),  # Closet Land
+    ("tt1000252", 12, []),  # Blink
+    ("tt0133093", 18, []),  # The Matrix
+    ("tt3629794", 0, []),  # Aslan
+])
+def test_title_reference_parser_should_set_main_cast(imdb_id, n, cast):
+    parsed = web.get_title(imdb_id=imdb_id, page="main")
+    assert len(parsed.cast) == n
+    if len(cast) > 0:
+        assert [(credit.imdb_id, credit.name) for credit in parsed.cast] == cast
+
+
+@pytest.mark.parametrize(("imdb_id", "n", "directors"), [
+    ("tt1000252", 1, [("nm0531751", "Hettie Macdonald")]),  # Blink
+    ("tt0133093", 2, [("nm0905154", "Lana Wachowski"), ("nm0905152", "Lilly Wachowski")]),  # The Matrix
+    ("tt0092580", 3, [  # Aria
         ("nm0000265", "Robert Altman"),
         ("nm0000915", "Bruce Beresford"),
         ("nm0117317", "Bill Bryden"),
     ]),
-    ("tt3629794", []),  # Aslan
+    ("tt3629794", 0, []),  # Aslan
 ])
-def test_title_main_parser_should_set_main_directors(imdb_id, directors):
+def test_title_main_parser_should_set_main_directors(imdb_id, n, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
-    assert [(d.imdb_id, d.name) for d in parsed.directors] == directors
+    assert len(parsed.directors) == n
+    if len(directors) > 0:
+        assert [(d.imdb_id, d.name) for d in parsed.directors] == directors
 
 
-@pytest.mark.parametrize(("imdb_id", "writers"), [
-    ("tt7045440", [("nm0000309", "David Bowie")]),  # David Bowie: Ziggy Stardust
-    ("tt0133093", [("nm0905152", "Lilly Wachowski"), ("nm0905154", "Lana Wachowski")]),  # The Matrix
-    ("tt0076786", [  # Suspiria
+@pytest.mark.parametrize(("imdb_id", "n", "writers"), [
+    ("tt7045440", 1, [("nm0000309", "David Bowie")]),  # David Bowie: Ziggy Stardust
+    ("tt0133093", 2, [("nm0905152", "Lilly Wachowski"), ("nm0905154", "Lana Wachowski")]),  # The Matrix
+    ("tt0076786", 3, [  # Suspiria
         ("nm0000783", "Dario Argento"),
         ("nm0630453", "Daria Nicolodi"),
         ("nm0211063", "Thomas De Quincey"),
     ]),
-    ("tt0365467", []),  # Making 'The Matrix'
+    ("tt0365467", 0, []),  # Making 'The Matrix'
 ])
-def test_title_main_parser_should_set_main_writers(imdb_id, writers):
+def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
-    assert [(d.imdb_id, d.name) for d in parsed.writers] == writers
+    assert len(parsed.writers) == n
+    if len(writers) > 0:
+        assert [(d.imdb_id, d.name) for d in parsed.writers] == writers

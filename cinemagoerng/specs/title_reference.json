@@ -118,7 +118,28 @@
       }
     },
     {
-      "foreach": "//h4[@id]",
+      "key": "cast",
+      "extractor": {
+        "foreach": "//h4[@id='cast']/ancestor::header/following-sibling::table[1]//tr[@class]",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": ".//a[@itemprop='url']/@href",
+              "transform": "href_id"
+            }
+          },
+          {
+            "key": "name",
+            "extractor": {
+              "path": ".//span[@itemprop='name']/text()"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "foreach": "//h4[@id!='cast']",
       "key": {
         "path": "./@id",
         "transform": "credit_section_id"

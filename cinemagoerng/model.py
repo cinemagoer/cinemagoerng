@@ -51,6 +51,7 @@ class _Title:
     rating: Decimal | None = None
     vote_count: int = 0
 
+    cast: list[Credit] = field(default_factory=list)
     directors: list[Credit] = field(default_factory=list)
     writers: list[Credit] = field(default_factory=list)
     producers: list[Credit] = field(default_factory=list)

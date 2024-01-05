@@ -116,6 +116,27 @@
       }
     },
     {
+      "key": "cast",
+      "extractor": {
+        "pre": "next_data",
+        "foreach": "/NEXT_DATA/mainColumnData/cast/edges/item/node/name",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "./id/text()"
+            }
+          },
+          {
+            "key": "name",
+            "extractor": {
+              "path": "./nameText/text/text()"
+            }
+          }
+        ]
+      }
+    },
+    {
       "foreach": "/NEXT_DATA/mainColumnData/*/item/credits/..",
       "key": {
         "path": "name(..)"
