@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng.model import Movie
+from cinemagoerng.model import Credit, Movie
 
 
 @pytest.mark.parametrize(("imdb_id", "country_codes", "countries"), [
@@ -34,3 +34,21 @@ def test_title_languages_property_should_return_language_names(imdb_id, title, l
 def test_title_sort_title_property_should_strip_article(imdb_id, title, language_codes, sort_title):
     movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.sort_title == sort_title
+
+
+@pytest.mark.parametrize(("imdb_id", "name", "role", "notes", "as_name"), [
+    ("nm0905152", "Lilly Wachowski", None, ["written by", "as The Wachowski Brothers"], "The Wachowski Brothers"),
+    ("nm0000309", "David Bowie", None, [], None)
+])
+def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, role, notes, as_name):
+    credit = Credit(imdb_id=imdb_id, name=name, role=role, notes=notes)
+    assert credit.as_name == as_name
+
+
+@pytest.mark.parametrize(("imdb_id", "name", "role", "notes", "uncredited"), [
+    ("nm0211063", "Thomas De Quincey", None, ['book "Suspiria de Profundis"', "uncredited"], True),
+    ("nm0905152", "Lilly Wachowski", None, ["written by", "as The Wachowski Brothers"], False),
+])
+def test_title_uncredited_property_should_return_boolean(imdb_id, name, role, notes, uncredited):
+    credit = Credit(imdb_id=imdb_id, name=name, role=role, notes=notes)
+    assert credit.uncredited == uncredited

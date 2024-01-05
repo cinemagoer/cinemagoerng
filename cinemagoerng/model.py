@@ -30,8 +30,16 @@ class Person:
 @dataclass
 class Credit(Person):
     role: str | None = None
-    as_name: str | None = None
     notes: list[str] = field(default_factory=list)
+
+    @property
+    def as_name(self) -> str | None:
+        as_notes = [note for note in self.notes if note.startswith("as ")]
+        return as_notes[0][3:] if len(as_notes) > 0 else None
+
+    @property
+    def uncredited(self) -> bool:
+        return "uncredited" in self.notes
 
 
 @dataclass(kw_only=True)

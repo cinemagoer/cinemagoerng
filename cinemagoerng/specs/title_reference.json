@@ -1,5 +1,5 @@
 {
-  "version": "20240103",
+  "version": "20240105",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "rules": [
     {
@@ -133,6 +133,14 @@
             "key": "name",
             "extractor": {
               "path": ".//span[@itemprop='name']/text()"
+            }
+          },
+          {
+            "key": "_notes",
+            "extractor": {
+              "path": ".//td[@class='character']/div/text()",
+              "transform": "credit_info",
+              "post": "unpack"
             }
           }
         ]

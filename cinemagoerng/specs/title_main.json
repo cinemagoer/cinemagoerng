@@ -1,5 +1,5 @@
 {
-  "version": "20240103",
+  "version": "20240105",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "rules": [
     {
@@ -119,18 +119,31 @@
       "key": "cast",
       "extractor": {
         "pre": "next_data",
-        "foreach": "/NEXT_DATA/mainColumnData/cast/edges/item/node/name",
+        "foreach": "/NEXT_DATA/mainColumnData/cast/edges/item/node",
         "rules": [
           {
             "key": "imdb_id",
             "extractor": {
-              "path": "./id/text()"
+              "path": "./name/id/text()"
             }
           },
           {
             "key": "name",
             "extractor": {
-              "path": "./nameText/text/text()"
+              "path": "./name/nameText/text/text()"
+            }
+          },
+          {
+            "key": "role",
+            "extractor": {
+              "path": "./characters/item/name/text()"
+            }
+          },
+          {
+            "key": "notes",
+            "extractor": {
+              "foreach": "./attributes/item/text",
+              "path": "./text()"
             }
           }
         ]
