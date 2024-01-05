@@ -22,10 +22,8 @@ from typing import Literal, TypeAlias, TypeVar
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from . import piculet
+from . import piculet, registry
 from .model import Title
-from .registry import update_postprocessors, update_preprocessors, \
-    update_transformers
 
 
 _USER_AGENT = " ".join([
@@ -43,9 +41,9 @@ def fetch(url: str, /) -> str:
     return content.decode("utf-8")
 
 
-update_preprocessors(piculet.preprocessors)
-update_postprocessors(piculet.postprocessors)
-update_transformers(piculet.transformers)
+registry.update_preprocessors(piculet.preprocessors)
+registry.update_postprocessors(piculet.postprocessors)
+registry.update_transformers(piculet.transformers)
 
 
 SPECS_DIR = Path(__file__).parent / "specs"
