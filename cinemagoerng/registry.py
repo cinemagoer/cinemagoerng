@@ -163,7 +163,6 @@ def parse_credit_info(value: str) -> CreditInfo:
 
 def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update({
-        "json": json.loads,
         "div60": lambda x: int(x) // 60,
         "lang": lambda x: {x["lang"]: x["text"]},
         "unescape": html.unescape,
