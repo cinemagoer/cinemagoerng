@@ -43,12 +43,23 @@ def get_title(imdb_num: int, taglines: bool = False) -> None:
     if runtime is not None:
         print(f"Runtime: {runtime} min")
 
+    if len(item.genres) > 0:
+        label = "Genre" if len(item.genres) == 1 else "Genres"
+        genres = ", ".join(item.genres)
+        print(f"{label}: {genres}")
+
+    if len(item.country_codes) > 0:
+        label = "Country" if len(item.country_codes) == 1 else "Countries"
+        countries = ", ".join(item.countries)
+        print(f"{label}: {countries}")
+
+    if len(item.language_codes) > 0:
+        label = "Language" if len(item.language_codes) == 1 else "Languages"
+        languages = ", ".join(item.languages)
+        print(f"{label}: {languages}")
+
     if item.rating is not None:
         print(f"Rating: {item.rating} ({item.vote_count} votes)")
-
-    if len(item.genres) > 0:
-        genres = ", ".join(item.genres)
-        print(f"Genres: {genres}")
 
     plot_en = item.plot.get("en-US", "Plot undisclosed.")
     if plot_en != "Plot undisclosed.":

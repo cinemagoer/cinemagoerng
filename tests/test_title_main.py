@@ -147,6 +147,25 @@ def test_title_parser_should_not_set_runtime_for_video_games(page, imdb_id):
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "genres"), [
+    ("tt0133093", ["Action", "Sci-Fi"]),  # The Matrix
+    ("tt0389150", ["Documentary"]),  # The Matrix Defence
+    ("tt2971344", ["Short"]),  # Matrix: First Dream (Short Movie)
+    ("tt0365467", ["Documentary", "Short", "Sci-Fi"]),  # Making 'The Matrix' (TV Short Movie)
+    ("tt0109151", ["Animation", "Action", "Drama", "Sci-Fi", "Thriller"]),  # Armitage III: Poly-Matrix (Video Movie)
+    ("tt7045440", ["Short", "Music"]),  # David Bowie: Ziggy Stardust (Music Video)
+    ("tt0390244", ["Action", "Adventure", "Sci-Fi"]),  # The Matrix Online (Video Game)
+    ("tt0436992", ["Adventure", "Drama", "Sci-Fi"]),  # Doctor Who (TV Series)
+    ("tt0185906", ["Drama", "History", "War"]),  # Band of Brothers (TV Mini-Series)
+    ("tt1000252", ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
+    ("tt0261024", ["Documentary", "Music"]),  # Live Aid
+])
+def test_title_parser_should_set_genres(page, imdb_id, genres):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert parsed.genres == genres
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "rating"), [
     ("tt0133093", Decimal("8.7")),  # The Matrix
     ("tt3629794", None),  # Aslan
@@ -164,25 +183,6 @@ def test_title_parser_should_set_rating(page, imdb_id, rating):
 def test_title_parser_should_set_number_of_votes(page, imdb_id, votes):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert (parsed.vote_count >= votes) if votes > 0 else (parsed.vote_count == 0)
-
-
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
-@pytest.mark.parametrize(("imdb_id", "genres"), [
-    ("tt0133093", ["Action", "Sci-Fi"]),  # The Matrix
-    ("tt0389150", ["Documentary"]),  # The Matrix Defence
-    ("tt2971344", ["Short"]),  # Matrix: First Dream (Short Movie)
-    ("tt0365467", ["Documentary", "Short", "Sci-Fi"]),  # Making 'The Matrix' (TV Short Movie)
-    ("tt0109151", ["Animation", "Action", "Drama", "Sci-Fi", "Thriller"]),  # Armitage III: Poly-Matrix (Video Movie)
-    ("tt7045440", ["Short", "Music"]),  # David Bowie: Ziggy Stardust (Music Video)
-    ("tt0390244", ["Action", "Adventure", "Sci-Fi"]),  # The Matrix Online (Video Game)
-    ("tt0436992", ["Adventure", "Drama", "Sci-Fi"]),  # Doctor Who (TV Series)
-    ("tt0185906", ["Drama", "History", "War"]),  # Band of Brothers (TV Mini-Series)
-    ("tt1000252", ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
-    ("tt0261024", ["Documentary", "Music"]),  # Live Aid
-])
-def test_title_parser_should_set_genres(page, imdb_id, genres):
-    parsed = web.get_title(imdb_id=imdb_id, page=page)
-    assert parsed.genres == genres
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
