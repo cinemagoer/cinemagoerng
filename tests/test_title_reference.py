@@ -93,7 +93,7 @@ def test_title_reference_parser_should_set_multiple_credit_notes(imdb_id, writer
         ("costume prop maker", None),
     ]),
 ])
-def test_title_reference_parser_should_set_credit_jobs(imdb_id, costume_dept):
+def test_title_reference_parser_should_set_credit_roles(imdb_id, costume_dept):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert [(credit.job, credit.as_name)
+    assert [(credit.role, credit.as_name)
             for credit in parsed.costume_department] == costume_dept

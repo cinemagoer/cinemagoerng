@@ -139,7 +139,7 @@ def parse_credit_section_id(value: str) -> str:
 
 
 class CreditInfo(TypedDict):
-    job: str | None
+    role: str | None
     as_name: str | None
     notes: list[str]
 
@@ -149,7 +149,7 @@ _re_credit_notes = re.compile(r"""\(([^)]+)\)*""")
 
 def parse_credit_info(value: str) -> CreditInfo:
     parsed: CreditInfo = {
-        "job": None,
+        "role": None,
         "as_name": None,
         "notes": [],
     }
@@ -162,9 +162,9 @@ def parse_credit_info(value: str) -> CreditInfo:
             parsed["notes"] = notes
     parens = value.find("(")
     if parens > 0:
-        parsed["job"] = value[:parens].strip()
+        parsed["role"] = value[:parens].strip()
     else:
-        parsed["job"] = value
+        parsed["role"] = value
     return parsed
 
 

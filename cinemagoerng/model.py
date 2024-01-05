@@ -29,7 +29,7 @@ class Person:
 
 @dataclass
 class Credit(Person):
-    job: str | None = None
+    role: str | None = None
     as_name: str | None = None
     notes: list[str] = field(default_factory=list)
 
