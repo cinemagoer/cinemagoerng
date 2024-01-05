@@ -69,7 +69,7 @@ def get_title(imdb_num: int, taglines: bool = False) -> None:
                                   subsequent_indent=_INDENT)
         print(plot_text)
 
-    if taglines and (len(item.taglines) > 0):
+    if len(item.taglines) > 0:
         print("Taglines:")
         subindent = _INDENT + "  "
         for tagline in item.taglines:

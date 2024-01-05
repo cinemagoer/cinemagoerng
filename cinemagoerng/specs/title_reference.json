@@ -74,6 +74,14 @@
       }
     },
     {
+      "key": "taglines",
+      "extractor": {
+        "foreach": "//td[text()='Taglines']",
+        "path": "./following-sibling::td/text()",
+        "transform": "strip"
+      }
+    },
+    {
       "key": "plot",
       "extractor": {
         "rules": [

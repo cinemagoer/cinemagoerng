@@ -26,7 +26,7 @@ def test_cli_get_title_should_fetch_page_in_coverage_mode(cov, capsys):
         pytest.skip("uses live network connection")
     cli.main(["get", "title", "1"])
     std = capsys.readouterr()
-    assert re.search(r"Title: (\w|\s|:|-|')+ \((\w|\s|-)+\)\n", std.out)
+    assert re.search(r"Title: \w.+ \(\w+\)\n", std.out)
 
 
 @pytest.mark.parametrize(("imdb_num",), [
@@ -45,7 +45,7 @@ def test_cli_get_title_should_fetch_page_in_coverage_mode(cov, capsys):
 def test_cli_get_title_should_include_title_and_type(capsys, imdb_num):
     cli.main(["get", "title", str(imdb_num)])
     std = capsys.readouterr()
-    assert re.search(r"Title: (\w|\s|:|-|')+ \((\w|\s|-)+\)\n", std.out)
+    assert re.search(r"Title: \w.+ \(\w+\)\n", std.out)
 
 
 @pytest.mark.parametrize(("imdb_num",), [
@@ -90,7 +90,7 @@ def test_cli_get_title_should_exclude_runtime_if_missing(capsys, imdb_num):
 def test_cli_get_title_should_include_genre(capsys, imdb_num):
     cli.main(["get", "title", str(imdb_num)])
     std = capsys.readouterr()
-    assert re.search(r"Genre: \w+\n", std.out)
+    assert re.search(r"Genre: [\w-]+\n", std.out)
 
 
 @pytest.mark.parametrize(("imdb_num",), [
@@ -117,7 +117,7 @@ def test_cli_get_title_should_include_country(capsys, imdb_num):
 def test_cli_get_title_should_include_countries_in_plural_form(capsys, imdb_num):
     cli.main(["get", "title", str(imdb_num)])
     std = capsys.readouterr()
-    assert re.search(r"Countries: [\w ]+, \w+(, \w+)*\n", std.out)
+    assert re.search(r"Countries: [\w ]+, [\w ]+(, [\w ]+)*\n", std.out)
 
 
 @pytest.mark.parametrize(("imdb_num",), [
@@ -162,7 +162,7 @@ def test_cli_get_title_should_exclude_rating_if_missing(capsys, imdb_num):
 def test_cli_get_title_should_include_plot(capsys, imdb_num):
     cli.main(["get", "title", str(imdb_num)])
     std = capsys.readouterr()
-    assert re.search(r"Plot:\n  [\w]+", std.out)
+    assert re.search(r"Plot:\n  \w", std.out)
 
 
 @pytest.mark.parametrize(("imdb_num",), [
@@ -177,16 +177,25 @@ def test_cli_get_title_should_exclude_plot_if_missing(capsys, imdb_num):
 @pytest.mark.parametrize(("imdb_num",), [
     (133093,),  # The Matrix
 ])
-def test_cli_get_title_should_exclude_taglines_by_default(capsys, imdb_num):
+def test_cli_get_title_should_include_taglines_by_default(capsys, imdb_num):
     cli.main(["get", "title", str(imdb_num)])
     std = capsys.readouterr()
-    assert "Taglines:" not in std.out
+    assert re.search(r"Taglines:\n  - \w.*\n$", std.out)
 
 
 @pytest.mark.parametrize(("imdb_num",), [
     (133093,),  # The Matrix
 ])
-def test_cli_get_title_should_include_taglines_if_requested(capsys, imdb_num):
+def test_cli_get_title_should_include_all_taglines_if_requested(capsys, imdb_num):
     cli.main(["get", "title", str(imdb_num), "--taglines"])
     std = capsys.readouterr()
-    assert re.search(r"Taglines:\n  - \w+", std.out)
+    assert re.search(r"Taglines:\n  - \w.*\n  - \w.*\n", std.out)
+
+
+@pytest.mark.parametrize(("imdb_num",), [
+    (3629794,),  # Aslan
+])
+def test_cli_get_title_should_exclude_taglines_if_missing(capsys, imdb_num):
+    cli.main(["get", "title", str(imdb_num)])
+    std = capsys.readouterr()
+    assert "Taglines:" not in std.out
