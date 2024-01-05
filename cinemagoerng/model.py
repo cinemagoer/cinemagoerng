@@ -89,6 +89,7 @@ class _Title:
     script_department: list[Credit] = field(default_factory=list)
     transportation_department: list[Credit] = field(default_factory=list)
     additional_crew: list[Credit] = field(default_factory=list)
+    thanks: list[Credit] = field(default_factory=list)
 
     @property
     def countries(self) -> list[str]:
