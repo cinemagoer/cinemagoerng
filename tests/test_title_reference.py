@@ -57,25 +57,25 @@ def test_title_reference_parser_should_set_credit_notes(imdb_id, directors):
 
 @pytest.mark.parametrize(("imdb_id", "writers"), [
     ("tt0076786", [  # Suspiria
-        (False, ["screenplay"]),
-        (False, ["screenplay"]),
-        (True, ['book "Suspiria de Profundis"']),
+        ["screenplay"],
+        ["screenplay"],
+        ['book "Suspiria de Profundis"', "uncredited"],
     ]),
 ])
-def test_title_reference_parser_should_remove_uncredited_from_notes(imdb_id, writers):
+def test_title_reference_parser_should_set_multiple_credit_notes(imdb_id, writers):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert [(credit.uncredited, credit.notes) for credit in parsed.writers] == writers
+    assert [credit.notes for credit in parsed.writers] == writers
 
 
 @pytest.mark.parametrize(("imdb_id", "costume_dept"), [
     ("tt1000252", [  # Blink
-        ("costume supervisor", None, False),
-        ("costume assistant", None, False),
-        ("costume assistant", "Bobby Peach", False),
-        ("costume prop maker", None, True),
+        ("costume supervisor", None),
+        ("costume assistant", None),
+        ("costume assistant", "Bobby Peach"),
+        ("costume prop maker", None),
     ]),
 ])
 def test_title_reference_parser_should_set_credit_jobs(imdb_id, costume_dept):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert [(credit.job, credit.as_name, credit.uncredited)
+    assert [(credit.job, credit.as_name)
             for credit in parsed.costume_department] == costume_dept
