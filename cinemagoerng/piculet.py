@@ -27,6 +27,7 @@ from lxml.html import fromstring as parse_html
 
 
 StrMap: TypeAlias = Mapping[str, Any]
+MutableStrMap: TypeAlias = MutableMapping[str, Any]
 
 
 _EMPTY: StrMap = MappingProxyType({})
@@ -46,7 +47,7 @@ class Preprocess:
         return self.name
 
 
-Postprocessor: TypeAlias = Callable[[MutableMapping[str, Any], Any], None]
+Postprocessor: TypeAlias = Callable[[MutableStrMap, Any], None]
 
 postprocessors: dict[str, Postprocessor] = {
     "unpack": lambda data, value: data.update(value),
