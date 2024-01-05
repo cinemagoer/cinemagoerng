@@ -5,13 +5,13 @@ import pytest
 from cinemagoerng import model, web
 
 
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 def test_title_parser_should_set_imdb_id(page):
     parsed = web.get_title(imdb_id="tt0133093", page=page)
     assert parsed.imdb_id == "tt0133093"
 
 
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 @pytest.mark.parametrize(("imdb_id", "type_"), [
     ("tt0133093", model.Movie),  # The Matrix
     ("tt0389150", model.TVMovie),  # The Matrix Defence
@@ -30,7 +30,7 @@ def test_title_parser_should_instantiate_correct_type(page, imdb_id, type_):
     assert isinstance(parsed, type_)
 
 
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 @pytest.mark.parametrize(("imdb_id", "title"), [
     ("tt0133093", "The Matrix"),
     ("tt0389150", "The Matrix Defence"),
@@ -50,16 +50,17 @@ def test_title_parser_should_set_title_from_original_title(page, imdb_id, title)
     assert parsed.title == title
 
 
+@pytest.mark.parametrize(("page",), [("main",), ("taglines",)])
 @pytest.mark.parametrize(("imdb_id", "primary_image"), [
     ("tt0133093", "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_.jpg"),  # The Matrix
     ("tt3629794", None),  # Aslan
 ])
-def test_title_parser_should_set_primary_image(imdb_id, primary_image):
-    parsed = web.get_title(imdb_id=imdb_id, page="main")
+def test_title_parser_should_set_primary_image(page, imdb_id, primary_image):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.primary_image == primary_image
 
 
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 @pytest.mark.parametrize(("imdb_id", "year"), [
     ("tt0133093", 1999),  # The Matrix
     ("tt0436992", 2005),  # Doctor Who (2005-)
@@ -72,7 +73,7 @@ def test_title_parser_should_set_year(page, imdb_id, year):
     assert parsed.year == year
 
 
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 @pytest.mark.parametrize(("imdb_id", "end_year"), [
     ("tt0436992", None),  # Doctor Who (2005-)
     ("tt0412142", 2012),  # House M.D. (2004-2012)
@@ -83,7 +84,7 @@ def test_title_parser_should_set_end_year(page, imdb_id, end_year):
     assert parsed.end_year == end_year
 
 
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 @pytest.mark.parametrize(("imdb_id",), [
     ("tt0133093",),  # The Matrix (Movie)
     ("tt0389150",),  # The Matrix Defence (TV Movie)

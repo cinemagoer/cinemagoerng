@@ -10,6 +10,50 @@
         "path": "./htmlContent/text()",
         "transform": "unescape"
       }
+    },
+    {
+      "key": "imdb_id",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/contentData/entityMetadata/id/text()"
+      }
+    },
+    {
+      "key": "type_id",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/contentData/entityMetadata/titleType/id/text()"
+      }
+    },
+    {
+      "key": "title",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/contentData/entityMetadata/originalTitleText/text/text()"
+      }
+    },
+    {
+      "key": "primary_image",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/contentData/entityMetadata/primaryImage/url/text()"
+      }
+    },
+    {
+      "key": "year",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/contentData/entityMetadata/releaseYear/year/text()",
+        "transform": "int"
+      }
+    },
+    {
+      "key": "end_year",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/contentData/entityMetadata/releaseYear/endYear/text()",
+        "transform": "int"
+      }
     }
   ]
 }
