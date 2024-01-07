@@ -1,0 +1,12 @@
+CinemagoerNG and its authors are not affiliated in any way
+to Internet Movie Database Inc.
+
+IMDb is a trademark of Internet Movie Database Inc.
+All content and data on the IMDb web site is the property of IMDb
+or its content suppliers,
+and is protected by United States and international copyright laws.
+
+Please read the documents IMDb conditions of use on their website:
+
+- https://www.imdb.com/conditions
+- https://www.imdb.com/licensing/

@@ -1,6 +1,12 @@
 CinemagoerNG
 ============
 
+.. admonition::
+
+   This project and its authors are not affiliated in any way
+   to Internet Movie Dat abase Inc.
+   See the `DISCLAIMER.txt`_ file for details about terms of use.
+
 CinemagoerNG (Next Generation) is a Python library and command-line utility
 for retrieving data from the IMDb.
 
