@@ -20,8 +20,7 @@ from typing import Any, TypedDict
 
 from lxml.etree import Element
 
-from .piculet import MutableStrMap, Postprocessor, Preprocessor, StrMap, \
-    Transformer, TreeNode
+from .piculet import Postprocessor, Preprocessor, StrMap, Transformer, TreeNode
 
 
 def scalar_to_xml(tag: str, data: Any) -> TreeNode:
@@ -79,15 +78,8 @@ def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
     registry.update({"next_data": parse_next_data})
 
 
-def init_season(data: MutableStrMap, value: int) -> None:
-    data["seasons"] = {str(n): {"number": n, "episodes": []}
-                       for n in range(1, value + 1)}
-
-
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
-    registry.update({
-        "season_init": init_season,
-    })
+    registry.update()
 
 
 def parse_href_id(value: str) -> str:

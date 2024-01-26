@@ -159,17 +159,12 @@ class VideoGame(_Title):
 
 
 @dataclass(kw_only=True)
-class TVSeriesSeason:
-    number: int | None = None
-    episodes: List["TVEpisode"] = field(default_factory=list)
-
-
-@dataclass(kw_only=True)
 class TVSeries(_Title):
     type_id: Literal["tvSeries"] = "tvSeries"
     end_year: int | None = None
     runtime: int | None = None
-    seasons: dict[str, TVSeriesSeason] = field(default_factory=dict)
+    season_count: int | None = None
+    episodes: List["TVEpisode"] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -177,12 +172,16 @@ class TVMiniSeries(_Title):
     type_id: Literal["tvMiniSeries"] = "tvMiniSeries"
     end_year: int | None = None
     runtime: int | None = None
+    season_count: Literal[1] = 1
+    episodes: List["TVEpisode"] = field(default_factory=list)
 
 
 @dataclass
 class TVEpisode(_Title):
     type_id: Literal["tvEpisode"] = "tvEpisode"
     runtime: int | None = None
+    season: str | None = None
+    episode: str | None = None
 
 
 @dataclass

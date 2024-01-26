@@ -1,6 +1,6 @@
 {
   "version": "20240126",
-  "url": "https://www.imdb.com/title/%(imdb_id)s/taglines/",
+  "url": "https://www.imdb.com/title/%(imdb_id)s/episodes/?season=%(season)s",
   "rules": [
     {
       "key": "imdb_id",
@@ -47,12 +47,42 @@
       }
     },
     {
-      "key": "taglines",
+      "key": "episodes",
       "extractor": {
         "pre": "next_data",
-        "foreach": "/NEXT_DATA/contentData/section/items/item",
-        "path": "./htmlContent/text()",
-        "transform": "unescape"
+        "foreach": "/NEXT_DATA/contentData/section/episodes/items/item",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "./id/text()"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "./type/text()"
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "./titleText/text()"
+            }
+          },
+          {
+            "key": "season",
+            "extractor": {
+              "path": "./season/text()"
+            }
+          },
+          {
+            "key": "episode",
+            "extractor": {
+              "path": "./episode/text()"
+            }
+          }
+        ]
       }
     }
   ]

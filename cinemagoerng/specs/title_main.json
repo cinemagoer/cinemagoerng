@@ -190,12 +190,11 @@
       }
     },
     {
-      "key": "_season_count",
+      "key": "season_count",
       "extractor": {
         "pre": "next_data",
         "path": "/NEXT_DATA/mainColumnData/episodes/seasons/item[last()]/number/text()",
-        "transform": "int",
-        "post": "season_init"
+        "transform": "int"
       }
     }
   ]

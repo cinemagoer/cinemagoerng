@@ -23,7 +23,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from . import piculet, registry
-from .model import Title
+from .model import Title, TVMiniSeries, TVSeries
 
 
 _USER_AGENT = " ".join([
@@ -57,12 +57,13 @@ def _spec(page: str, /) -> piculet.Spec:
 
 
 Title_ = TypeVar("Title_", bound=Title)
-TitlePage: TypeAlias = Literal["main", "reference", "taglines"]
+TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes"]
 
 
-def get_title(imdb_id: str, *, page: TitlePage = "reference") -> Title | None:
+def get_title(imdb_id: str, *, page: TitlePage = "reference",
+              **kwargs) -> Title | None:
     spec = _spec(f"title_{page}")
-    url = spec.url % {"imdb_id": imdb_id}
+    url = spec.url % ({"imdb_id": imdb_id} | kwargs)
     try:
         document = fetch(url)
     except HTTPError as e:
@@ -73,10 +74,16 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference") -> Title | None:
     return piculet.deserialize(data, Title)
 
 
-def update_title(title: Title_, /, *, page: TitlePage) -> Title_:
+def update_title(title: Title_, /, *, page: TitlePage, **kwargs) -> Title_:
     spec = _spec(f"title_{page}")
-    url = spec.url % {"imdb_id": title.imdb_id}
+    url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
     document = fetch(url)
     data = piculet.scrape(document, spec.rules)
     current_data = piculet.serialize(title)
     return piculet.deserialize(current_data | data, title.__class__)
+
+
+def update_episodes(series: TVSeries | TVMiniSeries):
+    for season in range(1, series.season_count + 1):
+        series = update_title(series, page="episodes", season=str(season))
+    return series

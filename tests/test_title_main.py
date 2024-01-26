@@ -6,9 +6,12 @@ from cinemagoerng import model, web
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
-def test_title_parser_should_set_imdb_id(page):
-    parsed = web.get_title(imdb_id="tt0133093", page=page)
-    assert parsed.imdb_id == "tt0133093"
+@pytest.mark.parametrize(("imdb_id",), [
+    ("tt0133093",),  # The Matrix
+])
+def test_title_parser_should_set_imdb_id(page, imdb_id):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert parsed.imdb_id == imdb_id
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
@@ -289,7 +292,8 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
 @pytest.mark.parametrize(("imdb_id", "season_count"), [
     ("tt0436992", 15),  # Doctor Who (unknown season)
     ("tt0412142", 8),  # House M.D. (no unknown season)
+    ("tt0185906", 1),  # Band of Brothers (Mini-Series)
 ])
-def test_title_parser_should_set_seasons_without_episodes(page, imdb_id, season_count):
+def test_title_parser_should_set_number_of_seasons(page, imdb_id, season_count):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
-    assert [(n, s.number, s.episodes) for n, s in parsed.seasons.items()] == [(str(n), n, []) for n in range(1, season_count + 1)]
+    assert parsed.season_count == season_count
