@@ -12,6 +12,18 @@ def test_title_parser_should_set_primary_image_from_thumbnail(imdb_id, primary_i
     assert parsed.primary_image == primary_image
 
 
+@pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
+    ("tt0133093", "Thomas A. Anderson is a man living two lives.", "en-US"),  # The Matrix
+    ("tt3629794", None, None),  # Aslan
+])
+def test_title_parser_should_set_first_plot_summary(imdb_id, plot, lang):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    if plot is None:
+        assert parsed.plot_summaries == []
+    else:
+        assert parsed.plot_summaries[0][lang].startswith(plot)
+
+
 @pytest.mark.parametrize(("imdb_id", "n", "cast"), [
     ("tt7045440", 1, [  # David Bowie: Ziggy Stardust
         ("nm0000309", "David Bowie", "David Bowie", []),

@@ -104,6 +104,29 @@
       }
     },
     {
+      "key": "plot_summaries",
+      "extractor": {
+        "foreach": "//td[text()='Plot Summary']/..",
+        "rules": [
+          {
+            "key": "lang",
+            "extractor": {
+              "path": "//script/text()",
+              "transform": "locale"
+            }
+          },
+          {
+            "key": "text",
+            "extractor": {
+              "path": ".//p/text()",
+              "transform": "strip"
+            }
+          }
+        ],
+        "transform": "lang"
+      }
+    },
+    {
       "key": "rating",
       "extractor": {
         "path": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
