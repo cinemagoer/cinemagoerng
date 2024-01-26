@@ -16,7 +16,7 @@
 
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Literal, TypeAlias
+from typing import List, Literal, TypeAlias
 
 from . import linguistics, lookup
 
@@ -159,10 +159,17 @@ class VideoGame(_Title):
 
 
 @dataclass(kw_only=True)
+class TVSeriesSeason:
+    number: int | None = None
+    episodes: List["TVEpisode"] = field(default_factory=list)
+
+
+@dataclass(kw_only=True)
 class TVSeries(_Title):
     type_id: Literal["tvSeries"] = "tvSeries"
     end_year: int | None = None
     runtime: int | None = None
+    seasons: dict[str, TVSeriesSeason] = field(default_factory=dict)
 
 
 @dataclass(kw_only=True)

@@ -283,3 +283,13 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
     if len(writers) > 0:
         assert [(credit.imdb_id, credit.name, credit.role, credit.notes)
                 for credit in parsed.writers] == writers
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "season_count"), [
+    ("tt0436992", 15),  # Doctor Who (unknown season)
+    ("tt0412142", 8),  # House M.D. (no unknown season)
+])
+def test_title_parser_should_set_seasons_without_episodes(page, imdb_id, season_count):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert [(n, s.number, s.episodes) for n, s in parsed.seasons.items()] == [(str(n), n, []) for n in range(1, season_count + 1)]

@@ -215,6 +215,14 @@
           }
         ]
       }
+    },
+    {
+      "key": "_season_count",
+      "extractor": {
+        "path": "//div[contains(text(), 'Seasons')]/a[1]/text()",
+        "transform": "int",
+        "post": "season_init"
+      }
     }
   ]
 }
