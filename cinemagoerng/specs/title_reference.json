@@ -1,5 +1,5 @@
 {
-  "version": "20240105",
+  "version": "20240126",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "rules": [
     {
@@ -131,6 +131,20 @@
       "extractor": {
         "path": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
         "transform": "decimal"
+      }
+    },
+    {
+      "key": "top_ranking",
+      "extractor": {
+        "path": "//a[@href='/chart/top']/text()",
+        "transform": "ranking"
+      }
+    },
+    {
+      "key": "bottom_ranking",
+      "extractor": {
+        "path": "//a[@href='/chart/bottom']/text()",
+        "transform": "ranking"
       }
     },
     {

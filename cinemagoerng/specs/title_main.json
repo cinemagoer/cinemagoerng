@@ -1,5 +1,5 @@
 {
-  "version": "20240105",
+  "version": "20240126",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "rules": [
     {
@@ -112,6 +112,22 @@
       "extractor": {
         "pre": "next_data",
         "path": "/NEXT_DATA/aboveTheFoldData/ratingsSummary/voteCount/text()",
+        "transform": "int"
+      }
+    },
+    {
+      "key": "top_ranking",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/mainColumnData/ratingsSummary/topRanking/rank/text()",
+        "transform": "int"
+      }
+    },
+    {
+      "key": "bottom_ranking",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/mainColumnData/ratingsSummary/bottomRanking/rank/text()",
         "transform": "int"
       }
     },

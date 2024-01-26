@@ -172,7 +172,7 @@ def test_title_parser_should_set_genres(page, imdb_id, genres):
 ])
 def test_title_parser_should_set_rating(page, imdb_id, rating):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
-    assert (abs(parsed.rating) - rating < Decimal("0.3")) if rating is not None else (parsed.rating is None)
+    assert (abs(parsed.rating - rating) < Decimal("0.3")) if rating is not None else (parsed.rating is None)
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
@@ -183,6 +183,16 @@ def test_title_parser_should_set_rating(page, imdb_id, rating):
 def test_title_parser_should_set_number_of_votes(page, imdb_id, votes):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert (parsed.vote_count >= votes) if votes > 0 else (parsed.vote_count == 0)
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "rank"), [
+    ("tt0133093", 16),  # The Matrix
+    ("tt3629794", None),  # Aslan
+])
+def test_title_parser_should_set_top_ranking(page, imdb_id, rank):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert (abs(parsed.top_ranking - rank) < 10) if rank is not None else (parsed.top_ranking is None)
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])

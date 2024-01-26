@@ -24,6 +24,15 @@ def test_title_parser_should_set_first_plot_summary(imdb_id, plot, lang):
         assert parsed.plot_summaries[0][lang].startswith(plot)
 
 
+@pytest.mark.parametrize(("imdb_id", "rank"), [
+    ("tt0060666", 2),  # Manos
+    ("tt3629794", None),  # Aslan
+])
+def test_title_parser_should_set_bottom_ranking(imdb_id, rank):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert (abs(parsed.bottom_ranking - rank) < 10) if rank is not None else (parsed.bottom_ranking is None)
+
+
 @pytest.mark.parametrize(("imdb_id", "n", "cast"), [
     ("tt7045440", 1, [  # David Bowie: Ziggy Stardust
         ("nm0000309", "David Bowie", "David Bowie", []),

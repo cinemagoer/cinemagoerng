@@ -119,6 +119,10 @@ def parse_vote_count(value: str) -> int:
     return int(value[1:-1].replace(",", ""))   # remove parens around value
 
 
+def parse_ranking(value: str) -> int:
+    return int(value.split("#")[-1])
+
+
 _re_locale = re.compile(r"""locale: '([^']+)'""")
 
 
@@ -173,6 +177,7 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         "language_code": parse_language_code,
         "runtime": parse_runtime,
         "vote_count": parse_vote_count,
+        "ranking": parse_ranking,
         "locale": parse_locale,
         "credit_section_id": parse_credit_section_id,
         "credit_info": parse_credit_info,
