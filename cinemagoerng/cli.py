@@ -32,7 +32,7 @@ def get_title(imdb_num: int, taglines: bool = False) -> None:
         sys.exit()
 
     if taglines:
-        item = web.update_title(item, page="taglines")
+        web.update_title(item, page="taglines", keys=["taglines"])
 
     print(f"Title: {item.title} ({item.__class__.__name__})")
 

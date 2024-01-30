@@ -169,6 +169,16 @@ def test_title_parser_should_set_genres(page, imdb_id, genres):
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
+    ("tt0133093", "When a beautiful stranger", "en-US"),  # The Matrix
+    ("tt3629794", "Plot undisclosed.", "en-US"),  # Aslan
+])
+def test_title_parser_should_set_plot(page, imdb_id, plot, lang):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert parsed.plot[lang].startswith(plot)
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "rating"), [
     ("tt0133093", Decimal("8.7")),  # The Matrix
     ("tt3629794", None),  # Aslan
@@ -183,7 +193,7 @@ def test_title_parser_should_set_rating(page, imdb_id, rating):
     ("tt0133093", 2_000_000),  # The Matrix
     ("tt3629794", 0),  # Aslan
 ])
-def test_title_parser_should_set_number_of_votes(page, imdb_id, votes):
+def test_title_parser_should_set_vote_count(page, imdb_id, votes):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert (parsed.vote_count >= votes) if votes > 0 else (parsed.vote_count == 0)
 
@@ -196,16 +206,6 @@ def test_title_parser_should_set_number_of_votes(page, imdb_id, votes):
 def test_title_parser_should_set_top_ranking(page, imdb_id, rank):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert (abs(parsed.top_ranking - rank) < 10) if rank is not None else (parsed.top_ranking is None)
-
-
-@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
-@pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
-    ("tt0133093", "When a beautiful stranger", "en-US"),  # The Matrix
-    ("tt3629794", "Plot undisclosed.", "en-US"),  # Aslan
-])
-def test_title_parser_should_set_plot(page, imdb_id, plot, lang):
-    parsed = web.get_title(imdb_id=imdb_id, page=page)
-    assert parsed.plot[lang].startswith(plot)
 
 
 @pytest.mark.parametrize(("imdb_id", "n", "cast"), [
@@ -294,6 +294,6 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
     ("tt0412142", 8),  # House M.D. (no unknown season)
     ("tt0185906", 1),  # Band of Brothers (Mini-Series)
 ])
-def test_title_parser_should_set_number_of_seasons(page, imdb_id, season_count):
+def test_title_parser_should_set_season_count(page, imdb_id, season_count):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.season_count == season_count

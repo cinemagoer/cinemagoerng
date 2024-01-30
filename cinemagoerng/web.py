@@ -22,8 +22,7 @@ from typing import Literal, TypeAlias, TypeVar
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from . import piculet, registry
-from .model import Title, TVMiniSeries, TVSeries
+from . import model, piculet, registry
 
 
 _USER_AGENT = " ".join([
@@ -56,12 +55,12 @@ def _spec(page: str, /) -> piculet.Spec:
     return piculet.load_spec(json.loads(content))
 
 
-Title_ = TypeVar("Title_", bound=Title)
+Title_ = TypeVar("Title_", bound=model.Title)
 TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes"]
 
 
 def get_title(imdb_id: str, *, page: TitlePage = "reference",
-              **kwargs) -> Title | None:
+              **kwargs) -> model.Title | None:
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": imdb_id} | kwargs)
     try:
@@ -71,19 +70,26 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
             return None
         raise e  # pragma: no cover
     data = piculet.scrape(document, spec.rules)
-    return piculet.deserialize(data, Title)
+    return piculet.deserialize(data, model.Title)
 
 
-def update_title(title: Title_, /, *, page: TitlePage, **kwargs) -> Title_:
+def update_title(title: Title_, /, *, page: TitlePage, keys: list[str],
+                 **kwargs) -> None:
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
     document = fetch(url)
-    data = piculet.scrape(document, spec.rules)
-    current_data = piculet.serialize(title)
-    return piculet.deserialize(current_data | data, title.__class__)
+    rules = [rule for rule in spec.rules if rule.key in keys]
+    data = piculet.scrape(document, rules)
+    for key in keys:
+        value = data.get(key)
+        if value is not None:
+            if key == "episodes":
+                value = piculet.deserialize(value, list[model.TVEpisode])
+            setattr(title, key, value)
 
 
-def update_episodes(series: TVSeries | TVMiniSeries):
+def update_episodes(series: model.TVSeries | model.TVMiniSeries):
     for season in range(1, series.season_count + 1):
-        series = update_title(series, page="episodes", season=str(season))
+        update_title(series, page="episodes", keys=["episodes"],
+                     season=str(season))
     return series

@@ -34,7 +34,7 @@ Usage example (subject to change):
    'Lana Wachowski'
    >>> matrix.taglines
    []
-   >>> matrix = web.update_title(matrix, page="taglines")
+   >>> web.update_title(matrix, page="taglines")
    >>> len(matrix.taglines)
    15
    >>> matrix.taglines[0]

@@ -134,6 +134,13 @@
       }
     },
     {
+      "key": "vote_count",
+      "extractor": {
+        "path": "//span[@class='ipl-rating-star__total-votes']/text()",
+        "transform": "vote_count"
+      }
+    },
+    {
       "key": "top_ranking",
       "extractor": {
         "path": "//a[@href='/chart/top']/text()",
@@ -145,13 +152,6 @@
       "extractor": {
         "path": "//a[@href='/chart/bottom']/text()",
         "transform": "ranking"
-      }
-    },
-    {
-      "key": "vote_count",
-      "extractor": {
-        "path": "//span[@class='ipl-rating-star__total-votes']/text()",
-        "transform": "vote_count"
       }
     },
     {

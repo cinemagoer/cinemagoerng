@@ -14,9 +14,11 @@
 # along with CinemagoerNG; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import List, Literal, TypeAlias
+from typing import Literal, TypeAlias
 
 from . import linguistics, lookup
 
@@ -164,7 +166,7 @@ class TVSeries(_Title):
     end_year: int | None = None
     runtime: int | None = None
     season_count: int | None = None
-    episodes: List["TVEpisode"] = field(default_factory=list)
+    episodes: list[TVEpisode] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -173,7 +175,7 @@ class TVMiniSeries(_Title):
     end_year: int | None = None
     runtime: int | None = None
     season_count: Literal[1] = 1
-    episodes: List["TVEpisode"] = field(default_factory=list)
+    episodes: list[TVEpisode] = field(default_factory=list)
 
 
 @dataclass
