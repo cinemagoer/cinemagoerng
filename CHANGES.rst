@@ -1,9 +1,10 @@
 CHANGES
 =======
 
-0.2 (unraleased)
+0.2 (unreleased)
 ----------------
 
+- Added parsers: plot summaries, top/bottom ranks, episodes.
 - Updating titles now updates in-place.
 
 0.1a20240105 (2024-01-05)

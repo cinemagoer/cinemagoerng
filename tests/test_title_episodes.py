@@ -97,6 +97,8 @@ def test_title_episodes_parser_should_set_episode_info(imdb_id, season, episode_
 ])
 def test_updating_episodes_should_set_all_seasons(imdb_id, season_data):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    parsed = web.update_episodes(parsed)
+    for season in range(1, parsed.season_count + 1):
+        web.update_title(parsed, page="episodes", keys=["episodes"],
+                         season=str(season))
     for season, episode_count in season_data:
         assert len([episode for episode in parsed.episodes if episode.season == season]) == episode_count

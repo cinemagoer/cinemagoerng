@@ -85,11 +85,6 @@ def update_title(title: Title_, /, *, page: TitlePage, keys: list[str],
         if value is not None:
             if key == "episodes":
                 value = piculet.deserialize(value, list[model.TVEpisode])
-            setattr(title, key, value)
-
-
-def update_episodes(series: model.TVSeries | model.TVMiniSeries):
-    for season in range(1, series.season_count + 1):
-        update_title(series, page="episodes", keys=["episodes"],
-                     season=str(season))
-    return series
+                getattr(title, key).extend(value)
+            else:
+                setattr(title, key, value)
