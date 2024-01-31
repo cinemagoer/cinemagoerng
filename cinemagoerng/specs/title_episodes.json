@@ -88,6 +88,76 @@
                   "extractor": {
                     "path": "./episode/text()"
                   }
+                },
+                {
+                  "key": "year",
+                  "extractor": {
+                    "path": "./releaseYear/text()",
+                    "transform": "int"
+                  }
+                },
+                {
+                  "key": "release_date",
+                  "extractor": {
+                    "rules": [
+                      {
+                        "key": "year",
+                        "extractor": {
+                          "path": "./releaseDate/year/text()",
+                          "transform": "int"
+                        }
+                      },
+                      {
+                        "key": "month",
+                        "extractor": {
+                          "path": "./releaseDate/month/text()",
+                          "transform": "int"
+                        }
+                      },
+                      {
+                        "key": "day",
+                        "extractor": {
+                          "path": "./releaseDate/day/text()",
+                          "transform": "int"
+                        }
+                      }
+                    ],
+                    "transform": "date"
+                  }
+                },
+                {
+                  "key": "plot",
+                  "extractor": {
+                    "rules": [
+                      {
+                        "key": "lang",
+                        "extractor": {
+                          "path": "/NEXT_DATA/translationContext/i18n/locale/text()"
+                        }
+                      },
+                      {
+                        "key": "text",
+                        "extractor": {
+                          "path": "./plot/text()"
+                        }
+                      }
+                    ],
+                    "transform": "lang"
+                  }
+                },
+                {
+                  "key": "rating",
+                  "extractor": {
+                    "path": "./aggregateRating/text()",
+                    "transform": "decimal"
+                  }
+                },
+                {
+                  "key": "vote_count",
+                  "extractor": {
+                    "path": "./voteCount/text()",
+                    "transform": "int"
+                  }
                 }
               ],
               "post": "episode_map"

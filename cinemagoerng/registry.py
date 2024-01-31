@@ -62,12 +62,16 @@ def dict_to_xml(tag: str, data: StrMap) -> TreeNode:
     return element
 
 
+_data_sections: list[str] = ["aboveTheFoldData", "mainColumnData",
+                             "contentData", "translationContext"]
+
+
 def parse_next_data(root: TreeNode) -> TreeNode:
     next_data_path = "//script[@id='__NEXT_DATA__']/text()"
     script: str = root.xpath(next_data_path)[0]  # type:ignore
     data = json.loads(script)
     xml_data: dict[str, Any] = {}
-    for section in ["aboveTheFoldData", "mainColumnData", "contentData"]:
+    for section in _data_sections:
         section_data: StrMap | None = data["props"]["pageProps"].get(section)
         if section_data is not None:
             xml_data[section] = section_data
@@ -87,6 +91,30 @@ def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     registry.update({
         "episode_map": generate_episode_map,
     })
+
+
+class DateDict(TypedDict):
+    year: int | None
+    month: int | None
+    day: int | None
+
+
+def make_date(x: DateDict) -> str | None:
+    year = x.get("year")
+    month = x.get("month")
+    day = x.get("day")
+    if (year is None) or (month is None) or (day is None):
+        return None
+    return f"{year}-{month:02}-{day:02}"
+
+
+class LangDict(TypedDict):
+    lang: str
+    text: str
+
+
+def make_lang(x: LangDict) -> dict[str, str]:
+    return {x["lang"]: x["text"]}
 
 
 def parse_href_id(value: str) -> str:
@@ -174,9 +202,10 @@ def parse_credit_info(value: str) -> CreditInfo:
 
 def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update({
-        "div60": lambda x: int(x) // 60,
-        "lang": lambda x: {x["lang"]: x["text"]},
+        "date": make_date,
+        "lang": make_lang,
         "unescape": html.unescape,
+        "div60": lambda x: int(x) // 60,
         "href_id": parse_href_id,
         "type_id": parse_type_id,
         "year_range": parse_year_range,
