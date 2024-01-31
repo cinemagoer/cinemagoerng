@@ -130,19 +130,19 @@
                   "extractor": {
                     "rules": [
                       {
-                        "key": "lang",
+                        "key": "key",
                         "extractor": {
                           "path": "/NEXT_DATA/translationContext/i18n/locale/text()"
                         }
                       },
                       {
-                        "key": "text",
+                        "key": "value",
                         "extractor": {
                           "path": "./plot/text()"
                         }
                       }
                     ],
-                    "transform": "lang"
+                    "transform": "make_dict"
                   }
                 },
                 {

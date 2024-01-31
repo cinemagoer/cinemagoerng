@@ -87,21 +87,21 @@
         "pre": "see_more",
         "rules": [
           {
-            "key": "lang",
+            "key": "key",
             "extractor": {
               "path": "//script/text()",
               "transform": "locale"
             }
           },
           {
-            "key": "text",
+            "key": "value",
             "extractor": {
               "path": "//section[@class='titlereference-section-overview']/div[not(.//a)]/text()",
               "transform": "strip"
             }
           }
         ],
-        "transform": "lang"
+        "transform": "make_dict"
       }
     },
     {
@@ -110,21 +110,21 @@
         "foreach": "//td[text()='Plot Summary']/..",
         "rules": [
           {
-            "key": "lang",
+            "key": "key",
             "extractor": {
               "path": "//script/text()",
               "transform": "locale"
             }
           },
           {
-            "key": "text",
+            "key": "value",
             "extractor": {
               "path": ".//p/text()",
               "transform": "strip"
             }
           }
         ],
-        "transform": "lang"
+        "transform": "make_dict"
       }
     },
     {

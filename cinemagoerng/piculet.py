@@ -69,6 +69,7 @@ transformers: dict[str, Transformer] = {
     "decimal": lambda x: Decimal(str(x)),
     "int": int,
     "lower": str.lower,
+    "make_dict": lambda x: {x["key"]: x["value"]},
     "strip": str.strip,
 }
 

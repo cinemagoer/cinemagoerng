@@ -135,15 +135,6 @@ def parse_text_date(x: str) -> str | None:
     return f"{year}-{month:02}-{day}"
 
 
-class LangDict(TypedDict):
-    lang: str
-    text: str
-
-
-def make_lang(x: LangDict) -> dict[str, str]:
-    return {x["lang"]: x["text"]}
-
-
 def parse_href_id(value: str) -> str:
     if "?" in value:
         value = value.split("?")[0]
@@ -239,7 +230,6 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update({
         "date": make_date,
         "text_date": parse_text_date,
-        "lang": make_lang,
         "unescape": html.unescape,
         "div60": lambda x: int(x) // 60,
         "href_id": parse_href_id,

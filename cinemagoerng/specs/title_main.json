@@ -84,19 +84,19 @@
         "pre": "next_data",
         "rules": [
           {
-            "key": "lang",
+            "key": "key",
             "extractor": {
               "path": "/NEXT_DATA/aboveTheFoldData/plot/language/id/text()"
             }
           },
           {
-            "key": "text",
+            "key": "value",
             "extractor": {
               "path": "/NEXT_DATA/aboveTheFoldData/plot/plotText/plainText/text()"
             }
           }
         ],
-        "transform": "lang"
+        "transform": "make_dict"
       }
     },
     {
