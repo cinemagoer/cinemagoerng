@@ -20,7 +20,8 @@ from typing import Any, TypedDict
 
 from lxml.etree import Element
 
-from .piculet import Postprocessor, Preprocessor, StrMap, Transformer, TreeNode
+from .piculet import Postprocessor, Preprocessor, StrMap, Transformer, \
+    TreeNode, TreePath
 
 
 def scalar_to_xml(tag: str, data: Any) -> TreeNode:
@@ -67,8 +68,8 @@ _data_sections: list[str] = ["aboveTheFoldData", "mainColumnData",
 
 
 def parse_next_data(root: TreeNode) -> TreeNode:
-    next_data_path = "//script[@id='__NEXT_DATA__']/text()"
-    script: str = root.xpath(next_data_path)[0]  # type:ignore
+    path = TreePath("//script[@id='__NEXT_DATA__']/text()")
+    script = path.apply(root)[0]
     data = json.loads(script)
     xml_data: dict[str, Any] = {}
     for section in _data_sections:
@@ -79,9 +80,11 @@ def parse_next_data(root: TreeNode) -> TreeNode:
 
 
 def remove_see_more(root: TreeNode) -> TreeNode:
-    links = root.xpath("//a[text()='See more »']")
+    path = TreePath("//a[text()='See more »']")
+    links = path.select(root)
     for link in links:
-        link.getparent().remove(link)
+        parent: TreeNode = link.getparent()  # type: ignore
+        parent.remove(link)
     return root
 
 
@@ -123,7 +126,7 @@ _month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
 _month_nums = {m: (i + 1) for i, m in enumerate(_month_names)}
 
 
-def parse_text_date(x: str) -> None:
+def parse_text_date(x: str) -> str | None:
     tokens = x.split("(")[0].split()
     if len(tokens) != 3:
         return None
