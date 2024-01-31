@@ -78,8 +78,15 @@ def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
     registry.update({"next_data": parse_next_data})
 
 
+def generate_episode_map(data, value):
+    for season in data:
+        data[season] = {ep["episode"]: ep for ep in data[season]}
+
+
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
-    registry.update()
+    registry.update({
+        "episode_map": generate_episode_map,
+    })
 
 
 def parse_href_id(value: str) -> str:

@@ -84,7 +84,7 @@ def update_title(title: Title_, /, *, page: TitlePage, keys: list[str],
         value = data.get(key)
         if value is not None:
             if key == "episodes":
-                value = piculet.deserialize(value, list[model.TVEpisode])
-                getattr(title, key).extend(value)
+                value = piculet.deserialize(value, model.EpisodeMap)
+                getattr(title, key).update(value)
             else:
                 setattr(title, key, value)

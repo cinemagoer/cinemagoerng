@@ -1,5 +1,5 @@
 {
-  "version": "20240126",
+  "version": "20240131",
   "url": "https://www.imdb.com/title/%(imdb_id)s/episodes/?season=%(season)s",
   "rules": [
     {
@@ -50,36 +50,47 @@
       "key": "episodes",
       "extractor": {
         "pre": "next_data",
-        "foreach": "/NEXT_DATA/contentData/section/episodes/items/item",
         "rules": [
           {
-            "key": "imdb_id",
+            "foreach": "/NEXT_DATA/contentData/section/currentSeason",
+            "key": {
+              "path": "./text()"
+            },
             "extractor": {
-              "path": "./id/text()"
-            }
-          },
-          {
-            "key": "type_id",
-            "extractor": {
-              "path": "./type/text()"
-            }
-          },
-          {
-            "key": "title",
-            "extractor": {
-              "path": "./titleText/text()"
-            }
-          },
-          {
-            "key": "season",
-            "extractor": {
-              "path": "./season/text()"
-            }
-          },
-          {
-            "key": "episode",
-            "extractor": {
-              "path": "./episode/text()"
+              "foreach": "../episodes/items/item",
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "./id/text()"
+                  }
+                },
+                {
+                  "key": "type_id",
+                  "extractor": {
+                    "path": "./type/text()"
+                  }
+                },
+                {
+                  "key": "title",
+                  "extractor": {
+                    "path": "./titleText/text()"
+                  }
+                },
+                {
+                  "key": "season",
+                  "extractor": {
+                    "path": "./season/text()"
+                  }
+                },
+                {
+                  "key": "episode",
+                  "extractor": {
+                    "path": "./episode/text()"
+                  }
+                }
+              ],
+              "post": "episode_map"
             }
           }
         ]

@@ -63,31 +63,31 @@ def test_title_parser_should_set_end_year(imdb_id, end_year):
 ])
 def test_title_episodes_parser_should_instantiate_episodes(imdb_id):
     parsed = web.get_title(imdb_id=imdb_id, page="episodes", season="1")
-    assert all(isinstance(episode, model.TVEpisode) for episode in parsed.episodes)
+    assert all(isinstance(episode, model.TVEpisode) for episode in parsed.episodes["1"].values())
 
 
 @pytest.mark.parametrize(("imdb_id", "season", "episode_count", "episode_data"), [
-    ("tt0436992", 1, 13, [  # Doctor Who
-        (0, "1", "1", "Rose"),
-        (12, "1", "13", "The Parting of the Ways"),
+    ("tt0436992", "1", 13, [  # Doctor Who
+        ("1", "1", "Rose"),
+        ("1", "13", "The Parting of the Ways"),
     ]),
-    ("tt0436992", 3, 14, [  # Doctor Who
-        (10, "3", "10", "Blink"),
+    ("tt0436992", "3", 14, [  # Doctor Who
+        ("3", "10", "Blink"),
     ]),
-    ("tt0185906", 1, 10, [  # Band of Brothers (Mini-Series)
-        (0, "1", "1", "Currahee"),
-        (9, "1", "10", "Points"),
+    ("tt0185906", "1", 10, [  # Band of Brothers (Mini-Series)
+        ("1", "1", "Currahee"),
+        ("1", "10", "Points"),
     ]),
 ])
 def test_title_episodes_parser_should_set_episode_info(imdb_id, season, episode_count, episode_data):
-    parsed = web.get_title(imdb_id=imdb_id, page="episodes", season=str(season))
-    assert len(parsed.episodes) == episode_count
+    parsed = web.get_title(imdb_id=imdb_id, page="episodes", season=season)
+    assert len(parsed.episodes[season]) == episode_count
     for item in episode_data:
-        episode = parsed.episodes[item[0]]
-        assert (episode.season, episode.episode, episode.title) == item[1:]
+        episode = parsed.episodes[season][item[1]]
+        assert (episode.season, episode.episode, episode.title) == item
 
 
-@pytest.mark.parametrize(("imdb_id", "season_data"), [
+@pytest.mark.parametrize(("imdb_id", "episode_counts"), [
     ("tt0436992", [  # Doctor Who
         ("1", 13),
     ]),
@@ -95,10 +95,10 @@ def test_title_episodes_parser_should_set_episode_info(imdb_id, season, episode_
         ("1", 10),
     ]),
 ])
-def test_updating_episodes_should_set_all_seasons(imdb_id, season_data):
+def test_updating_episodes_should_set_all_seasons(imdb_id, episode_counts):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     for season in range(1, parsed.season_count + 1):
         web.update_title(parsed, page="episodes", keys=["episodes"],
                          season=str(season))
-    for season, episode_count in season_data:
-        assert len([episode for episode in parsed.episodes if episode.season == season]) == episode_count
+    for season, episode_count in episode_counts:
+        assert len(parsed.episodes[season]) == episode_count
