@@ -171,6 +171,7 @@ def test_title_parser_should_set_genres(page, imdb_id, genres):
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
     ("tt0133093", "When a beautiful stranger", "en-US"),  # The Matrix
+    ("tt0436992", "The further adventures in time and space", "en-US"),  # Doctor Who
     ("tt3629794", "Plot undisclosed.", "en-US"),  # Aslan
 ])
 def test_title_parser_should_set_plot(page, imdb_id, plot, lang):
