@@ -1,5 +1,5 @@
 {
-  "version": "20240126",
+  "version": "20240131",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "rules": [
     {
@@ -195,6 +195,49 @@
         "pre": "next_data",
         "path": "/NEXT_DATA/mainColumnData/episodes/seasons/item[last()]/number/text()",
         "transform": "int"
+      }
+    },
+    {
+      "key": "season",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/aboveTheFoldData/series/episodeNumber/seasonNumber/text()"
+      }
+    },
+    {
+      "key": "episode",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/aboveTheFoldData/series/episodeNumber/episodeNumber/text()"
+      }
+    },
+    {
+      "key": "release_date",
+      "extractor": {
+        "rules": [
+          {
+            "key": "year",
+            "extractor": {
+              "path": "/NEXT_DATA/mainColumnData/releaseDate/year/text()",
+              "transform": "int"
+            }
+          },
+          {
+            "key": "month",
+            "extractor": {
+              "path": "/NEXT_DATA/mainColumnData/releaseDate/month/text()",
+              "transform": "int"
+            }
+          },
+          {
+            "key": "day",
+            "extractor": {
+              "path": "/NEXT_DATA/mainColumnData/releaseDate/day/text()",
+              "transform": "int"
+            }
+          }
+        ],
+        "transform": "date"
       }
     }
   ]

@@ -84,6 +84,7 @@
     {
       "key": "plot",
       "extractor": {
+        "pre": "see_more",
         "rules": [
           {
             "key": "lang",
@@ -221,6 +222,27 @@
       "extractor": {
         "path": "//div[contains(text(), 'Seasons')]/a[1]/text()",
         "transform": "int"
+      }
+    },
+    {
+      "key": "season",
+      "extractor": {
+        "path": "//div[@class='titlereference-overview-season-episode-section']//li[contains(text(), 'Season')]/text()",
+        "transform": "season_number"
+      }
+    },
+    {
+      "key": "episode",
+      "extractor": {
+        "path": "//div[@class='titlereference-overview-season-episode-section']//li[contains(text(), 'Episode')]/text()",
+        "transform": "episode_number"
+      }
+    },
+    {
+      "key": "release_date",
+      "extractor": {
+        "path": "//div[@id='main']//a[contains(@href, '/releaseinfo')]/text()",
+        "transform": "text_date"
       }
     }
   ]

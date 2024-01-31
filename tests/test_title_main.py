@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 import pytest
@@ -298,3 +299,21 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
 def test_title_parser_should_set_season_count(page, imdb_id, season_count):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.season_count == season_count
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "season", "episode"), [
+    ("tt1000252", "3", "10"),  # Doctor Who: Blink
+])
+def test_title_parser_should_set_season_and_episode_number_for_episode(page, imdb_id, season, episode):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert (parsed.season, parsed.episode) == (season, episode)
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "release_date"), [
+    ("tt1000252", date(2007, 6, 9)),  # Doctor Who: Blink
+])
+def test_title_parser_should_set_release_date_for_episode(page, imdb_id, release_date):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert parsed.release_date == release_date

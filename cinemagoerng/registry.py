@@ -78,8 +78,18 @@ def parse_next_data(root: TreeNode) -> TreeNode:
     return dict_to_xml("NEXT_DATA", xml_data)
 
 
+def remove_see_more(root: TreeNode) -> TreeNode:
+    links = root.xpath("//a[text()='See more »']")
+    for link in links:
+        link.getparent().remove(link)
+    return root
+
+
 def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
-    registry.update({"next_data": parse_next_data})
+    registry.update({
+        "next_data": parse_next_data,
+        "see_more": remove_see_more,
+    })
 
 
 def generate_episode_map(data, value):
@@ -106,6 +116,20 @@ def make_date(x: DateDict) -> str | None:
     if (year is None) or (month is None) or (day is None):
         return None
     return f"{year}-{month:02}-{day:02}"
+
+
+_month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+_month_nums = {m: (i + 1) for i, m in enumerate(_month_names)}
+
+
+def parse_text_date(x: str) -> None:
+    tokens = x.split("(")[0].split()
+    if len(tokens) != 3:
+        return None
+    day, month_name, year = tokens
+    month = _month_nums[month_name]
+    return f"{year}-{month:02}-{day}"
 
 
 class LangDict(TypedDict):
@@ -200,9 +224,18 @@ def parse_credit_info(value: str) -> CreditInfo:
     return parsed
 
 
+def parse_season_number(value: str) -> str:
+    return value.strip().split("Season ")[1]
+
+
+def parse_episode_number(value: str) -> str:
+    return value.strip().split("Episode ")[1]
+
+
 def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update({
         "date": make_date,
+        "text_date": parse_text_date,
         "lang": make_lang,
         "unescape": html.unescape,
         "div60": lambda x: int(x) // 60,
@@ -217,4 +250,6 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         "locale": parse_locale,
         "credit_section_id": parse_credit_section_id,
         "credit_info": parse_credit_info,
+        "season_number": parse_season_number,
+        "episode_number": parse_episode_number,
     })
