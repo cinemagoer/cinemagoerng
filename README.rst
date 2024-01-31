@@ -20,29 +20,20 @@ Usage example (subject to change):
    <class 'cinemagoerng.model.Movie'>
    >>> matrix.title
    'The Matrix'
+   >>> matrix.sort_title
+   'Matrix'
    >>> matrix.year
    1999
    >>> matrix.runtime
    136
    >>> matrix.genres
    ['Action', 'Sci-Fi']
-   >>> matrix.sort_title
-   'Matrix'
    >>> len(matrix.directors)
    2
    >>> matrix.directors[0].name
    'Lana Wachowski'
    >>> matrix.taglines
-   []
-   >>> web.update_title(matrix, page="taglines")
+   ['Free your mind']
+   >>> web.update_title(matrix, page="taglines", keys=["taglines"])
    >>> len(matrix.taglines)
    15
-   >>> matrix.taglines[0]
-   'Free your mind'
-   >>> matrix_game = web.get_title("tt0390244")
-   >>> type(matrix_game)
-   <class 'cinemagoerng.model.VideoGame'>
-   >>> matrix_game.title
-   'The Matrix Online'
-   >>> matrix_game.runtime
-   AttributeError: 'VideoGame' object has no attribute 'runtime'
