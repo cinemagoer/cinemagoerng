@@ -1,5 +1,5 @@
 {
-  "version": "20240131",
+  "version": "20240205",
   "url": "https://www.imdb.com/title/%(imdb_id)s/episodes/?season=%(season)s",
   "rules": [
     {
@@ -43,6 +43,14 @@
       "extractor": {
         "pre": "next_data",
         "path": "/NEXT_DATA/contentData/entityMetadata/releaseYear/endYear/text()",
+        "transform": "int"
+      }
+    },
+    {
+      "key": "episode_count",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/contentData/section/episodesWidgetData/totalEpisodes/total/text()",
         "transform": "int"
       }
     },

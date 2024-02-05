@@ -301,6 +301,14 @@ def test_title_parser_should_set_season_count(page, imdb_id, season_count):
     assert parsed.season_count == season_count
 
 
+@pytest.mark.parametrize(("imdb_id", "episode_count"), [
+    ("tt0412142", 176),
+])
+def test_title_parser_should_set_episode_count(imdb_id, episode_count):
+    parsed = web.get_title(imdb_id=imdb_id, page="main")
+    assert parsed.episode_count == episode_count
+
+
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "type_", "series_data"), [
     ("tt1000252", model.TVSeries, ("tt0436992", "Doctor Who")),  # Doctor Who: Blink

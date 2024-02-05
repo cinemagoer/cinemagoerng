@@ -190,6 +190,14 @@
       }
     },
     {
+      "key": "episode_count",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/mainColumnData/episodes/episodes/total/text()",
+        "transform": "int"
+      }
+    },
+    {
       "key": "series",
       "extractor": {
         "pre": "next_data",

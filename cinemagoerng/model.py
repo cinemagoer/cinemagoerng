@@ -182,6 +182,7 @@ class TVSeries(_Title):
     end_year: int | None = None
     runtime: int | None = None
     season_count: int | None = None
+    episode_count: int | None = None
     episodes: EpisodeMap = field(default_factory=dict)
 
 

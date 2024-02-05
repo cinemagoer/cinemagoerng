@@ -117,6 +117,14 @@ def test_title_episodes_parser_should_set_plot(imdb_id, season, episode, plot):
     assert episode.plot["en-US"].startswith(plot)
 
 
+@pytest.mark.parametrize(("imdb_id", "episode_count"), [
+    ("tt0412142", 176),  # House M.D.
+])
+def test_title_episodes_parser_should_set_episode_count(imdb_id, episode_count):
+    parsed = web.get_title(imdb_id=imdb_id, page="episodes", season="1")
+    assert parsed.episode_count == episode_count
+
+
 @pytest.mark.parametrize(("imdb_id", "episode_counts"), [
     ("tt0436992", [  # Doctor Who
         ("1", 13),

@@ -226,6 +226,10 @@ def parse_episode_series_title(value: str) -> str | None:
     return value.split('"')[1]
 
 
+def parse_episode_count(value: str) -> int:
+    return int(value[:-1].split("(")[1])
+
+
 def parse_season_number(value: str) -> str:
     return value.strip().split("Season ")[1]
 
@@ -252,6 +256,7 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         "credit_section_id": parse_credit_section_id,
         "credit_info": parse_credit_info,
         "episode_series_title": parse_episode_series_title,
+        "episode_count": parse_episode_count,
         "season_number": parse_season_number,
         "episode_number": parse_episode_number,
     })

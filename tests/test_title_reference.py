@@ -143,3 +143,11 @@ def test_title_reference_parser_should_set_all_crew(imdb_id, n, crew):
     if len(crew) > 0:
         assert [(credit.imdb_id, credit.name, credit.role, credit.notes)
                 for credit in parsed_crew] == crew
+
+
+@pytest.mark.parametrize(("imdb_id", "episode_count"), [
+    ("tt2121965", 176),  # House M.D.: Everybody Dies
+])
+def test_title_parser_should_set_series_episode_count_for_episode(imdb_id, episode_count):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert parsed.series.episode_count == episode_count

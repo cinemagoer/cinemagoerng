@@ -112,6 +112,11 @@
     "season_count": [
       "main",
       "reference"
+    ],
+    "episode_count": [
+      "main",
+      "episodes",
+      "episode:reference"
     ]
   },
   "tvEpisode": {

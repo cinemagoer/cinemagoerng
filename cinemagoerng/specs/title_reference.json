@@ -1,5 +1,5 @@
 {
-  "version": "20240131",
+  "version": "20240205",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "rules": [
     {
@@ -240,6 +240,13 @@
             "extractor": {
               "path": "/html/head/title/text()",
               "transform": "episode_series_title"
+            }
+          },
+          {
+            "key": "episode_count",
+            "extractor": {
+              "path": "//a[contains(text(), 'All Episodes')]/text()",
+              "transform": "episode_count"
             }
           }
         ]
