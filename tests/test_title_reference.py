@@ -12,6 +12,14 @@ def test_title_parser_should_set_primary_image_from_thumbnail(imdb_id, primary_i
     assert parsed.primary_image == primary_image
 
 
+@pytest.mark.parametrize(("imdb_id", "tagline"), [
+    ("tt0133093", "Free your mind"),  # The Matrix
+])
+def test_title_parser_should_set_first_tagline(imdb_id, tagline):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert parsed.taglines == [tagline]
+
+
 @pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
     ("tt0133093", "Thomas A. Anderson is a man living two lives.", "en-US"),  # The Matrix
     ("tt3629794", None, None),  # Aslan

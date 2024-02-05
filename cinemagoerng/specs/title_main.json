@@ -1,5 +1,5 @@
 {
-  "version": "20240131",
+  "version": "20240205",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "rules": [
     {
@@ -120,14 +120,6 @@
       "extractor": {
         "pre": "next_data",
         "path": "/NEXT_DATA/mainColumnData/ratingsSummary/topRanking/rank/text()",
-        "transform": "int"
-      }
-    },
-    {
-      "key": "bottom_ranking",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/mainColumnData/ratingsSummary/bottomRanking/rank/text()",
         "transform": "int"
       }
     },

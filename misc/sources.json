@@ -1,0 +1,127 @@
+{
+  "title": {
+    "imdb_id": [
+      "main",
+      "reference",
+      "taglines",
+      "episodes",
+      "series/episodes"
+    ],
+    "type_id": [
+      "main",
+      "reference",
+      "taglines",
+      "episodes",
+      "series/episodes"
+    ],
+    "original_title": [
+      "main",
+      "reference",
+      "taglines",
+      "episodes",
+      "series/episodes"
+    ],
+    "primary_image": [
+      "main",
+      "reference(thumbnail)",
+      "taglines",
+      "episodes"
+    ],
+    "year": [
+      "main",
+      "reference",
+      "taglines",
+      "episodes",
+      "series/episodes"
+    ],
+    "country_codes": [
+      "main",
+      "reference"
+    ],
+    "language_codes": [
+      "main",
+      "reference"
+    ],
+    "runtime": [
+      "main",
+      "reference"
+    ],
+    "genres": [
+      "main",
+      "reference"
+    ],
+    "taglines": [
+      "reference(partial)",
+      "taglines"
+    ],
+    "plot": [
+      "main",
+      "reference(truncated)",
+      "series/episodes"
+    ],
+    "plot_summaries": [
+      "reference(partial)"
+    ],
+    "rating": [
+      "main",
+      "reference",
+      "series/episodes"
+    ],
+    "vote_count": [
+      "main",
+      "reference",
+      "series/episodes"
+    ],
+    "top_ranking": [
+      "main",
+      "reference"
+    ],
+    "bottom_ranking": [
+      "reference"
+    ],
+    "cast": [
+      "main(partial)",
+      "reference"
+    ],
+    "directors": [
+      "main(partial)",
+      "reference"
+    ],
+    "writers": [
+      "main(partial)",
+      "reference"
+    ],
+    "other crew": [
+      "reference"
+    ]
+  },
+  "tvSeries": {
+    "end_year": [
+      "main",
+      "reference",
+      "taglines",
+      "episodes"
+    ],
+    "season_count": [
+      "main",
+      "reference"
+    ]
+  },
+  "tvEpisode": {
+    "season": [
+      "main",
+      "reference",
+      "series/episodes"
+    ],
+    "episode": [
+      "main",
+      "reference",
+      "series/episodes"
+    ],
+    "release_date": [
+      "main",
+      "reference",
+      "series/episodes"
+    ]
+  }
+}
