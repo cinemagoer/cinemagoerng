@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, Union
 
 from . import linguistics, lookup
 
@@ -165,6 +165,7 @@ class VideoGame(_Title):
 class TVEpisode(_Title):
     type_id: Literal["tvEpisode"] = "tvEpisode"
     runtime: int | None = None
+    series: Union[TVSeries, TVMiniSeries, None] = None
     season: str | None = None
     episode: str | None = None
     release_date: date | None = None

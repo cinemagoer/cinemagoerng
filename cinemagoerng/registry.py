@@ -144,6 +144,8 @@ def parse_href_id(value: str) -> str:
 
 
 def parse_type_id(value: str) -> str:
+    if value[0] == "(" and value[-1] == ")":
+        value = value[1:-1]
     first, *rest = value.strip().split(" ")
     return "".join([first.lower()] + rest)
 
@@ -218,6 +220,12 @@ def parse_credit_info(value: str) -> CreditInfo:
     return parsed
 
 
+def parse_episode_series_title(value: str) -> str | None:
+    if value[0] != '"':
+        return None
+    return value.split('"')[1]
+
+
 def parse_season_number(value: str) -> str:
     return value.strip().split("Season ")[1]
 
@@ -243,6 +251,7 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         "locale": parse_locale,
         "credit_section_id": parse_credit_section_id,
         "credit_info": parse_credit_info,
+        "episode_series_title": parse_episode_series_title,
         "season_number": parse_season_number,
         "episode_number": parse_episode_number,
     })

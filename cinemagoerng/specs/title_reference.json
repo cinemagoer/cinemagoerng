@@ -218,6 +218,34 @@
       }
     },
     {
+      "key": "series",
+      "extractor": {
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "//h4/a/@href",
+              "transform": "href_id"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "//h4/span[@class='titlereference-parent-title-year']/text()",
+              "transform": "type_id"
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "/html/head/title/text()",
+              "transform": "episode_series_title"
+            }
+          }
+        ]
+      }
+    },
+    {
       "key": "season_count",
       "extractor": {
         "path": "//div[contains(text(), 'Seasons')]/a[1]/text()",

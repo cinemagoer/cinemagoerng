@@ -4,7 +4,8 @@ CHANGES
 0.2 (unreleased)
 ----------------
 
-- Added parsers: plot summaries, top/bottom ranks, episodes.
+- New page parser: episodes.
+- Added title data: plot summaries, top/bottom ranks.
 - Updating titles now updates in-place.
 
 0.1a20240105 (2024-01-05)

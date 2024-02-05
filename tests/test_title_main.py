@@ -302,6 +302,26 @@ def test_title_parser_should_set_season_count(page, imdb_id, season_count):
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "type_", "series_data"), [
+    ("tt1000252", model.TVSeries, ("tt0436992", "Doctor Who")),  # Doctor Who: Blink
+    ("tt1247466", model.TVMiniSeries, ("tt0185906", "Band of Brothers")),  # Band of Brothers: Points
+])
+def test_title_parser_should_set_series_for_episode(page, imdb_id, type_, series_data):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert isinstance(parsed.series, type_)
+    assert (parsed.series.imdb_id, parsed.series.title) == series_data
+
+
+@pytest.mark.parametrize(("imdb_id", "year"), [
+    ("tt1000252", 2005),  # Doctor Who: Blink
+    ("tt1247466", 2001),  # Band of Brothers: Points
+])
+def test_title_parser_should_set_series_year_for_episode(imdb_id, year):
+    parsed = web.get_title(imdb_id=imdb_id, page="main")
+    assert parsed.series.year == year
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "season", "episode"), [
     ("tt1000252", "3", "10"),  # Doctor Who: Blink
 ])

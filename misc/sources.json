@@ -4,35 +4,42 @@
       "main",
       "reference",
       "taglines",
-      "episodes",
-      "series/episodes"
+      "series:episodes",
+      "series:episode/main",
+      "series:episode/reference",
+      "episode:series/episodes"
     ],
     "type_id": [
       "main",
       "reference",
       "taglines",
-      "episodes",
-      "series/episodes"
+      "series:episodes",
+      "series:episode/main",
+      "series:episode/reference",
+      "episode:series/episodes"
     ],
     "original_title": [
       "main",
       "reference",
       "taglines",
-      "episodes",
-      "series/episodes"
+      "series:episodes",
+      "series:episode/main",
+      "series:episode/reference",
+      "episode:series/episodes"
     ],
     "primary_image": [
       "main",
       "reference(thumbnail)",
       "taglines",
-      "episodes"
+      "series:episodes"
     ],
     "year": [
       "main",
       "reference",
       "taglines",
-      "episodes",
-      "series/episodes"
+      "series:episodes",
+      "series:episode/main",
+      "episode:series/episodes"
     ],
     "country_codes": [
       "main",
@@ -57,7 +64,7 @@
     "plot": [
       "main",
       "reference(truncated)",
-      "series/episodes"
+      "episode:series/episodes"
     ],
     "plot_summaries": [
       "reference(partial)"
@@ -65,12 +72,12 @@
     "rating": [
       "main",
       "reference",
-      "series/episodes"
+      "episode:series/episodes"
     ],
     "vote_count": [
       "main",
       "reference",
-      "series/episodes"
+      "episode:series/episodes"
     ],
     "top_ranking": [
       "main",
@@ -100,7 +107,7 @@
       "main",
       "reference",
       "taglines",
-      "episodes"
+      "series:episodes"
     ],
     "season_count": [
       "main",

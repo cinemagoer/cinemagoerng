@@ -190,6 +190,39 @@
       }
     },
     {
+      "key": "series",
+      "extractor": {
+        "pre": "next_data",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "/NEXT_DATA/aboveTheFoldData/series/series/id/text()"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "/NEXT_DATA/aboveTheFoldData/series/series/titleType/id/text()"
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "/NEXT_DATA/aboveTheFoldData/series/series/originalTitleText/text/text()"
+            }
+          },
+          {
+            "key": "year",
+            "extractor": {
+              "path": "/NEXT_DATA/aboveTheFoldData/series/series/releaseYear/year/text()",
+              "transform": "int"
+            }
+          }
+        ]
+      }
+    },
+    {
       "key": "season",
       "extractor": {
         "pre": "next_data",
