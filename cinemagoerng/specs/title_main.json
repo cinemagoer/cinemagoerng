@@ -264,6 +264,20 @@
         ],
         "transform": "date"
       }
+    },
+    {
+      "key": "previous_episode",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/aboveTheFoldData/series/previousEpisode/id/text()"
+      }
+    },
+    {
+      "key": "next_episode",
+      "extractor": {
+        "pre": "next_data",
+        "path": "/NEXT_DATA/aboveTheFoldData/series/nextEpisode/id/text()"
+      }
     }
   ]
 }

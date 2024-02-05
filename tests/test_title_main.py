@@ -337,3 +337,23 @@ def test_title_parser_should_set_season_and_episode_number_for_episode(page, imd
 def test_title_parser_should_set_release_date_for_episode(page, imdb_id, release_date):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.release_date == release_date
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "episode_id"), [
+    ("tt1000252", "tt1000256"),  # Doctor Who: Blink
+    ("tt0562992", None),  # Doctor Who: Rose
+])
+def test_title_parser_should_set_previous_episode_for_episode(page, imdb_id, episode_id):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert parsed.previous_episode == episode_id
+
+
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
+@pytest.mark.parametrize(("imdb_id", "episode_id"), [
+    ("tt1000252", "tt1000259"),  # Doctor Who: Blink
+    ("tt2121965", None),  # House M.D.: Everybody Dies
+])
+def test_title_parser_should_set_next_episode_for_episode(page, imdb_id, episode_id):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert parsed.next_episode == episode_id

@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from types import MappingProxyType
-from typing import Any, List, Mapping, MutableMapping, TypeAlias
+from typing import Any, List, Mapping, MutableMapping, TypeAlias, TypedDict
 
 import typedload
 from lxml.etree import XPath as compile_xpath
@@ -63,13 +63,25 @@ class Postprocess:
         return self.name
 
 
+class DictGen(TypedDict):
+    key: str
+    value: Any | None
+
+
+def make_dict(value: DictGen) -> dict[str, Any]:
+    if value.get("value") is None:
+        return {}
+    return {value["key"]: value["value"]}
+
+
 Transformer: TypeAlias = Callable[[Any], Any]
+
 
 transformers: dict[str, Transformer] = {
     "decimal": lambda x: Decimal(str(x)),
     "int": int,
     "lower": str.lower,
-    "make_dict": lambda x: {x["key"]: x["value"]},
+    "make_dict": make_dict,
     "strip": str.strip,
 }
 

@@ -272,6 +272,20 @@
         "path": "//div[@id='main']//a[contains(@href, '/releaseinfo')]/text()",
         "transform": "text_date"
       }
+    },
+    {
+      "key": "previous_episode",
+      "extractor": {
+        "path": "//a[contains(text(), 'Previous')]/@href",
+        "transform": "href_id"
+      }
+    },
+    {
+      "key": "next_episode",
+      "extractor": {
+        "path": "//a[contains(text(), 'Next')]/@href",
+        "transform": "href_id"
+      }
     }
   ]
 }

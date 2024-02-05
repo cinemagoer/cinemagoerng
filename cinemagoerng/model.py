@@ -169,6 +169,8 @@ class TVEpisode(_Title):
     season: str | None = None
     episode: str | None = None
     release_date: date | None = None
+    previous_episode: str | None = None
+    next_episode: str | None = None
 
 
 EpisodeMap: TypeAlias = dict[str, dict[str, TVEpisode]]

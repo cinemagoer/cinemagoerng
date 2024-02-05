@@ -115,6 +115,10 @@
     ]
   },
   "tvEpisode": {
+    "series": [
+      "main",
+      "reference"
+    ],
     "season": [
       "main",
       "reference",
@@ -129,6 +133,14 @@
       "main",
       "reference",
       "series/episodes"
+    ],
+    "previous_episode": [
+      "main",
+      "reference"
+    ],
+    "next_episode": [
+      "main",
+      "reference"
     ]
   }
 }
