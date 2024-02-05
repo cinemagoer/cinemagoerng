@@ -25,11 +25,7 @@ from urllib.request import Request, urlopen
 from . import model, piculet, registry
 
 
-_USER_AGENT = " ".join([
-    "Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B)",
-    "AppleWebKit/535.19 (KHTML, like Gecko)",
-    "Chrome/18.0.1025.133 Mobile Safari/535.19",
-])
+_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
 def fetch(url: str, /) -> str:
