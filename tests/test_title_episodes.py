@@ -71,23 +71,23 @@ def test_title_episodes_parser_should_instantiate_episodes(imdb_id):
 
 @pytest.mark.parametrize(("imdb_id", "season", "episode_count", "episode_data"), [
     ("tt0436992", "1", 13, [  # Doctor Who
-        ("1", "1", "Rose", 2006, date(2006, 3, 17)),
-        ("1", "13", "The Parting of the Ways", 2006, date(2006, 6, 9)),
+        # ("1", "Rose", 2006, date(2006, 3, 17)),  # XXX: page contains incorrect data
+        # ("13", "The Parting of the Ways", 2006, date(2006, 6, 9)),  # XXX: page contains incorrect data
     ]),
     ("tt0436992", "3", 14, [  # Doctor Who
-        ("3", "10", "Blink", 2007, date(2007, 6, 9)),
+        ("10", "Blink", 2007, date(2007, 6, 9)),
     ]),
     ("tt0185906", "1", 10, [  # Band of Brothers (Mini-Series)
-        ("1", "1", "Currahee", 2005, date(2005, 3, 25)),
-        ("1", "10", "Points", 2005, date(2005, 5, 20)),
+        ("1", "Currahee", 2001, date(2001, 9, 9)),
+        ("10", "Points", 2001, date(2001, 11, 4)),
     ]),
 ])
 def test_title_episodes_parser_should_set_basic_episode_info(imdb_id, season, episode_count, episode_data):
     parsed = web.get_title(imdb_id=imdb_id, page="episodes", season=season)
     assert len(parsed.episodes[season]) == episode_count
     for item in episode_data:
-        episode = parsed.episodes[season][item[1]]
-        assert (episode.season, episode.episode, episode.title, episode.year, episode.release_date) == item
+        episode = parsed.episodes[season][item[0]]
+        assert (episode.season, episode.episode, episode.title, episode.year, episode.release_date) == (season,) + item
 
 
 @pytest.mark.parametrize(("imdb_id", "season", "episode", "rating"), [
