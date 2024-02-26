@@ -35,13 +35,7 @@ dependencies = ["lxml", "typedload"]
 [project.optional-dependencies]
 tests = ["pytest", "pytest-cov"]
 types = ["mypy", "lxml-stubs"]
-style = [
-    "flake8",
-    "flake8-pyproject",
-    "flake8-isort",
-    "flake8-builtins",
-    "flake8-print",
-]
+style = ["ruff"]
 dev = [
     "cinemagoerng[tests,types,style]",
     "build",
@@ -72,17 +66,18 @@ source_pkgs = ["cinemagoerng"]
 show_missing = true
 skip_covered = true
 
-[tool.flake8]
-ignore = ["E731"]
-per-file-ignores = [
-    "cli.py: T20",
-    "tests/*: E501",
-]
-max-line-length = 79
+[tool.ruff]
+line-length = 79
 
-[tool.isort]
-lines_after_imports = 2
-multi_line_output = 2
+[tool.ruff.lint]
+select = ["A", "E", "F", "I", "T", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+"cli.py" = ["T201"]
+"tests/*" = ["E501"]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
 
 [tool.tox]
 legacy_tox_ini = """
@@ -109,13 +104,9 @@ commands =
 [testenv:style]
 skip_install = true
 deps =
-    flake8
-    flake8-pyproject
-    flake8-isort
-    flake8-builtins
-    flake8-print
+    ruff
 commands =
-    flake8 cinemagoerng tests
+    ruff check --preview cinemagoerng tests
 
 [testenv:package]
 skip_install = true

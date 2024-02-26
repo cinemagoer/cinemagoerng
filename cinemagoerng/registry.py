@@ -20,8 +20,14 @@ from typing import Any, TypedDict
 
 from lxml.etree import Element
 
-from .piculet import Postprocessor, Preprocessor, StrMap, Transformer, \
-    TreeNode, TreePath
+from .piculet import (
+    Postprocessor,
+    Preprocessor,
+    StrMap,
+    Transformer,
+    TreeNode,
+    TreePath,
+)
 
 
 def scalar_to_xml(tag: str, data: Any) -> TreeNode:
