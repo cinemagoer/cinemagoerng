@@ -41,7 +41,7 @@ def test_title_episodes_parser_should_set_primary_image(imdb_id, primary_image):
 
 
 @pytest.mark.parametrize(("imdb_id", "year"), [
-    ("tt0436992", 2005),  # Doctor Who
+    ("tt7587890", 2018),  # The Rookie
     ("tt0412142", 2004),  # House M.D.
     ("tt0185906", 2001),  # Band of Brothers (Mini-Series)
 ])
@@ -51,7 +51,7 @@ def test_title_episodes_parser_should_set_year(imdb_id, year):
 
 
 @pytest.mark.parametrize(("imdb_id", "end_year"), [
-    ("tt0436992", None),  # Doctor Who
+    ("tt7587890", None),  # The Rookie
     ("tt0412142", 2012),  # House M.D.
     ("tt0185906", 2001),  # Band of Brothers (Mini-Series)
 ])

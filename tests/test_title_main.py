@@ -67,7 +67,7 @@ def test_title_parser_should_set_primary_image(page, imdb_id, primary_image):
 @pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 @pytest.mark.parametrize(("imdb_id", "year"), [
     ("tt0133093", 1999),  # The Matrix
-    ("tt0436992", 2005),  # Doctor Who (2005-)
+    ("tt7587890", 2018),  # The Rookie (2018-)
     ("tt0412142", 2004),  # House M.D. (2004-2012)
     ("tt0185906", 2001),  # Band of Brothers (2001-2001)
     ("tt3629794", None),  # Aslan
@@ -79,7 +79,7 @@ def test_title_parser_should_set_year(page, imdb_id, year):
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 @pytest.mark.parametrize(("imdb_id", "end_year"), [
-    ("tt0436992", None),  # Doctor Who (2005-)
+    ("tt7587890", None),  # The Rookie (2018-)
     ("tt0412142", 2012),  # House M.D. (2004-2012)
     ("tt0185906", 2001),  # Band of Brothers (2001-2001) (TV Mini-Series)
 ])
@@ -292,7 +292,7 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(("imdb_id", "season_count"), [
-    ("tt0436992", 15),  # Doctor Who (has unknown season)
+    ("tt0436992", 13),  # Doctor Who (has unknown season)
     ("tt0412142", 8),  # House M.D. (no unknown season)
     ("tt0185906", 1),  # Band of Brothers (Mini-Series)
 ])
