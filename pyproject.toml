@@ -1,8 +1,8 @@
 [project]
 name = "cinemagoerng"
-version = "0.2"
+version = "0.3"
 description = "Retrieve data from the IMDb."
-readme = "README.rst"
+readme = "README.md"
 
 authors = [
     {name = "H. Turgut Uyar", email = "uyar@tekir.org"},
