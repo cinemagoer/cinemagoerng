@@ -1,41 +1,38 @@
 CinemagoerNG
 ============
 
+CinemagoerNG (Next Generation) is a Python library and command-line utility
+for retrieving data from the IMDb.
+
 .. admonition::
 
    This project and its authors are not affiliated in any way
    to Internet Movie Database Inc.
    See the `DISCLAIMER.txt`_ file for details about terms of use.
 
-CinemagoerNG (Next Generation) is a Python library and command-line utility
-for retrieving data from the IMDb.
-
 Usage example (subject to change):
 
 .. code-block:: python
 
-   >>> from cinemagoerng import web
-   >>> matrix = web.get_title("tt0133093")
-   >>> type(matrix)
-   <class 'cinemagoerng.model.Movie'>
-   >>> matrix.title
-   'The Matrix'
-   >>> matrix.sort_title
-   'Matrix'
-   >>> matrix.year
-   1999
-   >>> matrix.runtime
-   136
-   >>> matrix.genres
-   ['Action', 'Sci-Fi']
-   >>> len(matrix.directors)
-   2
-   >>> matrix.directors[0].name
-   'Lana Wachowski'
-   >>> matrix.taglines
-   ['Free your mind']
-   >>> web.update_title(matrix, page="taglines", keys=["taglines"])
-   >>> len(matrix.taglines)
-   15
+   from cinemagoerng import web
+
+   movie = web.get_title("tt0133093")
+   print(movie.title)       # "The Matrix"
+   print(movie.sort_title)  # "Matrix"
+   print(movie.year)        # 1999
+   print(movie.runtime)     # 136
+
+   for genre in movie.genres:
+      print(genre)          # "Action", "Sci-Fi"
+
+   for credit in movie.directors:
+      print(credit.name)    # "Lana Wachowski", "Lilly Wachowski"
+
+   print(len(movie.taglines))  # 1
+   for tagline in movie.taglines:
+      print(tagline)        # "Free your mind"
+
+   web.update_title(movie, page="taglines", keys=["taglines"])
+   print(len(movie.taglines))  # 15
 
 .. _DISCLAIMER.txt: https://raw.githubusercontent.com/cinemagoer/cinemagoerng/main/DISCLAIMER.txt
