@@ -4,7 +4,7 @@ CinemagoerNG
 .. admonition::
 
    This project and its authors are not affiliated in any way
-   to Internet Movie Dat abase Inc.
+   to Internet Movie Database Inc.
    See the `DISCLAIMER.txt`_ file for details about terms of use.
 
 CinemagoerNG (Next Generation) is a Python library and command-line utility
@@ -37,3 +37,5 @@ Usage example (subject to change):
    >>> web.update_title(matrix, page="taglines", keys=["taglines"])
    >>> len(matrix.taglines)
    15
+
+.. _DISCLAIMER.txt: https://raw.githubusercontent.com/cinemagoer/cinemagoerng/main/DISCLAIMER.txt
