@@ -294,7 +294,6 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
 @pytest.mark.parametrize(("imdb_id", "season_count"), [
     ("tt0436992", 13),  # Doctor Who (has unknown season)
     ("tt0412142", 8),  # House M.D. (no unknown season)
-    ("tt0185906", 1),  # Band of Brothers (Mini-Series)
 ])
 def test_title_parser_should_set_season_count(page, imdb_id, season_count):
     parsed = web.get_title(imdb_id=imdb_id, page=page)

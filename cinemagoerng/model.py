@@ -121,39 +121,38 @@ class _Title:
 
 
 @dataclass(kw_only=True)
-class Movie(_Title):
+class _TimedTitle(_Title):
+    runtime: int | None = None
+
+
+@dataclass(kw_only=True)
+class Movie(_TimedTitle):
     type_id: Literal["movie"] = "movie"
-    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class TVMovie(_Title):
+class TVMovie(_TimedTitle):
     type_id: Literal["tvMovie"] = "tvMovie"
-    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class ShortMovie(_Title):
+class ShortMovie(_TimedTitle):
     type_id: Literal["short"] = "short"
-    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class TVShortMovie(_Title):
+class TVShortMovie(_TimedTitle):
     type_id: Literal["tvShort"] = "tvShort"
-    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class VideoMovie(_Title):
+class VideoMovie(_TimedTitle):
     type_id: Literal["video"] = "video"
-    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
-class MusicVideo(_Title):
+class MusicVideo(_TimedTitle):
     type_id: Literal["musicVideo"] = "musicVideo"
-    runtime: int | None = None
 
 
 @dataclass(kw_only=True)
@@ -162,9 +161,8 @@ class VideoGame(_Title):
 
 
 @dataclass
-class TVEpisode(_Title):
+class TVEpisode(_TimedTitle):
     type_id: Literal["tvEpisode"] = "tvEpisode"
-    runtime: int | None = None
     series: Union[TVSeries, TVMiniSeries, None] = None
     season: str | None = None
     episode: str | None = None
@@ -177,25 +175,26 @@ EpisodeMap: TypeAlias = dict[str, dict[str, TVEpisode]]
 
 
 @dataclass(kw_only=True)
-class TVSeries(_Title):
-    type_id: Literal["tvSeries", "tvMiniSeries"] = "tvSeries"
+class _TVSeriesBase(_TimedTitle):
     end_year: int | None = None
-    runtime: int | None = None
-    season_count: int | None = None
     episode_count: int | None = None
     episodes: EpisodeMap = field(default_factory=dict)
 
 
 @dataclass(kw_only=True)
-class TVMiniSeries(TVSeries):
+class TVSeries(_TVSeriesBase):
+    type_id: Literal["tvSeries"] = "tvSeries"
+    season_count: int | None = None
+
+
+@dataclass(kw_only=True)
+class TVMiniSeries(_TVSeriesBase):
     type_id: Literal["tvMiniSeries"] = "tvMiniSeries"
-    season_count: Literal[1] = 1
 
 
 @dataclass
-class TVSpecial(_Title):
+class TVSpecial(_TimedTitle):
     type_id: Literal["tvSpecial"] = "tvSpecial"
-    runtime: int | None = None
 
 
 Title: TypeAlias = Movie | TVMovie | ShortMovie | TVShortMovie \
