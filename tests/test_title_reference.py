@@ -128,6 +128,24 @@ def test_title_reference_parser_should_set_all_writers(imdb_id, n, writers):
                 for credit in parsed.writers] == writers
 
 
+@pytest.mark.parametrize(("imdb_id", "n", "creators"), [
+    ("tt0436992", 1, [  # Doctor Who
+        ("nm0628285", "Sydney Newman", None, [])
+    ]),
+    ("tt0445114", 2, [  # Extras
+        ("nm0315041", "Ricky Gervais", None, []),
+        ("nm0580351", "Stephen Merchant", None, [])
+    ]),
+    ("tt0185906", 0, []),  # Band of Brothers (Mini-Series)
+])
+def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, creators):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert len(parsed.creators) == n
+    if len(creators) > 0:
+        assert [(credit.imdb_id, credit.name, credit.role, credit.notes)
+                for credit in parsed.creators] == creators
+
+
 @pytest.mark.parametrize(("imdb_id", "n", "crew"), [
     ("tt1000252", 4, [  # Blink
         ("nm2289913", "Charlotte Mitchell", "costume supervisor", []),

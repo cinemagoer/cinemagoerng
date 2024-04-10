@@ -3,6 +3,7 @@
 ## 0.3 (unreleased)
 
 - Make TV mini-series compatible with series.
+- Add support for parsing series creators.
 
 ## 0.2 (unreleased)
 

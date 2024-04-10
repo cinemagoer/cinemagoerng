@@ -1,5 +1,5 @@
 {
-  "version": "20240205",
+  "version": "20240410",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "rules": [
     {
@@ -212,6 +212,27 @@
               "path": ".//ancestor::tr/td[text()='...']/following-sibling::td/text()",
               "transform": "credit_info",
               "post": "unpack"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "creators",
+      "extractor": {
+        "foreach": "//div[@class='titlereference-overview-section'][contains(text(), 'Creator')]//a",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "./@href",
+              "transform": "href_id"
+            }
+          },
+          {
+            "key": "name",
+            "extractor": {
+              "path": "./text()"
             }
           }
         ]
