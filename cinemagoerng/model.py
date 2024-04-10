@@ -178,7 +178,7 @@ EpisodeMap: TypeAlias = dict[str, dict[str, TVEpisode]]
 
 @dataclass(kw_only=True)
 class TVSeries(_Title):
-    type_id: Literal["tvSeries"] = "tvSeries"
+    type_id: Literal["tvSeries", "tvMiniSeries"] = "tvSeries"
     end_year: int | None = None
     runtime: int | None = None
     season_count: int | None = None
@@ -187,12 +187,9 @@ class TVSeries(_Title):
 
 
 @dataclass(kw_only=True)
-class TVMiniSeries(_Title):
+class TVMiniSeries(TVSeries):
     type_id: Literal["tvMiniSeries"] = "tvMiniSeries"
-    end_year: int | None = None
-    runtime: int | None = None
     season_count: Literal[1] = 1
-    episodes: EpisodeMap = field(default_factory=dict)
 
 
 @dataclass

@@ -71,23 +71,23 @@ def test_title_episodes_parser_should_instantiate_episodes(imdb_id):
 
 @pytest.mark.parametrize(("imdb_id", "season", "episode_count", "episode_data"), [
     ("tt0436992", "1", 13, [  # Doctor Who
-        # ("1", "Rose", 2006, date(2006, 3, 17)),  # XXX: page contains incorrect data
-        # ("13", "The Parting of the Ways", 2006, date(2006, 6, 9)),  # XXX: page contains incorrect data
+        # ("1", "tt0562992", "Rose", 2006, date(2006, 3, 17)),  # XXX: page contains incorrect data
+        # ("13", "tt0563000", "The Parting of the Ways", 2006, date(2006, 6, 9)),  # XXX: page contains incorrect data
     ]),
     ("tt0436992", "3", 14, [  # Doctor Who
-        ("10", "Blink", 2007, date(2007, 6, 9)),
+        ("10", "tt1000252", "Blink", 2007, date(2007, 6, 9)),
     ]),
     ("tt0185906", "1", 10, [  # Band of Brothers (Mini-Series)
-        ("1", "Currahee", 2001, date(2001, 9, 9)),
-        ("10", "Points", 2001, date(2001, 11, 4)),
+        ("1", "tt1245384", "Currahee", 2001, date(2001, 9, 9)),
+        ("10", "tt1247466", "Points", 2001, date(2001, 11, 4)),
     ]),
 ])
 def test_title_episodes_parser_should_set_basic_episode_info(imdb_id, season, episode_count, episode_data):
     parsed = web.get_title(imdb_id=imdb_id, page="episodes", season=season)
     assert len(parsed.episodes[season]) == episode_count
     for item in episode_data:
-        episode = parsed.episodes[season][item[0]]
-        assert (episode.season, episode.episode, episode.title, episode.year, episode.release_date) == (season,) + item
+        ep = parsed.episodes[season][item[0]]
+        assert (ep.season, ep.episode, ep.imdb_id, ep.title, ep.year, ep.release_date) == (season,) + item
 
 
 @pytest.mark.parametrize(("imdb_id", "season", "episode", "rating"), [
@@ -119,6 +119,7 @@ def test_title_episodes_parser_should_set_plot(imdb_id, season, episode, plot):
 
 @pytest.mark.parametrize(("imdb_id", "episode_count"), [
     ("tt0412142", 176),  # House M.D.
+    ("tt0185906", 10),  # Band of Brothers (Mini-Series)
 ])
 def test_title_episodes_parser_should_set_episode_count(imdb_id, episode_count):
     parsed = web.get_title(imdb_id=imdb_id, page="episodes", season="1")
@@ -130,6 +131,9 @@ def test_title_episodes_parser_should_set_episode_count(imdb_id, episode_count):
         ("1", 13),
         ("3", 14),
         ("12", 10),
+    ]),
+    ("tt0185906", [  # Band of Brothers (Mini-Series)
+        ("1", 10),
     ]),
 ])
 def test_updating_episodes_should_accumulate_seasons(imdb_id, episode_counts):

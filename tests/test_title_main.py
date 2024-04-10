@@ -133,7 +133,7 @@ def test_title_parser_should_set_language_codes(page, imdb_id, language_codes):
     ("tt0365467", 26),  # Making 'The Matrix' (TV Short Movie)
     ("tt7045440", 3),  # David Bowie: Ziggy Stardust (Music Video)
     ("tt0436992", 45),  # Doctor Who (TV Series)
-    ("tt0185906", 594),  # Band of Brothers (TV Mini-Series)
+    ("tt0185906", 59),  # Band of Brothers (TV Mini-Series)
     ("tt3629794", None),  # Aslan
 ])
 def test_title_parser_should_set_runtime(page, imdb_id, runtime):
@@ -302,7 +302,8 @@ def test_title_parser_should_set_season_count(page, imdb_id, season_count):
 
 
 @pytest.mark.parametrize(("imdb_id", "episode_count"), [
-    ("tt0412142", 176),
+    ("tt0412142", 176),  # House M.D.
+    ("tt0185906", 10),  # Band of Brothers (Mini-Series)
 ])
 def test_title_parser_should_set_episode_count(imdb_id, episode_count):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
