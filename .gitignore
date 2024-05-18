@@ -10,3 +10,4 @@ build
 dist
 imdb-cache
 .vscode
+.idea
