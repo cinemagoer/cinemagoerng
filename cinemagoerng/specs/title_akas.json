@@ -1,0 +1,54 @@
+{
+  "version": "20240410",
+  "url": "https://caching.graphql.imdb.com/?operationName=TitleAkasPaginated&variables={\"after\":null,\"const\":\"%(imdb_id)s\",\"first\":50,\"isAutoTranslationEnabled\":false,\"locale\":\"en-US\",\"originalTitleText\":true}&extensions={\"persistedQuery\":{\"sha256Hash\":\"48d4f7bfa73230fb550147bd4704d8050080e65fe2ad576da6276cac2330e446\",\"version\":1}}",
+  "rules": [
+    {
+      "key": "akas",
+      "extractor": {
+        "pre": "graphql",
+        "foreach": "/GRAPHQL/data/title/akas/edges/item",
+        "rules": [
+          {
+            "key": "country",
+            "extractor": {
+              "path": "./node/country/text/text()"
+            }
+          },
+          {
+            "key": "language",
+            "extractor": {
+              "path": "./node/language/text/text()"
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "./node/displayableProperty/value/plainText/text()"
+            }
+          },
+          {
+            "key": "is_alternative",
+            "extractor": {
+              "path": "./node/displayableProperty/qualifiersInMarkdownList/item/plainText/text()",
+              "transform": "exists"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "has_next_page",
+      "extractor": {
+        "pre": "graphql",
+        "path": "/GRAPHQL/data/title/akas/pageInfo/hasNextPage/text()"
+      }
+    },
+    {
+      "key": "end_cursor",
+      "extractor": {
+        "pre": "graphql",
+        "path": "/GRAPHQL/data/title/akas/pageInfo/endCursor/text()"
+      }
+    }
+  ]
+}

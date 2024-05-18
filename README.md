@@ -33,4 +33,20 @@ for tagline in movie.taglines:
 
 web.update_title(movie, page="taglines", keys=["taglines"])
 print(len(movie.taglines))  # 15
+
+# Usage of akas
+web.update_title(movie, page="akas", keys=["akas"])
+
+mandarin_aka = next((aka for aka in movie.akas if aka.language == 'Mandarin'), None)
+print(mandarin_aka.title) # "黑客帝国"
+print(mandarin_aka.country) # "China"
+print(mandarin_aka.language) # "Mandarin"
+print(mandarin_aka.is_alternative) # False
+
+for aka in movie.akas:
+   print(aka.country)    # "India"
+   print(aka.title)      # "महाशक्तिमान"
+   print(aka.language)   # "Hindi"
+   print(aka.is_alternative) # True
+
 ```

@@ -31,6 +31,8 @@ _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 def fetch(url: str, /) -> str:
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
+    if "graphql" in url:
+        request.add_header("Content-Type", "application/json")
     with urlopen(request) as response:
         content: bytes = response.read()
     return content.decode("utf-8")
@@ -53,6 +55,7 @@ def _spec(page: str, /) -> piculet.Spec:
 
 Title_ = TypeVar("Title_", bound=model.Title)
 TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes"]
+UpdatePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "akas"]
 
 
 def get_title(imdb_id: str, *, page: TitlePage = "reference",
@@ -69,7 +72,7 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
     return piculet.deserialize(data, model.Title)
 
 
-def update_title(title: Title_, /, *, page: TitlePage, keys: list[str],
+def update_title(title: Title_, /, *, page: UpdatePage, keys: list[str],
                  **kwargs) -> None:
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
@@ -82,5 +85,8 @@ def update_title(title: Title_, /, *, page: TitlePage, keys: list[str],
             if key == "episodes":
                 value = piculet.deserialize(value, model.EpisodeMap)
                 getattr(title, key).update(value)
+            elif key == "akas":
+                value = [piculet.deserialize(aka, model.Aka) for aka in value]
+                getattr(title, key).extend(value)
             else:
                 setattr(title, key, value)

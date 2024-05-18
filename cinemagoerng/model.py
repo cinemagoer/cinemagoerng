@@ -45,6 +45,14 @@ class Credit(Person):
         return "uncredited" in self.notes
 
 
+@dataclass
+class Aka:
+    title: str
+    country: str | None = None
+    language: str | None = None
+    is_alternative: bool = False
+
+
 @dataclass(kw_only=True)
 class _Title:
     imdb_id: str
@@ -59,6 +67,7 @@ class _Title:
     plot: dict[str, str] = field(default_factory=dict)
     plot_summaries: list[dict[str, str]] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
+    akas: list[Aka] = field(default_factory=list)
 
     rating: Decimal | None = None
     vote_count: int = 0
