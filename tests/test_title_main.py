@@ -133,7 +133,7 @@ def test_title_parser_should_set_language_codes(page, imdb_id, language_codes):
     ("tt0365467", 26),  # Making 'The Matrix' (TV Short Movie)
     ("tt7045440", 3),  # David Bowie: Ziggy Stardust (Music Video)
     ("tt0436992", 45),  # Doctor Who (TV Series)
-    ("tt0185906", 59),  # Band of Brothers (TV Mini-Series)
+    ("tt0185906", 60),  # Band of Brothers (TV Mini-Series)
     ("tt3629794", None),  # Aslan
 ])
 def test_title_parser_should_set_runtime(page, imdb_id, runtime):
