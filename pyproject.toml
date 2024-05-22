@@ -30,11 +30,11 @@ classifiers = [
 ]
 
 requires-python = "~=3.10"
-dependencies = ["lxml", "typedload"]
+dependencies = ["typedload", "lxml", "jmespath"]
 
 [project.optional-dependencies]
 tests = ["pytest", "pytest-cov"]
-types = ["mypy", "lxml-stubs"]
+types = ["mypy", "lxml-stubs", "types-jmespath"]
 style = ["ruff"]
 dev = [
     "cinemagoerng[tests,types,style]",
