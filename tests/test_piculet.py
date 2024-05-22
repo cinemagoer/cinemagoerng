@@ -34,6 +34,24 @@ def test_serialize_should_support_decimal():
     assert isinstance(movie.score, Decimal) and (piculet.serialize(movie) == {"score": "9.8"})
 
 
+def test_load_spec_should_load_postprocess_from_str(movie_spec):
+    rule = {"key": "a", "extractor": {"path": "//a", "post": "unpack"}}
+    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
+    assert isinstance(spec.rules[0].extractor.post, piculet.Postprocess)
+
+
+def test_dump_spec_should_dump_postprocess_as_str(movie_spec):
+    rule = {"key": "a", "extractor": {"path": "//a", "post": "unpack"}}
+    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
+    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["post"] == "unpack"
+
+
+def test_load_spec_should_raise_error_for_unknown_postprocess(movie_spec):
+    rule = {"key": "a", "extractor": {"path": "//a", "post": "nonesuch"}}
+    with pytest.raises(ValueError):
+        _ = piculet.load_spec(movie_spec | {"rules": [rule]})
+
+
 def test_load_spec_should_load_transform_from_str(movie_spec):
     rule = {"key": "a", "extractor": {"path": "//a", "transform": "lower"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
@@ -46,22 +64,46 @@ def test_dump_spec_should_dump_transform_as_str(movie_spec):
     assert piculet.dump_spec(spec)["rules"][0]["extractor"]["transform"] == "lower"
 
 
-def test_load_spec_should_load_xpath_from_str(movie_spec):
+def test_load_spec_should_raise_error_for_unknown_transform(movie_spec):
+    rule = {"key": "a", "extractor": {"path": "//a", "transform": "nonesuch"}}
+    with pytest.raises(ValueError):
+        _ = piculet.load_spec(movie_spec | {"rules": [rule]})
+
+
+def test_load_spec_should_load_tree_path_from_str(movie_spec):
     rule = {"key": "a", "extractor": {"path": "//a"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     assert isinstance(spec.rules[0].extractor.path, piculet.TreePath)
 
 
-def test_dump_spec_should_dump_xpath_as_str(movie_spec):
+def test_dump_spec_should_dump_tree_path_as_str(movie_spec):
     rule = {"key": "a", "extractor": {"path": "//a"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     assert piculet.dump_spec(spec)["rules"][0]["extractor"]["path"] == "//a"
 
 
-def test_load_spec_should_raise_error_for_unknown_transformer(movie_spec):
-    rule = {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transform": "year42"}}
-    with pytest.raises(ValueError):
-        _ = piculet.load_spec(movie_spec | {"rules": [rule]})
+def test_load_spec_should_load_map_path_from_str(movie_spec):
+    rule = {
+        "key": "a",
+        "extractor": {
+            "path": "//a",
+            "post_map": [{"key": "b", "extractor": {"path": "b"}}],
+        },
+    }
+    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
+    assert isinstance(spec.rules[0].extractor.post_map[0].extractor.path, piculet.MapPath)
+
+
+def test_dump_spec_should_dump_map_path_as_str(movie_spec):
+    rule = {
+        "key": "a",
+        "extractor": {
+            "path": "//a",
+            "post_map": [{"key": "b", "extractor": {"path": "b"}}],
+        },
+    }
+    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
+    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["post_map"][0]["extractor"]["path"] == "b"
 
 
 def test_scrape_should_produce_empty_result_for_empty_rules(movie):

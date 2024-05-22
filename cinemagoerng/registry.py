@@ -21,9 +21,9 @@ from typing import Any, TypedDict
 from lxml.etree import Element
 
 from .piculet import (
+    MapNode,
     Postprocessor,
     Preprocessor,
-    StrMap,
     Transformer,
     TreeNode,
     TreePath,
@@ -53,7 +53,7 @@ def list_to_xml(tag: str, data: list[Any]) -> TreeNode:
     return element
 
 
-def dict_to_xml(tag: str, data: StrMap) -> TreeNode:
+def dict_to_xml(tag: str, data: MapNode) -> TreeNode:
     element = Element(tag)
     for key, value in data.items():
         match value:
@@ -79,7 +79,7 @@ def parse_next_data(root: TreeNode) -> TreeNode:
     data = json.loads(script)
     xml_data: dict[str, Any] = {}
     for section in _data_sections:
-        section_data: StrMap | None = data["props"]["pageProps"].get(section)
+        section_data: MapNode | None = data["props"]["pageProps"].get(section)
         if section_data is not None:
             xml_data[section] = section_data
     return dict_to_xml("NEXT_DATA", xml_data)
