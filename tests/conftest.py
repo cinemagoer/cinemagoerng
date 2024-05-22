@@ -14,7 +14,6 @@ fetch_orig = cinemagoerng.web.fetch
 def fetch_cached(url, cache_key):
     if "?season=" in url:
         cache_key = cache_key + "_season_" + url.split("?season=")[-1]
-    print(cache_key)
     cache_path = cache_dir / cache_key
     if cache_key == "tt0000001_main":
         cache_path.unlink(missing_ok=True)

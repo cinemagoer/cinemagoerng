@@ -95,6 +95,7 @@ def remove_see_more(root: TreeNode) -> TreeNode:
 
 
 def parse_graphql(root: TreeNode) -> TreeNode:
+    assert root.text is not None
     data = json.loads(root.text)
     return dict_to_xml("GRAPHQL", data)
 
