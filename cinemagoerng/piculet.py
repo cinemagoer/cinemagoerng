@@ -13,17 +13,19 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from types import MappingProxyType
-from typing import Any, List, Mapping, MutableMapping, TypeAlias, TypedDict
+from typing import Any, List, Literal, Mapping, MutableMapping, TypeAlias, TypedDict
 
 import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
 from lxml.etree import _Element as TreeNode
+from lxml.etree import fromstring as parse_xml
 from lxml.html import fromstring as parse_html
 
 
@@ -239,21 +241,32 @@ def collect(root: TreeNode | MapNode,
     return data if len(data) > 0 else _EMPTY
 
 
-def scrape(document: str, rules: list[TreeRule]) -> MapNode:
-    root = parse_html(document)
-    preprocessors = dict.fromkeys(rule.extractor.pre.apply
-                                  for rule in rules
-                                  if rule.extractor.pre is not None)
-    for preprocess in preprocessors:
-        root = preprocess(root)
-    return collect(root, rules)
+DocType: TypeAlias = Literal["html", "xml", "json"]
 
 
 @dataclass(kw_only=True)
 class Spec:
     version: str
     url: str
-    rules: list[TreeRule] = field(default_factory=list)
+    doctype: DocType = "html"
+    rules: list[TreeRule] | list[MapRule] = field(default_factory=list)
+
+
+def scrape(document: str, rules: list[TreeRule], *,
+           doctype: DocType) -> MapNode:
+    match doctype:
+        case "html":
+            root = parse_html(document)
+        case "xml":
+            root = parse_xml(document)
+        case "json":
+            root = json.loads(document)
+    preprocessors = dict.fromkeys(rule.extractor.pre.apply
+                                  for rule in rules
+                                  if rule.extractor.pre is not None)
+    for preprocess in preprocessors:
+        root = preprocess(root)
+    return collect(root, rules)
 
 
 _spec_classes = {Preprocess, Postprocess, Transform, TreePath, MapPath}

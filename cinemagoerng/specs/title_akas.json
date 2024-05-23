@@ -1,35 +1,35 @@
 {
   "version": "20240518",
   "url": "https://caching.graphql.imdb.com/?operationName=TitleAkasPaginated&variables={\"after\":null,\"const\":\"%(imdb_id)s\",\"first\":50,\"isAutoTranslationEnabled\":false,\"locale\":\"en-US\",\"originalTitleText\":true}&extensions={\"persistedQuery\":{\"sha256Hash\":\"48d4f7bfa73230fb550147bd4704d8050080e65fe2ad576da6276cac2330e446\",\"version\":1}}",
+  "doctype": "json",
   "rules": [
     {
       "key": "akas",
       "extractor": {
-        "pre": "graphql",
-        "foreach": "/GRAPHQL/data/title/akas/edges/item",
+        "foreach": "data.title.akas.edges[*].node",
         "rules": [
           {
             "key": "country",
             "extractor": {
-              "path": "./node/country/text/text()"
+              "path": "country.text"
             }
           },
           {
             "key": "language",
             "extractor": {
-              "path": "./node/language/text/text()"
+              "path": "language.text"
             }
           },
           {
             "key": "title",
             "extractor": {
-              "path": "./node/displayableProperty/value/plainText/text()"
+              "path": "displayableProperty.value.plainText"
             }
           },
           {
             "key": "is_alternative",
             "extractor": {
-              "path": "./node/displayableProperty/qualifiersInMarkdownList/item/plainText/text()",
+              "path": "displayableProperty.qualifiersInMarkdownList.plainText",
               "transform": "exists"
             }
           }
@@ -39,15 +39,13 @@
     {
       "key": "has_next_page",
       "extractor": {
-        "pre": "graphql",
-        "path": "/GRAPHQL/data/title/akas/pageInfo/hasNextPage/text()"
+        "path": "data.title.akas.pageInfo.hasNextPage"
       }
     },
     {
       "key": "end_cursor",
       "extractor": {
-        "pre": "graphql",
-        "path": "/GRAPHQL/data/title/akas/pageInfo/endCursor/text()"
+        "path": "data.title.akas.pageInfo.endCursor"
       }
     }
   ]

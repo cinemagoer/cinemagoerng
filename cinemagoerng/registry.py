@@ -94,17 +94,10 @@ def remove_see_more(root: TreeNode) -> TreeNode:
     return root
 
 
-def parse_graphql(root: TreeNode) -> TreeNode:
-    assert root.text is not None
-    data = json.loads(root.text)
-    return dict_to_xml("GRAPHQL", data)
-
-
 def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
     registry.update({
         "next_data": parse_next_data,
         "see_more": remove_see_more,
-        "graphql": parse_graphql,
     })
 
 
