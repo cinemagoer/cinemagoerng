@@ -258,8 +258,8 @@ DocType: TypeAlias = Literal["html", "xml", "json"]
 class Spec:
     version: str
     url: str
-    doctype: DocType = "html"
-    rules: list[TreeRule] | list[MapRule] = field(default_factory=list)
+    doctype: DocType
+    rules: list[TreeRule] | list[MapRule]
 
 
 def scrape(document: str, rules: list[TreeRule], *,
