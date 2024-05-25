@@ -35,19 +35,19 @@ def test_serialize_should_support_decimal():
 
 
 def test_load_spec_should_load_postprocess_from_str(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "post": "unpack"}}
+    rule = {"key": "a", "extractor": {"path": "//a", "post": ["unpack"]}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.post, piculet.Postprocess)
+    assert isinstance(spec.rules[0].extractor.post[0], piculet.Postprocess)
 
 
 def test_dump_spec_should_dump_postprocess_as_str(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "post": "unpack"}}
+    rule = {"key": "a", "extractor": {"path": "//a", "post": ["unpack"]}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["post"] == "unpack"
+    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["post"] == ["unpack"]
 
 
 def test_load_spec_should_raise_error_for_unknown_postprocess(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "post": "nonesuch"}}
+    rule = {"key": "a", "extractor": {"path": "//a", "post": ["nonesuch"]}}
     with pytest.raises(ValueError):
         _ = piculet.load_spec(movie_spec | {"rules": [rule]})
 

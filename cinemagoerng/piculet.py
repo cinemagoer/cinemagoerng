@@ -19,7 +19,15 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from types import MappingProxyType
-from typing import Any, List, Literal, Mapping, MutableMapping, TypeAlias, TypedDict
+from typing import (
+    Any,
+    List,
+    Literal,
+    Mapping,
+    MutableMapping,
+    TypeAlias,
+    TypedDict,
+)
 
 import typedload
 from jmespath import compile as compile_jmespath
@@ -83,8 +91,10 @@ Transformer: TypeAlias = Callable[[Any], Any]
 transformers: dict[str, Transformer] = {
     "decimal": lambda x: Decimal(str(x)),
     "int": int,
+    "json": json.loads,
     "lower": str.lower,
     "make_dict": make_dict,
+    "str": str,
     "strip": str.strip,
 }
 
@@ -131,10 +141,10 @@ class MapPath:
 
 @dataclass(kw_only=True)
 class Extractor:
-    pre: Preprocess | None = None
+    pre: list[Preprocess] = field(default_factory=list)
     transform: Transform | None = None
-    post: Postprocess | None = None
     post_map: List["MapRule"] = field(default_factory=list)
+    post: list[Postprocess] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -218,15 +228,15 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
                 raw_key = rule.key.extract(subroot)
                 key = raw_key if rule.key.transform is None else \
                     rule.key.transform.apply(raw_key)
-        if key[0] != "_":
-            data[key] = value
-        if rule.extractor.post is not None:
-            rule.extractor.post.apply(data, value)
+        data[key] = value
 
         if len(rule.extractor.post_map) > 0:
             subresult = collect(value, rule.extractor.post_map)
             if len(subresult) > 0:
                 data.update(subresult)
+
+        for post in rule.extractor.post:
+            post.apply(data, value)
 
     return data if len(data) > 0 else _EMPTY
 
@@ -261,9 +271,8 @@ def scrape(document: str, rules: list[TreeRule], *,
             root = parse_xml(document)
         case "json":
             root = json.loads(document)
-    preprocessors = dict.fromkeys(rule.extractor.pre.apply
-                                  for rule in rules
-                                  if rule.extractor.pre is not None)
+    preprocessors = dict.fromkeys(pre.apply for rule in rules
+                                  for pre in rule.extractor.pre)
     for preprocess in preprocessors:
         root = preprocess(root)
     return collect(root, rules)

@@ -4,288 +4,306 @@
   "doctype": "html",
   "rules": [
     {
-      "key": "imdb_id",
+      "key": "_next_data",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/id/text()"
-      }
-    },
-    {
-      "key": "type_id",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/titleType/id/text()"
-      }
-    },
-    {
-      "key": "title",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/originalTitleText/text/text()"
-      }
-    },
-    {
-      "key": "primary_image",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/primaryImage/url/text()"
-      }
-    },
-    {
-      "key": "year",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/releaseYear/year/text()",
-        "transform": "int"
-      }
-    },
-    {
-      "key": "end_year",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/releaseYear/endYear/text()",
-        "transform": "int"
-      }
-    },
-    {
-      "key": "country_codes",
-      "extractor": {
-        "pre": "next_data",
-        "foreach": "/NEXT_DATA/mainColumnData/countriesOfOrigin/countries/item",
-        "path": "./id/text()"
-      }
-    },
-    {
-      "key": "language_codes",
-      "extractor": {
-        "pre": "next_data",
-        "foreach": "/NEXT_DATA/mainColumnData/spokenLanguages/spokenLanguages/item",
-        "path": "./id/text()"
-      }
-    },
-    {
-      "key": "runtime",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/runtime/seconds/text()",
-        "transform": "div60"
-      }
-    },
-    {
-      "key": "genres",
-      "extractor": {
-        "pre": "next_data",
-        "foreach": "/NEXT_DATA/aboveTheFoldData/genres/genres/item",
-        "path": "./text/text()"
-      }
-    },
-    {
-      "key": "plot",
-      "extractor": {
-        "pre": "next_data",
-        "rules": [
-          {
-            "key": "key",
-            "extractor": {
-              "path": "/NEXT_DATA/aboveTheFoldData/plot/language/id/text()"
-            }
-          },
-          {
-            "key": "value",
-            "extractor": {
-              "path": "/NEXT_DATA/aboveTheFoldData/plot/plotText/plainText/text()"
-            }
-          }
-        ],
-        "transform": "make_dict"
-      }
-    },
-    {
-      "key": "rating",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/ratingsSummary/aggregateRating/text()",
-        "transform": "decimal"
-      }
-    },
-    {
-      "key": "vote_count",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/ratingsSummary/voteCount/text()",
-        "transform": "int"
-      }
-    },
-    {
-      "key": "top_ranking",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/mainColumnData/ratingsSummary/topRanking/rank/text()",
-        "transform": "int"
-      }
-    },
-    {
-      "key": "cast",
-      "extractor": {
-        "pre": "next_data",
-        "foreach": "/NEXT_DATA/mainColumnData/cast/edges/item/node",
-        "rules": [
+        "path": "//script[@id='__NEXT_DATA__']/text()",
+        "transform": "json",
+        "post_map": [
           {
             "key": "imdb_id",
             "extractor": {
-              "path": "./name/id/text()"
-            }
-          },
-          {
-            "key": "name",
-            "extractor": {
-              "path": "./name/nameText/text/text()"
-            }
-          },
-          {
-            "key": "role",
-            "extractor": {
-              "path": "./characters/item/name/text()"
-            }
-          },
-          {
-            "key": "notes",
-            "extractor": {
-              "foreach": "./attributes/item/text",
-              "path": "./text()"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "foreach": "/NEXT_DATA/mainColumnData/*/item/credits/..",
-      "key": {
-        "path": "name(..)"
-      },
-      "extractor": {
-        "pre": "next_data",
-        "foreach": "./credits/item/name",
-        "rules": [
-          {
-            "key": "imdb_id",
-            "extractor": {
-              "path": "./id/text()"
-            }
-          },
-          {
-            "key": "name",
-            "extractor": {
-              "path": "./nameText/text/text()"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "key": "season_count",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/mainColumnData/episodes/seasons/item[last()]/number/text()",
-        "transform": "int"
-      }
-    },
-    {
-      "key": "episode_count",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/mainColumnData/episodes/episodes/total/text()",
-        "transform": "int"
-      }
-    },
-    {
-      "key": "series",
-      "extractor": {
-        "pre": "next_data",
-        "rules": [
-          {
-            "key": "imdb_id",
-            "extractor": {
-              "path": "/NEXT_DATA/aboveTheFoldData/series/series/id/text()"
+              "path": "props.pageProps.aboveTheFoldData.id"
             }
           },
           {
             "key": "type_id",
             "extractor": {
-              "path": "/NEXT_DATA/aboveTheFoldData/series/series/titleType/id/text()"
+              "path": "props.pageProps.aboveTheFoldData.titleType.id"
             }
           },
           {
             "key": "title",
             "extractor": {
-              "path": "/NEXT_DATA/aboveTheFoldData/series/series/originalTitleText/text/text()"
+              "path": "props.pageProps.aboveTheFoldData.originalTitleText.text"
+            }
+          },
+          {
+            "key": "primary_image",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.primaryImage.url"
             }
           },
           {
             "key": "year",
             "extractor": {
-              "path": "/NEXT_DATA/aboveTheFoldData/series/series/releaseYear/year/text()",
-              "transform": "int"
+              "path": "props.pageProps.aboveTheFoldData.releaseYear.year"
+            }
+          },
+          {
+            "key": "end_year",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.releaseYear.endYear"
+            }
+          },
+          {
+            "key": "country_codes",
+            "extractor": {
+              "foreach": "props.pageProps.mainColumnData.countriesOfOrigin.countries[*]",
+              "path": "id"
+            }
+          },
+          {
+            "key": "language_codes",
+            "extractor": {
+              "foreach": "props.pageProps.mainColumnData.spokenLanguages.spokenLanguages[*]",
+              "path": "id"
+            }
+          },
+          {
+            "key": "runtime",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.runtime.seconds",
+              "transform": "div60"
+            }
+          },
+          {
+            "key": "genres",
+            "extractor": {
+              "foreach": "props.pageProps.aboveTheFoldData.genres.genres[*]",
+              "path": "text"
+            }
+          },
+          {
+            "key": "plot",
+            "extractor": {
+              "rules": [
+                {
+                  "key": "key",
+                  "extractor": {
+                    "path": "props.pageProps.aboveTheFoldData.plot.language.id"
+                  }
+                },
+                {
+                  "key": "value",
+                  "extractor": {
+                    "path": "props.pageProps.aboveTheFoldData.plot.plotText.plainText"
+                  }
+                }
+              ],
+              "transform": "make_dict"
+            }
+          },
+          {
+            "key": "rating",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
+              "transform": "decimal"
+            }
+          },
+          {
+            "key": "vote_count",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
+            }
+          },
+          {
+            "key": "top_ranking",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.ratingsSummary.topRanking.rank"
+            }
+          },
+          {
+            "key": "cast",
+            "extractor": {
+              "foreach": "props.pageProps.mainColumnData.cast.edges[*].node",
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "name.id"
+                  }
+                },
+                {
+                  "key": "name",
+                  "extractor": {
+                    "path": "name.nameText.text"
+                  }
+                },
+                {
+                  "key": "role",
+                  "extractor": {
+                    "path": "characters[0].name"
+                  }
+                },
+                {
+                  "key": "notes",
+                  "extractor": {
+                    "foreach": "attributes[*]",
+                    "path": "text"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "foreach": "props.pageProps.mainColumnData.directors[*]",
+            "key": "directors",
+            "extractor": {
+              "foreach": "credits[*].name",
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "id"
+                  }
+                },
+                {
+                  "key": "name",
+                  "extractor": {
+                    "path": "nameText.text"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "foreach": "props.pageProps.mainColumnData.writers[*]",
+            "key": "writers",
+            "extractor": {
+              "foreach": "credits[*].name",
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "id"
+                  }
+                },
+                {
+                  "key": "name",
+                  "extractor": {
+                    "path": "nameText.text"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "foreach": "props.pageProps.mainColumnData.creators[*]",
+            "key": "creators",
+            "extractor": {
+              "foreach": "credits[*].name",
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "id"
+                  }
+                },
+                {
+                  "key": "name",
+                  "extractor": {
+                    "path": "nameText.text"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "season_count",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.episodes.seasons[-1].number"
+            }
+          },
+          {
+            "key": "episode_count",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.episodes.episodes.total"
+            }
+          },
+          {
+            "key": "series",
+            "extractor": {
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "props.pageProps.aboveTheFoldData.series.series.id"
+                  }
+                },
+                {
+                  "key": "type_id",
+                  "extractor": {
+                    "path": "props.pageProps.aboveTheFoldData.series.series.titleType.id"
+                  }
+                },
+                {
+                  "key": "title",
+                  "extractor": {
+                    "path": "props.pageProps.aboveTheFoldData.series.series.originalTitleText.text"
+                  }
+                },
+                {
+                  "key": "year",
+                  "extractor": {
+                    "path": "props.pageProps.aboveTheFoldData.series.series.releaseYear.year"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "season",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.series.episodeNumber.seasonNumber",
+              "transform": "str"
+            }
+          },
+          {
+            "key": "episode",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.series.episodeNumber.episodeNumber",
+              "transform": "str"
+            }
+          },
+          {
+            "key": "release_date",
+            "extractor": {
+              "rules": [
+                {
+                  "key": "year",
+                  "extractor": {
+                    "path": "props.pageProps.mainColumnData.releaseDate.year"
+                  }
+                },
+                {
+                  "key": "month",
+                  "extractor": {
+                    "path": "props.pageProps.mainColumnData.releaseDate.month"
+                  }
+                },
+                {
+                  "key": "day",
+                  "extractor": {
+                    "path": "props.pageProps.mainColumnData.releaseDate.day"
+                  }
+                }
+              ],
+              "transform": "date"
+            }
+          },
+          {
+            "key": "previous_episode",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.series.previousEpisode.id"
+            }
+          },
+          {
+            "key": "next_episode",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.series.nextEpisode.id"
             }
           }
         ]
-      }
-    },
-    {
-      "key": "season",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/series/episodeNumber/seasonNumber/text()"
-      }
-    },
-    {
-      "key": "episode",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/series/episodeNumber/episodeNumber/text()"
-      }
-    },
-    {
-      "key": "release_date",
-      "extractor": {
-        "rules": [
-          {
-            "key": "year",
-            "extractor": {
-              "path": "/NEXT_DATA/mainColumnData/releaseDate/year/text()",
-              "transform": "int"
-            }
-          },
-          {
-            "key": "month",
-            "extractor": {
-              "path": "/NEXT_DATA/mainColumnData/releaseDate/month/text()",
-              "transform": "int"
-            }
-          },
-          {
-            "key": "day",
-            "extractor": {
-              "path": "/NEXT_DATA/mainColumnData/releaseDate/day/text()",
-              "transform": "int"
-            }
-          }
-        ],
-        "transform": "date"
-      }
-    },
-    {
-      "key": "previous_episode",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/series/previousEpisode/id/text()"
-      }
-    },
-    {
-      "key": "next_episode",
-      "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/aboveTheFoldData/series/nextEpisode/id/text()"
       }
     }
   ]
