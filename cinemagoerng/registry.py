@@ -14,16 +14,24 @@
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
 import html
+import json
 import re
 from typing import TypedDict
 
 from .piculet import (
+    MapNode,
     Postprocessor,
     Preprocessor,
     Transformer,
     TreeNode,
     TreePath,
 )
+
+
+def parse_next_data(root: TreeNode) -> MapNode:
+    path = TreePath("//script[@id='__NEXT_DATA__']/text()")
+    next_data = path.apply(root)[0]
+    return json.loads(next_data)
 
 
 def remove_see_more(root: TreeNode) -> TreeNode:
@@ -37,16 +45,31 @@ def remove_see_more(root: TreeNode) -> TreeNode:
 
 def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
     registry.update({
-        "see_more": remove_see_more,
+        "parse_next_data": parse_next_data,
+        "remove_see_more": remove_see_more,
     })
 
 
-def generate_episode_map(data, value):
-    for season in data:
-        data[season] = {ep["episode"]: ep for ep in data[season]}
+def unpack_dicts(data):
+    for child in data.values():
+        if isinstance(child, dict):
+            unpack_dicts(child)
+        if isinstance(child, list):
+            for subchild in child:
+                if isinstance(subchild, dict):
+                    unpack_dicts(subchild)
+    collected = data.get("__dict__")
+    if collected is not None:
+        data.update(collected)
+        del data["__dict__"]
 
 
-def set_plot_langs(data, value):
+def generate_episode_map(data):
+    for season, episodes in data["episodes"].items():
+        data["episodes"][season] = {ep["episode"]: ep for ep in episodes}
+
+
+def set_plot_langs(data):
     for season in data["episodes"].values():
         for episode in season.values():
             episode["plot"] = {data["_page_lang"]: episode["_plot"]}
@@ -54,8 +77,9 @@ def set_plot_langs(data, value):
 
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     registry.update({
-        "episode_map": generate_episode_map,
-        "plot_langs": set_plot_langs,
+        "unpack_dicts": unpack_dicts,
+        "generate_episode_map": generate_episode_map,
+        "set_plot_langs": set_plot_langs,
     })
 
 

@@ -34,60 +34,42 @@ def test_serialize_should_support_decimal():
     assert isinstance(movie.score, Decimal) and (piculet.serialize(movie) == {"score": "9.8"})
 
 
-def test_load_spec_should_load_postprocess_from_str(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "post": ["unpack"]}}
-    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.post[0], piculet.Postprocess)
-
-
-def test_dump_spec_should_dump_postprocess_as_str(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "post": ["unpack"]}}
-    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["post"] == ["unpack"]
-
-
-def test_load_spec_should_raise_error_for_unknown_postprocess(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "post": ["nonesuch"]}}
-    with pytest.raises(ValueError):
-        _ = piculet.load_spec(movie_spec | {"rules": [rule]})
-
-
 def test_load_spec_should_load_transform_from_str(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "transform": "lower"}}
+    rule = {"key": "k", "extractor": {"path": "/", "transform": "lower"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     assert isinstance(spec.rules[0].extractor.transform, piculet.Transform)
 
 
 def test_dump_spec_should_dump_transform_as_str(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "transform": "lower"}}
+    rule = {"key": "k", "extractor": {"path": "/", "transform": "lower"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     assert piculet.dump_spec(spec)["rules"][0]["extractor"]["transform"] == "lower"
 
 
 def test_load_spec_should_raise_error_for_unknown_transform(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a", "transform": "nonesuch"}}
+    rule = {"key": "k", "extractor": {"path": "/", "transform": "UNKNOWN"}}
     with pytest.raises(ValueError):
         _ = piculet.load_spec(movie_spec | {"rules": [rule]})
 
 
 def test_load_spec_should_load_tree_path_from_str(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a"}}
+    rule = {"key": "k", "extractor": {"path": "/"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     assert isinstance(spec.rules[0].extractor.path, piculet.TreePath)
 
 
 def test_dump_spec_should_dump_tree_path_as_str(movie_spec):
-    rule = {"key": "a", "extractor": {"path": "//a"}}
+    rule = {"key": "k", "extractor": {"path": "/"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["path"] == "//a"
+    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["path"] == "/"
 
 
 def test_load_spec_should_load_map_path_from_str(movie_spec):
     rule = {
-        "key": "a",
+        "key": "k1",
         "extractor": {
-            "path": "//a",
-            "post_map": [{"key": "b", "extractor": {"path": "b"}}],
+            "path": "/",
+            "post_map": [{"key": "k2", "extractor": {"path": "p"}}],
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
@@ -96,18 +78,19 @@ def test_load_spec_should_load_map_path_from_str(movie_spec):
 
 def test_dump_spec_should_dump_map_path_as_str(movie_spec):
     rule = {
-        "key": "a",
+        "key": "k1",
         "extractor": {
-            "path": "//a",
-            "post_map": [{"key": "b", "extractor": {"path": "b"}}],
+            "path": "/",
+            "post_map": [{"key": "k2", "extractor": {"path": "p"}}],
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["post_map"][0]["extractor"]["path"] == "b"
+    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["post_map"][0]["extractor"]["path"] == "p"
 
 
-def test_scrape_should_produce_empty_result_for_empty_rules(movie):
-    data = piculet.scrape(movie, rules=[], doctype="html")
+def test_scrape_should_produce_empty_result_for_empty_rules(movie, movie_spec):
+    spec = piculet.load_spec(movie_spec)
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {}
 
 
@@ -121,21 +104,21 @@ def test_scrape_should_produce_scalar_text(movie, movie_spec):
 def test_scrape_should_produce_concatenated_text(movie, movie_spec):
     rule = {"key": "full_title", "extractor": {"path": "//h1//text()"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"full_title": "The Shining (1980)"}
 
 
 def test_scrape_should_produce_concatenated_text_using_given_separator(movie, movie_spec):
     rule = {"key": "cast_names", "extractor": {"path": '//table[@class="cast"]/tr/td[1]/a/text()', "sep": ", "}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"cast_names": "Jack Nicholson, Shelley Duvall"}
 
 
 def test_scrape_should_transform_text(movie, movie_spec):
     rule = {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transform": "int"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"year": 1980}
 
 
@@ -145,7 +128,7 @@ def test_scrape_should_produce_multiple_items_for_multiple_rules(movie, movie_sp
         {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transform": "int"}},
     ]
     spec = piculet.load_spec(movie_spec | {"rules": rules})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"title": "The Shining", "year": 1980}
 
 
@@ -155,14 +138,14 @@ def test_scrape_should_exclude_data_for_rules_with_no_result(movie, movie_spec):
         {"key": "foo", "extractor": {"path": "//foo/text()"}},
     ]
     spec = piculet.load_spec(movie_spec | {"rules": rules})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"title": "The Shining"}
 
 
 def test_scrape_should_produce_list_for_multivalued_rule(movie, movie_spec):
     rule = {"key": "genres", "extractor": {"foreach": '//ul[@class="genres"]/li', "path": "./text()"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"genres": ["Horror", "Drama"]}
 
 
@@ -176,7 +159,7 @@ def test_scrape_should_transform_each_item_in_multivalued_result(movie, movie_sp
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"genres": ["horror", "drama"]}
 
 
@@ -189,7 +172,7 @@ def test_scrape_should_exclude_empty_items_in_multivalued_rule_results(movie, mo
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {}
 
 
@@ -204,7 +187,7 @@ def test_scrape_should_produce_subitems_for_subrules(movie, movie_spec):
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"director": {"link": "/people/1", "name": "Stanley Kubrick"}}
 
 
@@ -220,7 +203,7 @@ def test_scrape_should_produce_subitem_lists_for_multivalued_subrules(movie, mov
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {
         "cast": [
             {"character": "Jack Torrance", "name": "Jack Nicholson"},

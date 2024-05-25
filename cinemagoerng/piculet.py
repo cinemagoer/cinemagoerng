@@ -60,9 +60,7 @@ class Preprocess:
 
 Postprocessor: TypeAlias = Callable[[MutableMapNode, Any], None]
 
-postprocessors: dict[str, Postprocessor] = {
-    "unpack": lambda data, value: data.update(value),
-}
+postprocessors: dict[str, Postprocessor] = {}
 
 
 class Postprocess:
@@ -141,10 +139,8 @@ class MapPath:
 
 @dataclass(kw_only=True)
 class Extractor:
-    pre: list[Preprocess] = field(default_factory=list)
     transform: Transform | None = None
     post_map: List["MapRule"] = field(default_factory=list)
-    post: list[Postprocess] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -235,9 +231,6 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
             if len(subresult) > 0:
                 data.update(subresult)
 
-        for post in rule.extractor.post:
-            post.apply(data, value)
-
     return data if len(data) > 0 else _EMPTY
 
 
@@ -259,11 +252,27 @@ class Spec:
     version: str
     url: str
     doctype: DocType
-    rules: list[TreeRule] | list[MapRule]
+    pre: list[Preprocess] = field(default_factory=list)
+    post: list[Postprocess] = field(default_factory=list)
 
 
-def scrape(document: str, rules: list[TreeRule], *,
-           doctype: DocType) -> MapNode:
+@dataclass(kw_only=True)
+class TreeSpec(Spec):
+    path_type: Literal["xpath"] = "xpath"
+    rules: list[TreeRule]
+
+
+@dataclass(kw_only=True)
+class MapSpec(Spec):
+    path_type: Literal["jmespath"] = "jmespath"
+    rules: list[MapRule]
+
+
+def scrape(document: str, *,
+           doctype: DocType,
+           rules: list[TreeRule] | list[MapRule],
+           pre: list[Preprocess] | None = None,
+           post: list[Postprocess] | None = None) -> MapNode:
     match doctype:
         case "html":
             root = parse_html(document)
@@ -271,16 +280,20 @@ def scrape(document: str, rules: list[TreeRule], *,
             root = parse_xml(document)
         case "json":
             root = json.loads(document)
-    preprocessors = dict.fromkeys(pre.apply for rule in rules
-                                  for pre in rule.extractor.pre)
-    for preprocess in preprocessors:
-        root = preprocess(root)
-    return collect(root, rules)
+    if pre is not None:
+        for preprocess in pre:
+            root = preprocess.apply(root)
+    data = collect(root, rules)
+    if post is not None:
+        for postprocess in post:
+            postprocess.apply(data)
+    return data
 
 
 _spec_classes = {Preprocess, Postprocess, Transform, TreePath, MapPath}
 
-load_spec = partial(typedload.load, type_=Spec, strconstructed=_spec_classes,
+load_spec = partial(typedload.load, type_=TreeSpec | MapSpec,
+                    strconstructed=_spec_classes,
                     pep563=True, failonextra=True, basiccast=False)
 dump_spec = partial(typedload.dump, strconstructed=_spec_classes)
 

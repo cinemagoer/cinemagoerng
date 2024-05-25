@@ -69,7 +69,8 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
         if e.status == HTTPStatus.NOT_FOUND:
             return None
         raise e  # pragma: no cover
-    data = piculet.scrape(document, spec.rules, doctype=spec.doctype)
+    data = piculet.scrape(document, doctype=spec.doctype, rules=spec.rules,
+                          pre=spec.pre, post=spec.post)
     return piculet.deserialize(data, model.Title)
 
 
@@ -78,8 +79,8 @@ def update_title(title: Title_, /, *, page: UpdatePage, keys: list[str],
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
     document = fetch(url, cache_key=f"title_{title.imdb_id}_{page}")
-    rules = [rule for rule in spec.rules if rule.key in keys]
-    data = piculet.scrape(document, rules, doctype=spec.doctype)
+    data = piculet.scrape(document, doctype=spec.doctype, rules=spec.rules,
+                          pre=spec.pre, post=spec.post)
     for key in keys:
         value = data.get(key)
         if value is not None:

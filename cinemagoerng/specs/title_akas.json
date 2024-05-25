@@ -2,6 +2,7 @@
   "version": "20240518",
   "url": "https://caching.graphql.imdb.com/?operationName=TitleAkasPaginated&variables={\"after\":null,\"const\":\"%(imdb_id)s\",\"first\":50,\"isAutoTranslationEnabled\":false,\"locale\":\"en-US\",\"originalTitleText\":true}&extensions={\"persistedQuery\":{\"sha256Hash\":\"48d4f7bfa73230fb550147bd4704d8050080e65fe2ad576da6276cac2330e446\",\"version\":1}}",
   "doctype": "json",
+  "path_type": "jmespath",
   "rules": [
     {
       "key": "akas",

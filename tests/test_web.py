@@ -3,7 +3,6 @@ import pytest
 from cinemagoerng import web
 
 
-@pytest.mark.skip(reason="get back to this after refactoring title updates")
 @pytest.mark.parametrize(("imdb_id", "n"), [
     ("tt0133093", 15),  # The Matrix
 ])

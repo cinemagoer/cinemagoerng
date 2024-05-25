@@ -126,7 +126,6 @@ def test_title_episodes_parser_should_set_episode_count(imdb_id, episode_count):
     assert parsed.episode_count == episode_count
 
 
-@pytest.mark.skip(reason="get back to this after refactoring title updates")
 @pytest.mark.parametrize(("imdb_id", "episode_counts"), [
     ("tt0436992", [  # Doctor Who
         ("1", 13),
