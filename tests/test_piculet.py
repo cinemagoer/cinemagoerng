@@ -10,7 +10,7 @@ from cinemagoerng import piculet
 @pytest.fixture(scope="module")
 def movie_spec():
     """Empty scraping spec for Piculet tests."""
-    return {"version": "1", "url": "", "doctype": "html", "rules": []}
+    return {"version": "1", "url": "", "doctype": "html", "path_type": "xpath", "rules": []}
 
 
 @pytest.fixture(scope="module")
@@ -65,27 +65,15 @@ def test_dump_spec_should_dump_tree_path_as_str(movie_spec):
 
 
 def test_load_spec_should_load_map_path_from_str(movie_spec):
-    rule = {
-        "key": "k1",
-        "extractor": {
-            "path": "/",
-            "post_map": [{"key": "k2", "extractor": {"path": "p"}}],
-        },
-    }
-    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.post_map[0].extractor.path, piculet.MapPath)
+    rule = {"key": "k", "extractor": {"path": "p"}}
+    spec = piculet.load_spec(movie_spec | {"path_type": "jmespath", "rules": [rule]})
+    assert isinstance(spec.rules[0].extractor.path, piculet.MapPath)
 
 
 def test_dump_spec_should_dump_map_path_as_str(movie_spec):
-    rule = {
-        "key": "k1",
-        "extractor": {
-            "path": "/",
-            "post_map": [{"key": "k2", "extractor": {"path": "p"}}],
-        },
-    }
-    spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["post_map"][0]["extractor"]["path"] == "p"
+    rule = {"key": "k", "extractor": {"path": "p"}}
+    spec = piculet.load_spec(movie_spec | {"path_type": "jmespath", "rules": [rule]})
+    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["path"] == "p"
 
 
 def test_scrape_should_produce_empty_result_for_empty_rules(movie, movie_spec):

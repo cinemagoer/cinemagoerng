@@ -140,7 +140,6 @@ class MapPath:
 @dataclass(kw_only=True)
 class Extractor:
     transform: Transform | None = None
-    post_map: List["MapRule"] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -225,11 +224,6 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
                 key = raw_key if rule.key.transform is None else \
                     rule.key.transform.apply(raw_key)
         data[key] = value
-
-        if len(rule.extractor.post_map) > 0:
-            subresult = collect(value, rule.extractor.post_map)
-            if len(subresult) > 0:
-                data.update(subresult)
 
     return data if len(data) > 0 else _EMPTY
 
