@@ -44,7 +44,7 @@ MutableMapNode: TypeAlias = MutableMapping[str, Any]
 _EMPTY: MapNode = MappingProxyType({})
 
 
-Preprocessor: TypeAlias = Callable[[TreeNode], TreeNode]
+Preprocessor: TypeAlias = Callable[[TreeNode | MapNode], TreeNode | MapNode]
 
 preprocessors: dict[str, Preprocessor] = {}
 
@@ -58,7 +58,7 @@ class Preprocess:
         return self.name
 
 
-Postprocessor: TypeAlias = Callable[[MutableMapNode, Any], None]
+Postprocessor: TypeAlias = Callable[[MutableMapNode], None]
 
 postprocessors: dict[str, Postprocessor] = {}
 
@@ -72,15 +72,16 @@ class Postprocess:
         return self.name
 
 
-class DictGen(TypedDict):
+class DictItem(TypedDict):
     key: str
     value: Any | None
 
 
-def make_dict(value: DictGen) -> dict[str, Any]:
-    if value.get("value") is None:
+def make_dict(item: DictItem, /) -> dict[str, Any]:
+    value = item.get("value")
+    if value is None:
         return {}
-    return {value["key"]: value["value"]}
+    return {item["key"]: value}
 
 
 Transformer: TypeAlias = Callable[[Any], Any]
