@@ -1,11 +1,9 @@
 {
-  "version": "20240126",
+  "version": "20240526",
   "url": "https://www.imdb.com/title/%(imdb_id)s/taglines/",
   "doctype": "html",
   "path_type": "jmespath",
-  "pre": [
-    "parse_next_data"
-  ],
+  "pre": ["parse_next_data"],
   "rules": [
     {
       "key": "imdb_id",
@@ -48,7 +46,7 @@
       "extractor": {
         "foreach": "props.pageProps.contentData.section.items[*]",
         "path": "htmlContent",
-        "transform": "unescape"
+        "transforms": ["unescape"]
       }
     }
   ]

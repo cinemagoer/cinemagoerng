@@ -1,11 +1,9 @@
 {
-  "version": "20240410",
+  "version": "20240526",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "doctype": "html",
   "path_type": "xpath",
-  "pre": [
-    "remove_see_more"
-  ],
+  "pre": ["remove_see_more"],
   "rules": [
     {
       "key": "imdb_id",
@@ -17,21 +15,21 @@
       "key": "type_id",
       "extractor": {
         "path": "//h3[@itemprop='name']/following-sibling::ul/li[last()]/text()",
-        "transform": "type_id"
+        "transforms": ["type_id"]
       }
     },
     {
       "key": "title",
       "extractor": {
         "path": "//h3[@itemprop='name']/text()",
-        "transform": "strip"
+        "transforms": ["strip"]
       }
     },
     {
       "key": "title",
       "extractor": {
         "path": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()",
-        "transform": "strip"
+        "transforms": ["strip"]
       }
     },
     {
@@ -44,7 +42,7 @@
       "key": "__dict__",
       "extractor": {
         "path": "//span[@class='titlereference-title-year']//a/text()",
-        "transform": "year_range"
+        "transforms": ["year_range"]
       }
     },
     {
@@ -52,7 +50,7 @@
       "extractor": {
         "foreach": "//td[text()='Country']/..//li/a",
         "path": "./@href",
-        "transform": "country_code"
+        "transforms": ["country_code"]
       }
     },
     {
@@ -60,14 +58,14 @@
       "extractor": {
         "foreach": "//td[text()='Language']/..//li/a",
         "path": "./@href",
-        "transform": "language_code"
+        "transforms": ["language_code"]
       }
     },
     {
       "key": "runtime",
       "extractor": {
         "path": "//td[text()='Runtime']/..//li/text()",
-        "transform": "runtime"
+        "transforms": ["runtime"]
       }
     },
     {
@@ -82,7 +80,7 @@
       "extractor": {
         "foreach": "//td[text()='Taglines']",
         "path": "./following-sibling::td/text()",
-        "transform": "strip"
+        "transforms": ["strip"]
       }
     },
     {
@@ -93,18 +91,18 @@
             "key": "key",
             "extractor": {
               "path": "//script/text()",
-              "transform": "locale"
+              "transforms": ["locale"]
             }
           },
           {
             "key": "value",
             "extractor": {
               "path": "//section[@class='titlereference-section-overview']/div[not(.//a)]/text()",
-              "transform": "strip"
+              "transforms": ["strip"]
             }
           }
         ],
-        "transform": "make_dict"
+        "transforms": ["make_dict"]
       }
     },
     {
@@ -116,46 +114,46 @@
             "key": "key",
             "extractor": {
               "path": "//script/text()",
-              "transform": "locale"
+              "transforms": ["locale"]
             }
           },
           {
             "key": "value",
             "extractor": {
               "path": ".//p/text()",
-              "transform": "strip"
+              "transforms": ["strip"]
             }
           }
         ],
-        "transform": "make_dict"
+        "transforms": ["make_dict"]
       }
     },
     {
       "key": "rating",
       "extractor": {
         "path": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
-        "transform": "decimal"
+        "transforms": ["decimal"]
       }
     },
     {
       "key": "vote_count",
       "extractor": {
         "path": "//span[@class='ipl-rating-star__total-votes']/text()",
-        "transform": "vote_count"
+        "transforms": ["vote_count"]
       }
     },
     {
       "key": "top_ranking",
       "extractor": {
         "path": "//a[@href='/chart/top']/text()",
-        "transform": "ranking"
+        "transforms": ["ranking"]
       }
     },
     {
       "key": "bottom_ranking",
       "extractor": {
         "path": "//a[@href='/chart/bottom']/text()",
-        "transform": "ranking"
+        "transforms": ["ranking"]
       }
     },
     {
@@ -167,7 +165,7 @@
             "key": "imdb_id",
             "extractor": {
               "path": ".//a[@itemprop='url']/@href",
-              "transform": "href_id"
+              "transforms": ["href_id"]
             }
           },
           {
@@ -180,7 +178,7 @@
             "key": "__dict__",
             "extractor": {
               "path": ".//td[@class='character']/div/text()",
-              "transform": "credit_info"
+              "transforms": ["credit_info"]
             }
           }
         ]
@@ -190,7 +188,7 @@
       "foreach": "//h4[@id!='cast']",
       "key": {
         "path": "./@id",
-        "transform": "credit_section_id"
+        "transforms": ["credit_section_id"]
       },
       "extractor": {
         "foreach": "./ancestor::header/following-sibling::table[1]//tr//a",
@@ -199,7 +197,7 @@
             "key": "imdb_id",
             "extractor": {
               "path": "./@href",
-              "transform": "href_id"
+              "transforms": ["href_id"]
             }
           },
           {
@@ -212,7 +210,7 @@
             "key": "__dict__",
             "extractor": {
               "path": ".//ancestor::tr/td[text()='...']/following-sibling::td/text()",
-              "transform": "credit_info"
+              "transforms": ["credit_info"]
             }
           }
         ]
@@ -227,7 +225,7 @@
             "key": "imdb_id",
             "extractor": {
               "path": "./@href",
-              "transform": "href_id"
+              "transforms": ["href_id"]
             }
           },
           {
@@ -247,28 +245,28 @@
             "key": "imdb_id",
             "extractor": {
               "path": "//h4/a/@href",
-              "transform": "href_id"
+              "transforms": ["href_id"]
             }
           },
           {
             "key": "type_id",
             "extractor": {
               "path": "//h4/span[@class='titlereference-parent-title-year']/text()",
-              "transform": "type_id"
+              "transforms": ["type_id"]
             }
           },
           {
             "key": "title",
             "extractor": {
               "path": "/html/head/title/text()",
-              "transform": "episode_series_title"
+              "transforms": ["episode_series_title"]
             }
           },
           {
             "key": "episode_count",
             "extractor": {
               "path": "//a[contains(text(), 'All Episodes')]/text()",
-              "transform": "episode_count"
+              "transforms": ["episode_count"]
             }
           }
         ]
@@ -278,46 +276,44 @@
       "key": "season_count",
       "extractor": {
         "path": "//div[contains(text(), 'Seasons')]/a[1]/text()",
-        "transform": "int"
+        "transforms": ["int"]
       }
     },
     {
       "key": "season",
       "extractor": {
         "path": "//div[@class='titlereference-overview-season-episode-section']//li[contains(text(), 'Season')]/text()",
-        "transform": "season_number"
+        "transforms": ["season_number"]
       }
     },
     {
       "key": "episode",
       "extractor": {
         "path": "//div[@class='titlereference-overview-season-episode-section']//li[contains(text(), 'Episode')]/text()",
-        "transform": "episode_number"
+        "transforms": ["episode_number"]
       }
     },
     {
       "key": "release_date",
       "extractor": {
         "path": "//div[@id='main']//a[contains(@href, '/releaseinfo')]/text()",
-        "transform": "text_date"
+        "transforms": ["text_date"]
       }
     },
     {
       "key": "previous_episode",
       "extractor": {
         "path": "//a[contains(text(), 'Previous')]/@href",
-        "transform": "href_id"
+        "transforms": ["href_id"]
       }
     },
     {
       "key": "next_episode",
       "extractor": {
         "path": "//a[contains(text(), 'Next')]/@href",
-        "transform": "href_id"
+        "transforms": ["href_id"]
       }
     }
   ],
-  "post": [
-    "unpack_dicts"
-  ]
+  "post": ["unpack_dicts"]
 }

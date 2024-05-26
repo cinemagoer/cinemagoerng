@@ -131,16 +131,16 @@ class MapPath:
         return self.path
 
     def apply(self, root: MapNode) -> Any:
-        return self._compiled(root)
+        return self._compiled(root)  # type: ignore
 
     def select(self, root: MapNode) -> list[MapNode]:
         selected = self._compiled(root)
-        return selected if selected is not None else []
+        return selected if selected is not None else []  # type: ignore
 
 
 @dataclass(kw_only=True)
 class Extractor:
-    transform: Transform | None = None
+    transforms: list[Transform] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -213,17 +213,23 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
         raws = [v for v in raws if (v is not _EMPTY) and (v is not None)]
         if len(raws) == 0:
             continue
-        values = raws if rule.extractor.transform is None else \
-            [rule.extractor.transform.apply(r) for r in raws]
+        if len(rule.extractor.transforms) == 0:
+            values = raws
+        else:
+            values = []
+            for value in raws:
+                for transform in rule.extractor.transforms:
+                    value = transform.apply(value)
+                values.append(value)
         value = values[0] if rule.extractor.foreach is None else values
 
         match rule.key:
             case str():
                 key = rule.key
             case TreePicker() | MapPicker():
-                raw_key = rule.key.extract(subroot)
-                key = raw_key if rule.key.transform is None else \
-                    rule.key.transform.apply(raw_key)
+                key = rule.key.extract(subroot)
+                for key_transform in rule.key.transforms:
+                    key = key_transform.apply(key)
         data[key] = value
 
     return data if len(data) > 0 else _EMPTY

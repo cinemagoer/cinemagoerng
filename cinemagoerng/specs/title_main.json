@@ -1,11 +1,9 @@
 {
-  "version": "20240205",
+  "version": "20240526",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "doctype": "html",
   "path_type": "jmespath",
-  "pre": [
-    "parse_next_data"
-  ],
+  "pre": ["parse_next_data"],
   "rules": [
     {
       "key": "imdb_id",
@@ -61,7 +59,7 @@
       "key": "runtime",
       "extractor": {
         "path": "props.pageProps.aboveTheFoldData.runtime.seconds",
-        "transform": "div60"
+        "transforms": ["div60"]
       }
     },
     {
@@ -88,14 +86,14 @@
             }
           }
         ],
-        "transform": "make_dict"
+        "transforms": ["make_dict"]
       }
     },
     {
       "key": "rating",
       "extractor": {
         "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
-        "transform": "decimal"
+        "transforms": ["decimal"]
       }
     },
     {
@@ -253,14 +251,14 @@
       "key": "season",
       "extractor": {
         "path": "props.pageProps.aboveTheFoldData.series.episodeNumber.seasonNumber",
-        "transform": "str"
+        "transforms": ["str"]
       }
     },
     {
       "key": "episode",
       "extractor": {
         "path": "props.pageProps.aboveTheFoldData.series.episodeNumber.episodeNumber",
-        "transform": "str"
+        "transforms": ["str"]
       }
     },
     {
@@ -286,7 +284,7 @@
             }
           }
         ],
-        "transform": "date"
+        "transforms": ["date"]
       }
     },
     {

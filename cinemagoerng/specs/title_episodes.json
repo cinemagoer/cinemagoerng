@@ -1,11 +1,9 @@
 {
-  "version": "20240205",
+  "version": "20240526",
   "url": "https://www.imdb.com/title/%(imdb_id)s/episodes/?season=%(season)s",
   "doctype": "html",
   "path_type": "jmespath",
-  "pre": [
-    "parse_next_data"
-  ],
+  "pre": ["parse_next_data"],
   "rules": [
     {
       "key": "_page_lang",
@@ -125,7 +123,7 @@
                         }
                       }
                     ],
-                    "transform": "date"
+                    "transforms": ["date"]
                   }
                 },
                 {
@@ -138,7 +136,7 @@
                   "key": "rating",
                   "extractor": {
                     "path": "aggregateRating",
-                    "transform": "decimal"
+                    "transforms": ["decimal"]
                   }
                 },
                 {

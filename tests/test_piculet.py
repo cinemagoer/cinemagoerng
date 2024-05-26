@@ -35,19 +35,19 @@ def test_serialize_should_support_decimal():
 
 
 def test_load_spec_should_load_transform_from_str(movie_spec):
-    rule = {"key": "k", "extractor": {"path": "/", "transform": "lower"}}
+    rule = {"key": "k", "extractor": {"path": "/", "transforms": ["lower"]}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.transform, piculet.Transform)
+    assert isinstance(spec.rules[0].extractor.transforms[0], piculet.Transform)
 
 
 def test_dump_spec_should_dump_transform_as_str(movie_spec):
-    rule = {"key": "k", "extractor": {"path": "/", "transform": "lower"}}
+    rule = {"key": "k", "extractor": {"path": "/", "transforms": ["lower"]}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["transform"] == "lower"
+    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["transforms"][0] == "lower"
 
 
 def test_load_spec_should_raise_error_for_unknown_transform(movie_spec):
-    rule = {"key": "k", "extractor": {"path": "/", "transform": "UNKNOWN"}}
+    rule = {"key": "k", "extractor": {"path": "/", "transforms": ["UNKNOWN"]}}
     with pytest.raises(ValueError):
         _ = piculet.load_spec(movie_spec | {"rules": [rule]})
 
@@ -104,7 +104,7 @@ def test_scrape_should_produce_concatenated_text_using_given_separator(movie, mo
 
 
 def test_scrape_should_transform_text(movie, movie_spec):
-    rule = {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transform": "int"}}
+    rule = {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transforms": ["int"]}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"year": 1980}
@@ -113,7 +113,7 @@ def test_scrape_should_transform_text(movie, movie_spec):
 def test_scrape_should_produce_multiple_items_for_multiple_rules(movie, movie_spec):
     rules = [
         {"key": "title", "extractor": {"path": "//title/text()"}},
-        {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transform": "int"}},
+        {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transforms": ["int"]}},
     ]
     spec = piculet.load_spec(movie_spec | {"rules": rules})
     data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
@@ -143,7 +143,7 @@ def test_scrape_should_transform_each_item_in_multivalued_result(movie, movie_sp
         "extractor": {
             "foreach": '//ul[@class="genres"]/li',
             "path": "./text()",
-            "transform": "lower",
+            "transforms": ["lower"],
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
