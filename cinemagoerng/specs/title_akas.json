@@ -10,15 +10,15 @@
         "foreach": "data.title.akas.edges[*].node",
         "rules": [
           {
-            "key": "country",
+            "key": "country_code",
             "extractor": {
-              "path": "country.text"
+              "path": "country.id"
             }
           },
           {
-            "key": "language",
+            "key": "language_code",
             "extractor": {
-              "path": "language.text"
+              "path": "language.id"
             }
           },
           {
@@ -28,10 +28,9 @@
             }
           },
           {
-            "key": "is_alternative",
+            "key": "notes",
             "extractor": {
-              "path": "displayableProperty.qualifiersInMarkdownList.plainText",
-              "transform": "exists"
+              "path": "displayableProperty.qualifiersInMarkdownList[*].plainText"
             }
           }
         ]

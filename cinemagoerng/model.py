@@ -46,11 +46,27 @@ class Credit(Person):
 
 
 @dataclass
-class Aka:
+class AKA:
     title: str
-    country: str | None = None
-    language: str | None = None
-    is_alternative: bool = False
+    country_code: str | None = None
+    language_code: str | None = None
+    notes: list[str] = field(default_factory=list)
+
+    @property
+    def country(self) -> str | None:
+        if self.country_code is None:
+            return None
+        return lookup.COUNTRY_CODES[self.country_code]
+
+    @property
+    def language(self) -> str | None:
+        if self.language_code is None:
+            return None
+        return lookup.LANGUAGE_CODES[self.language_code.upper()]
+
+    @property
+    def is_alternative(self):
+        return len(self.notes) > 0
 
 
 @dataclass(kw_only=True)
@@ -67,7 +83,7 @@ class _Title:
     plot: dict[str, str] = field(default_factory=dict)
     plot_summaries: list[dict[str, str]] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
-    akas: list[Aka] = field(default_factory=list)
+    akas: list[AKA] = field(default_factory=list)
 
     rating: Decimal | None = None
     vote_count: int = 0

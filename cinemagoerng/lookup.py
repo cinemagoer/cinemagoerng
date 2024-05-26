@@ -269,6 +269,7 @@ COUNTRY_CODES = {
     "XPI": "Palestine",
     "XSI": "Siam",
     "XWG": "West Germany",
+    "XWW": "World-wide",
     "XYU": "Yugoslavia",
     "YE": "Yemen",
     "YT": "Mayotte",

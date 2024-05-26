@@ -215,10 +215,6 @@ def parse_episode_number(value: str) -> str:
     return value.strip().split("Episode ")[1]
 
 
-def exists(value: str) -> bool:
-    return value is not None and value != ''
-
-
 def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update({
         "date": make_date,
@@ -240,5 +236,4 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         "episode_count": parse_episode_count,
         "season_number": parse_season_number,
         "episode_number": parse_episode_number,
-        "exists": exists,
     })
