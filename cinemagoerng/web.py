@@ -28,7 +28,7 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def fetch(url: str, /, cache_key: str | None = None) -> str:
+def fetch(url: str, /, key: str | None = None) -> str:
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
     if "graphql" in url:
@@ -64,7 +64,7 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": imdb_id} | kwargs)
     try:
-        document = fetch(url, cache_key=f"title_{imdb_id}_{page}")
+        document = fetch(url, key=f"title_{imdb_id}_{page}.{spec.doctype}")
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
@@ -78,7 +78,7 @@ def update_title(title: Title_, /, *, page: UpdatePage, keys: list[str],
                  **kwargs) -> None:
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
-    document = fetch(url, cache_key=f"title_{title.imdb_id}_{page}")
+    document = fetch(url, key=f"title_{title.imdb_id}_{page}.{spec.doctype}")
     data = piculet.scrape(document, doctype=spec.doctype, rules=spec.rules,
                           pre=spec.pre, post=spec.post)
     for key in keys:
