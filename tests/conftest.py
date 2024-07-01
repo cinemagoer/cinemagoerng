@@ -12,9 +12,14 @@ if not cache_dir.exists():
 fetch_orig = cinemagoerng.web.fetch
 
 
-def fetch_cached(url):
-    url_hash = hashlib.sha256(url.encode()).hexdigest()
-    cache_path = cache_dir / url_hash
+def fetch_cached(url, key):
+    cache_path = cache_dir / key
+    if "?season=" in url:
+        season = url.split("?season=")[-1]
+        suffix = cache_path.suffix
+        cache_path = cache_path.with_suffix(f".season{season}{suffix}")
+    if key == "tt0000001_main.html":
+        cache_path.unlink(missing_ok=True)
     if cache_path.exists():
         return cache_path.read_text(encoding="utf-8")
     content = fetch_orig(url)

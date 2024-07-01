@@ -16,14 +16,12 @@
 import html
 import json
 import re
-from typing import Any, TypedDict
-
-from lxml.etree import Element
+from typing import TypedDict
 
 from .piculet import (
+    MapNode,
     Postprocessor,
     Preprocessor,
-    StrMap,
     Transformer,
     TreeNode,
     TreePath,
@@ -32,59 +30,10 @@ from .piculet import (
 from . import model, piculet
 
 
-def scalar_to_xml(tag: str, data: Any) -> TreeNode:
-    element = Element(tag)
-    element.text = str(data)
-    return element
-
-
-def list_to_xml(tag: str, data: list[Any]) -> TreeNode:
-    element = Element(tag)
-    key = "item"
-    for value in data:
-        match value:
-            case None:
-                continue
-            case dict():
-                child = dict_to_xml(key, value)
-            case list():
-                child = list_to_xml(key, value)
-            case _:
-                child = scalar_to_xml(key, value)
-        element.append(child)
-    return element
-
-
-def dict_to_xml(tag: str, data: StrMap) -> TreeNode:
-    element = Element(tag)
-    for key, value in data.items():
-        match value:
-            case None:
-                continue
-            case dict():
-                child = dict_to_xml(key, value)
-            case list():
-                child = list_to_xml(key, value)
-            case _:
-                child = scalar_to_xml(key, value)
-        element.append(child)
-    return element
-
-
-_data_sections: list[str] = ["aboveTheFoldData", "mainColumnData",
-                             "contentData", "translationContext"]
-
-
-def parse_next_data(root: TreeNode) -> TreeNode:
+def parse_next_data(root: TreeNode) -> MapNode:
     path = TreePath("//script[@id='__NEXT_DATA__']/text()")
-    script = path.apply(root)[0]
-    data = json.loads(script)
-    xml_data: dict[str, Any] = {}
-    for section in _data_sections:
-        section_data: StrMap | None = data["props"]["pageProps"].get(section)
-        if section_data is not None:
-            xml_data[section] = section_data
-    return dict_to_xml("NEXT_DATA", xml_data)
+    next_data = path.apply(root)[0]
+    return json.loads(next_data)
 
 
 def remove_see_more(root: TreeNode) -> TreeNode:
@@ -103,15 +52,34 @@ def parse_graphql(root: TreeNode) -> TreeNode:
 
 def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
     registry.update({
-        "next_data": parse_next_data,
-        "see_more": remove_see_more,
-        "graphql": parse_graphql,
+        "parse_next_data": parse_next_data,
+        "remove_see_more": remove_see_more,
     })
 
 
-def generate_episode_map(data, value):
-    for season in data:
-        data[season] = {ep["episode"]: ep for ep in data[season]}
+def unpack_dicts(data):
+    for child in data.values():
+        if isinstance(child, dict):
+            unpack_dicts(child)
+        if isinstance(child, list):
+            for subchild in child:
+                if isinstance(subchild, dict):
+                    unpack_dicts(subchild)
+    collected = data.get("__dict__")
+    if collected is not None:
+        data.update(collected)
+        del data["__dict__"]
+
+
+def generate_episode_map(data):
+    for season, episodes in data["episodes"].items():
+        data["episodes"][season] = {ep["episode"]: ep for ep in episodes}
+
+
+def set_plot_langs(data):
+    for season in data["episodes"].values():
+        for episode in season.values():
+            episode["plot"] = {data["_page_lang"]: episode["_plot"]}
 
 
 def dict_from_list(data, value):
@@ -124,7 +92,9 @@ def dict_from_list(data, value):
 
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     registry.update({
-        "episode_map": generate_episode_map,
+        "unpack_dicts": unpack_dicts,
+        "generate_episode_map": generate_episode_map,
+        "set_plot_langs": set_plot_langs,
         "dict_from_list": dict_from_list,
     })
 
@@ -275,7 +245,7 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         "date": make_date,
         "text_date": parse_text_date,
         "unescape": html.unescape,
-        "div60": lambda x: int(x) // 60,
+        "div60": lambda x: x // 60,
         "href_id": parse_href_id,
         "type_id": parse_type_id,
         "year_range": parse_year_range,

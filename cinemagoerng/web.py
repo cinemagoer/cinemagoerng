@@ -18,7 +18,7 @@ import json
 from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
-from typing import Literal, TypeAlias, TypeVar
+from typing import Literal, TypeAlias
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -28,7 +28,7 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def fetch(url: str, /) -> str:
+def fetch(url: str, /, key: str | None = None) -> str:
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
     if "graphql" in url:
@@ -53,9 +53,9 @@ def _spec(page: str, /) -> piculet.Spec:
     return piculet.load_spec(json.loads(content))
 
 
-Title_ = TypeVar("Title_", bound=model.Title)
 TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "parental_guide"]
-UpdatePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "akas", "parental_guide"]
+TitleUpdatePage: TypeAlias = Literal["main", "reference", "taglines",
+                                     "episodes", "akas", "parental_guide"]
 
 
 def get_title(imdb_id: str, *, page: TitlePage = "reference",
@@ -63,36 +63,38 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": imdb_id} | kwargs)
     try:
-        document = fetch(url)
+        document = fetch(url, key=f"title_{imdb_id}_{page}.{spec.doctype}")
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
         raise e  # pragma: no cover
-    data = piculet.scrape(document, spec.rules)
+    data = piculet.scrape(document, doctype=spec.doctype, rules=spec.rules,
+                          pre=spec.pre, post=spec.post)
     return piculet.deserialize(data, model.Title)
 
 
-def update_title(title: Title_, /, *, page: UpdatePage, keys: list[str],
-                 **kwargs) -> None:
+def update_title(title: model.Title, /, *, page: TitleUpdatePage,
+                 keys: list[str], **kwargs) -> None:
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
-    document = fetch(url)
-    rules = [rule for rule in spec.rules if rule.key in keys]
-    data = piculet.scrape(document, rules)
+    document = fetch(url, key=f"title_{title.imdb_id}_{page}.{spec.doctype}")
+    data = piculet.scrape(document, doctype=spec.doctype, rules=spec.rules,
+                          pre=spec.pre, post=spec.post)
     for key in keys:
         value = data.get(key)
-        if value is not None:
-            if key == "episodes":
-                value = piculet.deserialize(value, model.EpisodeMap)
-                getattr(title, key).update(value)
-            elif key == "akas":
-                value = [piculet.deserialize(aka, model.Aka) for aka in value]
-                getattr(title, key).extend(value)
-            elif key == "certification":
-                value = piculet.deserialize(value, model.Certification)
-                setattr(title, key, value)
-            elif key == "advisories":
-                value = piculet.deserialize(value, model.Advisories)
-                setattr(title, key, value)
-            else:
-                setattr(title, key, value)
+        if value is None:
+            continue
+        if key == "episodes":
+            value = piculet.deserialize(value, model.EpisodeMap)
+            title.episodes.update(value)
+        elif key == "akas":
+            value = [piculet.deserialize(aka, model.AKA) for aka in value]
+            title.akas.extend(value)
+        elif key == "certification":
+            value = piculet.deserialize(value, model.Certification)
+            setattr(title, key, value)
+        elif key == "advisories":
+            value = piculet.deserialize(value, model.Advisories)
+            setattr(title, key, value)
+        else:
+            setattr(title, key, value)

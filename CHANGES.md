@@ -2,8 +2,10 @@
 
 ## 0.3 (unreleased)
 
-- Make TV mini-series compatible with series.
+- Add support for extracting data from GraphQL (@mhdzumair).
+- Add support for parsing alternative titles (@mhdzumair).
 - Add support for parsing series creators.
+- Make TV mini-series compatible with series.
 
 ## 0.2 (unreleased)
 

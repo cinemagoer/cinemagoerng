@@ -1,107 +1,103 @@
 {
-  "version": "20240205",
+  "version": "20240526",
   "url": "https://www.imdb.com/title/%(imdb_id)s/episodes/?season=%(season)s",
+  "doctype": "html",
+  "path_type": "jmespath",
+  "pre": ["parse_next_data"],
   "rules": [
+    {
+      "key": "_page_lang",
+      "extractor": {
+        "path": "props.pageProps.translationContext.i18n.locale"
+      }
+    },
     {
       "key": "imdb_id",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/id/text()"
+        "path": "props.pageProps.contentData.entityMetadata.id"
       }
     },
     {
       "key": "type_id",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/titleType/id/text()"
+        "path": "props.pageProps.contentData.entityMetadata.titleType.id"
       }
     },
     {
       "key": "title",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/originalTitleText/text/text()"
+        "path": "props.pageProps.contentData.entityMetadata.originalTitleText.text"
       }
     },
     {
       "key": "primary_image",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/primaryImage/url/text()"
+        "path": "props.pageProps.contentData.entityMetadata.primaryImage.url"
       }
     },
     {
       "key": "year",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/releaseYear/year/text()",
-        "transform": "int"
+        "path": "props.pageProps.contentData.entityMetadata.releaseYear.year"
       }
     },
     {
       "key": "end_year",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/releaseYear/endYear/text()",
-        "transform": "int"
+        "path": "props.pageProps.contentData.entityMetadata.releaseYear.endYear"
       }
     },
     {
       "key": "episode_count",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/section/episodesWidgetData/totalEpisodes/total/text()",
-        "transform": "int"
+        "path": "props.pageProps.contentData.section.episodesWidgetData.totalEpisodes.total"
       }
     },
     {
       "key": "episodes",
       "extractor": {
-        "pre": "next_data",
         "rules": [
           {
-            "foreach": "/NEXT_DATA/contentData/section/currentSeason",
             "key": {
-              "path": "./text()"
+              "path": "props.pageProps.contentData.section.currentSeason"
             },
             "extractor": {
-              "foreach": "../episodes/items/item",
+              "foreach": "props.pageProps.contentData.section.episodes.items[*]",
               "rules": [
                 {
                   "key": "imdb_id",
                   "extractor": {
-                    "path": "./id/text()"
+                    "path": "id"
                   }
                 },
                 {
                   "key": "type_id",
                   "extractor": {
-                    "path": "./type/text()"
+                    "path": "type"
                   }
                 },
                 {
                   "key": "title",
                   "extractor": {
-                    "path": "./titleText/text()"
+                    "path": "titleText"
                   }
                 },
                 {
                   "key": "season",
                   "extractor": {
-                    "path": "./season/text()"
+                    "path": "season"
                   }
                 },
                 {
                   "key": "episode",
                   "extractor": {
-                    "path": "./episode/text()"
+                    "path": "episode"
                   }
                 },
                 {
                   "key": "year",
                   "extractor": {
-                    "path": "./releaseYear/text()",
-                    "transform": "int"
+                    "path": "releaseYear"
                   }
                 },
                 {
@@ -111,68 +107,53 @@
                       {
                         "key": "year",
                         "extractor": {
-                          "path": "./releaseDate/year/text()",
-                          "transform": "int"
+                          "path": "releaseDate.year"
                         }
                       },
                       {
                         "key": "month",
                         "extractor": {
-                          "path": "./releaseDate/month/text()",
-                          "transform": "int"
+                          "path": "releaseDate.month"
                         }
                       },
                       {
                         "key": "day",
                         "extractor": {
-                          "path": "./releaseDate/day/text()",
-                          "transform": "int"
+                          "path": "releaseDate.day"
                         }
                       }
                     ],
-                    "transform": "date"
+                    "transforms": ["date"]
                   }
                 },
                 {
-                  "key": "plot",
+                  "key": "_plot",
                   "extractor": {
-                    "rules": [
-                      {
-                        "key": "key",
-                        "extractor": {
-                          "path": "/NEXT_DATA/translationContext/i18n/locale/text()"
-                        }
-                      },
-                      {
-                        "key": "value",
-                        "extractor": {
-                          "path": "./plot/text()"
-                        }
-                      }
-                    ],
-                    "transform": "make_dict"
+                    "path": "plot"
                   }
                 },
                 {
                   "key": "rating",
                   "extractor": {
-                    "path": "./aggregateRating/text()",
-                    "transform": "decimal"
+                    "path": "aggregateRating",
+                    "transforms": ["decimal"]
                   }
                 },
                 {
                   "key": "vote_count",
                   "extractor": {
-                    "path": "./voteCount/text()",
-                    "transform": "int"
+                    "path": "voteCount"
                   }
                 }
-              ],
-              "post": "episode_map"
+              ]
             }
           }
         ]
       }
     }
+  ],
+  "post": [
+    "generate_episode_map",
+    "set_plot_langs"
   ]
 }

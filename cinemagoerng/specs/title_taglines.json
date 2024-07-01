@@ -1,58 +1,52 @@
 {
-  "version": "20240126",
+  "version": "20240526",
   "url": "https://www.imdb.com/title/%(imdb_id)s/taglines/",
+  "doctype": "html",
+  "path_type": "jmespath",
+  "pre": ["parse_next_data"],
   "rules": [
     {
       "key": "imdb_id",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/id/text()"
+        "path": "props.pageProps.contentData.entityMetadata.id"
       }
     },
     {
       "key": "type_id",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/titleType/id/text()"
+        "path": "props.pageProps.contentData.entityMetadata.titleType.id"
       }
     },
     {
       "key": "title",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/originalTitleText/text/text()"
+        "path": "props.pageProps.contentData.entityMetadata.originalTitleText.text"
       }
     },
     {
       "key": "primary_image",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/primaryImage/url/text()"
+        "path": "props.pageProps.contentData.entityMetadata.primaryImage.url"
       }
     },
     {
       "key": "year",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/releaseYear/year/text()",
-        "transform": "int"
+        "path": "props.pageProps.contentData.entityMetadata.releaseYear.year"
       }
     },
     {
       "key": "end_year",
       "extractor": {
-        "pre": "next_data",
-        "path": "/NEXT_DATA/contentData/entityMetadata/releaseYear/endYear/text()",
-        "transform": "int"
+        "path": "props.pageProps.contentData.entityMetadata.releaseYear.endYear"
       }
     },
     {
       "key": "taglines",
       "extractor": {
-        "pre": "next_data",
-        "foreach": "/NEXT_DATA/contentData/section/items/item",
-        "path": "./htmlContent/text()",
-        "transform": "unescape"
+        "foreach": "props.pageProps.contentData.section.items[*]",
+        "path": "htmlContent",
+        "transforms": ["unescape"]
       }
     }
   ]
