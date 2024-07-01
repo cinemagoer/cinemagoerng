@@ -1,0 +1,141 @@
+{
+  "version": "20240518",
+  "url": "https://www.imdb.com/title/%(imdb_id)s/parentalguide",
+  "rules": [
+	{
+	  "key": "imdb_id",
+	  "extractor": {
+		"path": "//meta[@property='pageId']/@content"
+	  }
+	},
+	{
+      "key": "type_id",
+      "extractor": {
+        "path": "normalize-space(//div[@div='quicklinks']//span[@class='nobr']/text())",
+        "transform": "type_id"
+      }
+    },
+    {
+      "key": "title",
+      "extractor": {
+        "path": "//h3[@itemprop='name']/a/text()",
+        "transform": "strip"
+      }
+    },
+	{
+      "key": "_year",
+      "extractor": {
+        "path": "translate(normalize-space(//h3[@itemprop='name']//span/text()), '()', '')",
+        "transform": "year_range",
+        "post": "unpack"
+      }
+    },
+	{
+	  "key": "certification",
+	  "extractor": {
+		"rules": [
+		  {
+			"key": "mpaa",
+			"extractor": {
+			  "path": "//tr[@id='mpaa-rating']/td[2]//text()"
+			}
+		  },
+		  {
+			"key": "certificates",
+			"extractor": {
+			  "foreach": "//tr[@id='certifications-list']//li",
+			  "rules": [
+				{
+				  "key": "country",
+				  "extractor": {
+					"path": "substring-before(.//a/text(), ':')"
+				  }
+				},
+				{
+				  "key": "certificate",
+				  "extractor": {
+					"path": "substring-after(.//a/text(), ':')"
+				  }
+				},
+				{
+				  "key": "attribute",
+				  "extractor": {
+					"path": "substring-after(.//text()[2], ' ')",
+					"transform": "strip"
+				  }
+				}
+			  ]
+			}
+		  }
+		]
+	  }
+	},
+	{
+	  "key": "advisories",
+	  "extractor": {
+		"foreach": "//section[starts-with(@id, 'advisory-')]",
+		"transform": "make_dict",
+		"post": "dict_from_list",
+		"rules": [
+		  {
+			"key": "key",
+			"extractor": {
+			  "path": "translate(substring-after(./@id, 'advisory-'), '-', '_')"
+			}
+		  },
+		  {
+			"key": "value",
+			"extractor": {
+			  "rules": [
+				{
+				  "key": "details",
+				  "extractor": {
+					"foreach": ".//li[@class='ipl-zebra-list__item']",
+					"transform": "extract_value",
+					"rules": [
+					  {
+						"key": "value",
+						"extractor": {
+						  "path": "normalize-space(.//text())"
+						}
+					  }
+					]
+				  }
+				},
+				{
+				  "key": "status",
+				  "extractor": {
+					"path": "normalize-space(.//span[contains(@class, 'ipl-status-pill')]/text())"
+				  }
+				},
+				{
+				  "key": "votes",
+				  "extractor": {
+					"foreach": ".//span[@class='ipl-vote-button']",
+					"transform": "make_dict",
+					"post": "dict_from_list",
+					"rules": [
+					  {
+						"key": "key",
+						"extractor": {
+						  "path": "./button/@value"
+						}
+					  },
+					  {
+						"key": "value",
+						"extractor": {
+						  "path": ".//span/text()",
+						  "transform": "int"
+						}
+					  }
+					]
+				  }
+				}
+			  ]
+			}
+		  }
+		]
+	  }
+	}
+  ]
+}

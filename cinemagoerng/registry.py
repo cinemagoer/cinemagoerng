@@ -27,7 +27,9 @@ from .piculet import (
     Transformer,
     TreeNode,
     TreePath,
+    deserialize
 )
+from . import model, piculet
 
 
 def scalar_to_xml(tag: str, data: Any) -> TreeNode:
@@ -112,9 +114,18 @@ def generate_episode_map(data, value):
         data[season] = {ep["episode"]: ep for ep in data[season]}
 
 
+def dict_from_list(data, value):
+    """
+    Convert a list of dictionaries to a single dictionary.
+    """
+    key = list(data.keys())[0]
+    data[key] = {k: v for d in data[key] for k, v in d.items()}
+
+
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     registry.update({
         "episode_map": generate_episode_map,
+        "dict_from_list": dict_from_list,
     })
 
 
@@ -163,7 +174,8 @@ def parse_type_id(value: str) -> str:
 
 
 def parse_year_range(value: str) -> dict[str, int]:
-    tokens = value.strip().split("-")
+    split_char = "–" if "–" in value else "-"
+    tokens = value.strip().split(split_char)
     data = {"year": int(tokens[0])}
     if (len(tokens) > 1) and len(tokens[1]) > 0:
         data["end_year"] = int(tokens[1])
@@ -254,6 +266,10 @@ def exists(value: str) -> bool:
     return value is not None and value != ''
 
 
+def extract_value(value: dict) -> str:
+    return value.get("value")
+
+
 def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update({
         "date": make_date,
@@ -276,4 +292,5 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         "season_number": parse_season_number,
         "episode_number": parse_episode_number,
         "exists": exists,
+        "extract_value": extract_value,
     })
