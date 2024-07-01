@@ -53,9 +53,8 @@ def _spec(page: str, /) -> piculet.Spec:
     return piculet.load_spec(json.loads(content))
 
 
-TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes"]
-TitleUpdatePage: TypeAlias = Literal["main", "reference", "taglines",
-                                     "episodes", "akas"]
+TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "parental_guide"]
+TitleUpdatePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "akas", "parental_guide"]
 
 
 def get_title(imdb_id: str, *, page: TitlePage = "reference",
@@ -90,5 +89,11 @@ def update_title(title: model.Title, /, *, page: TitleUpdatePage,
         elif key == "akas":
             value = [piculet.deserialize(aka, model.AKA) for aka in value]
             title.akas.extend(value)
+        elif key == "certification":
+            value = piculet.deserialize(value, model.Certification)
+            setattr(title, key, value)
+        elif key == "advisories":
+            value = piculet.deserialize(value, model.Advisories)
+            setattr(title, key, value)
         else:
             setattr(title, key, value)
