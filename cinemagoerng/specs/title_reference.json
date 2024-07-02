@@ -1,5 +1,5 @@
 {
-  "version": "20240526",
+  "version": "20240702",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "doctype": "html",
   "path_type": "xpath",
@@ -97,8 +97,7 @@
           {
             "key": "value",
             "extractor": {
-              "path": "//section[@class='titlereference-section-overview']/div[not(.//a)]/text()",
-              "transforms": ["strip"]
+              "path": "normalize-space(//section[@class='titlereference-section-overview']/div[not(.//a)]/text())"
             }
           }
         ],
