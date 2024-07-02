@@ -21,6 +21,14 @@ def test_title_parser_should_set_first_tagline(imdb_id, tagline):
 
 
 @pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
+    ("tt0266697", "After awakening from a four-year coma, a former assassin wreaks vengeance on the team of assassins who betrayed her.", "en-US")
+])
+def test_title_parser_should_set_plot(imdb_id, plot, lang):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert parsed.plot[lang] == plot
+
+
+@pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
     ("tt0133093", "Thomas A. Anderson is a man living two lives.", "en-US"),  # The Matrix
     ("tt3629794", None, None),  # Aslan
 ])

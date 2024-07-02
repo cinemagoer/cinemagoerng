@@ -186,6 +186,7 @@ class TreeRule:
     key: str | TreePicker
     extractor: TreePicker | TreeCollector
     foreach: TreePath | None = None
+    transforms: list[Transform] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -193,6 +194,7 @@ class MapRule:
     key: str | MapPicker
     extractor: MapPicker | MapCollector
     foreach: MapPath | None = None
+    transforms: list[Transform] = field(default_factory=list)
 
 
 def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
@@ -223,6 +225,9 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
                 values.append(value)
         value = values[0] if rule.extractor.foreach is None else values
 
+        for transform in rule.transforms:
+            value = transform.apply(value)
+
         match rule.key:
             case str():
                 key = rule.key
@@ -252,6 +257,7 @@ DocType: TypeAlias = Literal["html", "xml", "json"]
 class Spec:
     version: str
     url: str
+    url_default_params: dict[str, Any] = field(default_factory=dict)
     doctype: DocType
     pre: list[Preprocess] = field(default_factory=list)
     post: list[Postprocess] = field(default_factory=list)

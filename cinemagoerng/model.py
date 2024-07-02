@@ -68,6 +68,52 @@ class AKA:
     def is_alternative(self):
         return len(self.notes) > 0
 
+@dataclass
+class Certificate:
+    country: str
+    certificate: str
+    attribute: str | None = None
+
+
+@dataclass
+class Certification:
+    mpaa: str | None = None
+    certificates: list[Certificate] = field(default_factory=list)
+
+
+@dataclass
+class Votes:
+    none: int = 0
+    mild: int = 0
+    moderate: int = 0
+    severe: int = 0
+
+
+@dataclass
+class Advisory:
+    details: list[str] = field(default_factory=list)
+    status: Literal["None", "Mild", "Moderate", "Severe"] = "None"
+    votes: Votes = field(default_factory=Votes)
+
+
+@dataclass
+class SpoilerAdvisory:
+    details: list[str] = field(default_factory=list)
+
+
+@dataclass
+class Advisories:
+    nudity: Advisory = field(default_factory=Advisory)
+    violence: Advisory = field(default_factory=Advisory)
+    profanity: Advisory = field(default_factory=Advisory)
+    alcohol: Advisory = field(default_factory=Advisory)
+    frightening: Advisory = field(default_factory=Advisory)
+    spoiler_nudity: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
+    spoiler_violence: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
+    spoiler_profanity: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
+    spoiler_alcohol: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
+    spoiler_frightening: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
+
 
 @dataclass(kw_only=True)
 class _Title:
@@ -84,6 +130,8 @@ class _Title:
     plot_summaries: list[dict[str, str]] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
     akas: list[AKA] = field(default_factory=list)
+    certification: Certification | None = None
+    advisories: Advisories | None = None
 
     rating: Decimal | None = None
     vote_count: int = 0
