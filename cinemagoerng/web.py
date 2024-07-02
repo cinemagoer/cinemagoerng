@@ -61,7 +61,7 @@ TitleUpdatePage: TypeAlias = Literal["main", "reference", "taglines",
 def get_title(imdb_id: str, *, page: TitlePage = "reference",
               **kwargs) -> model.Title | None:
     spec = _spec(f"title_{page}")
-    url = spec.url % ({"imdb_id": imdb_id} | kwargs)
+    url = spec.url % ({"imdb_id": imdb_id} | spec.url_default_params | kwargs)
     try:
         document = fetch(url, key=f"title_{imdb_id}_{page}.{spec.doctype}")
     except HTTPError as e:
@@ -74,10 +74,10 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
 
 
 def update_title(title: model.Title, /, *, page: TitleUpdatePage,
-                 keys: list[str], **kwargs) -> None:
+                 keys: list[str], paginate_result: bool = False, **kwargs) -> None:
     spec = _spec(f"title_{page}")
-    url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
-    document = fetch(url, key=f"title_{title.imdb_id}_{page}.{spec.doctype}")
+    url = spec.url % ({"imdb_id": title.imdb_id} | spec.url_default_params | kwargs)
+    document = fetch(url, key=f"title_{title.imdb_id}{kwargs.get('after', '')}_{page}.{spec.doctype}")
     data = piculet.scrape(document, doctype=spec.doctype, rules=spec.rules,
                           pre=spec.pre, post=spec.post)
     for key in keys:
@@ -98,3 +98,6 @@ def update_title(title: model.Title, /, *, page: TitleUpdatePage,
             setattr(title, key, value)
         else:
             setattr(title, key, value)
+
+    if paginate_result and data.get("has_next_page", False):
+        update_title(title, page=page, keys=keys, paginate_result=True, after=f'"{data["end_cursor"]}"')
