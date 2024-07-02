@@ -1,5 +1,5 @@
 {
-  "version": "20240518",
+  "version": "20240702",
   "url": "https://www.imdb.com/title/%(imdb_id)s/parentalguide",
   "doctype": "html",
   "path_type": "xpath",
@@ -25,11 +25,10 @@
       }
     },
 	{
-      "key": "_year",
+      "key": "__dict__",
       "extractor": {
         "path": "translate(normalize-space(//h3[@itemprop='name']//span/text()), '()', '')",
-        "transforms": ["year_range"],
-        "post": ["unpack"]
+        "transforms": ["year_range"]
       }
     },
 	{
@@ -74,10 +73,10 @@
 	},
 	{
 	  "key": "advisories",
+	  "transforms": ["flatten_list_of_dicts"],
 	  "extractor": {
 		"foreach": "//section[starts-with(@id, 'advisory-')]",
 		"transforms": ["make_dict"],
-		"post": ["dict_from_list"],
 		"rules": [
 		  {
 			"key": "key",
@@ -112,10 +111,10 @@
 				},
 				{
 				  "key": "votes",
+				  "transforms": ["flatten_list_of_dicts"],
 				  "extractor": {
 					"foreach": ".//span[@class='ipl-vote-button']",
 					"transforms": ["make_dict"],
-					"post": ["dict_from_list"],
 					"rules": [
 					  {
 						"key": "key",
@@ -139,5 +138,6 @@
 		]
 	  }
 	}
-  ]
+  ],
+  "post": ["unpack_dicts"]
 }

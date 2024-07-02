@@ -16,7 +16,7 @@
 import html
 import json
 import re
-from typing import TypedDict
+from typing import TypedDict, Any
 
 from .piculet import (
     MapNode,
@@ -77,20 +77,11 @@ def set_plot_langs(data):
             episode["plot"] = {data["_page_lang"]: episode["_plot"]}
 
 
-def dict_from_list(data, value):
-    """
-    Convert a list of dictionaries to a single dictionary.
-    """
-    key = list(data.keys())[0]
-    data[key] = {k: v for d in data[key] for k, v in d.items()}
-
-
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     registry.update({
         "unpack_dicts": unpack_dicts,
         "generate_episode_map": generate_episode_map,
         "set_plot_langs": set_plot_langs,
-        "dict_from_list": dict_from_list,
     })
 
 
@@ -235,6 +226,13 @@ def extract_value(value: dict) -> str:
     return value.get("value")
 
 
+def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
+    """
+    Convert a list of dictionaries to a single dictionary.
+    """
+    return {k: v for d in value for k, v in d.items()}
+
+
 def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update({
         "date": make_date,
@@ -258,4 +256,5 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         "episode_number": parse_episode_number,
         "exists": exists,
         "extract_value": extract_value,
+        "flatten_list_of_dicts": flatten_list_of_dicts,
     })
