@@ -68,6 +68,7 @@ class AKA:
     def is_alternative(self):
         return len(self.notes) > 0
 
+
 @dataclass
 class Certificate:
     country: str
@@ -82,7 +83,7 @@ class Certification:
 
 
 @dataclass
-class Votes:
+class AdvisoryVotes:
     none: int = 0
     mild: int = 0
     moderate: int = 0
@@ -93,7 +94,7 @@ class Votes:
 class Advisory:
     details: list[str] = field(default_factory=list)
     status: Literal["None", "Mild", "Moderate", "Severe"] = "None"
-    votes: Votes = field(default_factory=Votes)
+    votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
 
 
 @dataclass
@@ -240,11 +241,14 @@ class TVEpisode(_TimedTitle):
     season: str | None = None
     episode: str | None = None
     release_date: date | None = None
+    year: int | None = None
     previous_episode: str | None = None
     next_episode: str | None = None
 
 
-EpisodeMap: TypeAlias = dict[str, dict[str, TVEpisode]]
+EpisodeMap: TypeAlias = dict[
+    str, dict[str, TVEpisode]
+]  # e.g. {"1": {"1": TVEpisode, "2": TVEpisode}, "2": {"1": TVEpisode}}
 
 
 @dataclass(kw_only=True)
@@ -253,6 +257,22 @@ class _TVSeriesBase(_TimedTitle):
     episode_count: int | None = None
     episodes: EpisodeMap = field(default_factory=dict)
     creators: list[Credit] = field(default_factory=list)
+
+    def get_episodes_by_season(self, season: str) -> list[TVEpisode]:
+        return list(self.episodes.get(season, {}).values())
+
+    def get_episodes_by_year(self, year: int) -> list[TVEpisode]:
+        return [ep for season in self.episodes.values() for ep in season.values() if ep.year == year]
+
+    def get_episode(self, season: str, episode: str) -> TVEpisode | None:
+        return self.episodes.get(season, {}).get(episode)
+
+    def add_episodes(self, new_episodes: list[TVEpisode]) -> None:
+        for ep in new_episodes:
+            if ep.episode not in self.episodes.get(ep.season, {}):
+                if ep.season not in self.episodes:
+                    self.episodes[ep.season] = {}
+                self.episodes[ep.season][ep.episode] = ep
 
 
 @dataclass(kw_only=True)
@@ -271,7 +291,16 @@ class TVSpecial(_TimedTitle):
     type_id: Literal["tvSpecial"] = "tvSpecial"
 
 
-Title: TypeAlias = Movie | TVMovie | ShortMovie | TVShortMovie \
-                 | VideoMovie | MusicVideo | VideoGame \
-                 | TVSeries | TVMiniSeries | TVEpisode \
-                 | TVSpecial  # noqa: E126
+Title: TypeAlias = (
+    Movie
+    | TVMovie
+    | ShortMovie
+    | TVShortMovie
+    | VideoMovie
+    | MusicVideo
+    | VideoGame
+    | TVSeries
+    | TVMiniSeries
+    | TVEpisode
+    | TVSpecial
+)  # noqa: E126

@@ -3,9 +3,12 @@ import pytest
 from cinemagoerng import web
 
 
-@pytest.mark.parametrize(("imdb_id", "n"), [
-    ("tt0133093", 15),  # The Matrix
-])
+@pytest.mark.parametrize(
+    ("imdb_id", "n"),
+    [
+        ("tt0133093", 15),  # The Matrix
+    ],
+)
 def test_updating_title_should_update_only_given_keys(imdb_id, n):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.taglines) == 1
