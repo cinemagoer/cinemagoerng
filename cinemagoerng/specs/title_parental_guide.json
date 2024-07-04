@@ -1,5 +1,5 @@
 {
-  "version": "20240702",
+  "version": "20240704",
   "url": "https://www.imdb.com/title/%(imdb_id)s/parentalguide",
   "doctype": "html",
   "path_type": "xpath",
@@ -143,7 +143,7 @@
 					  {
 						"key": "value",
 						"extractor": {
-						  "path": ".//span/text()",
+						  "path": "translate(.//span/text(), ',', '')",
 						  "transforms": [
 							"int"
 						  ]

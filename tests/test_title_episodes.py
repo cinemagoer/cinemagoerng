@@ -233,7 +233,8 @@ def test_updating_episodes_should_accumulate_seasons(imdb_id, episode_counts):
         (
             "tt0185103",
             [  # WWE
-                ("27", 55)
+                ("16", 52),
+                ("27", 55),
             ],
         ),
     ],
@@ -252,3 +253,42 @@ def test_updating_episodes_should_accumulate_seasons_with_pagination(imdb_id, ep
         )
         assert len(parsed.episodes) == i + 1
         assert len(parsed.episodes[season]) == episode_count
+        assert len(parsed.get_episodes_by_season(season)) == episode_count
+
+
+@pytest.mark.parametrize(
+    ("imdb_id", "episode_count_data"),
+    [
+        (
+            "tt0185103",
+            [  # WWE
+                (2016, 2017, 52, 52, 104),
+                (2022, 2022, 52, 52, 156),
+            ],
+        ),
+        (
+            "tt0903747",
+            [  # Breaking Bad
+                (2008, 2013, 7, 8, 62),
+            ],
+        ),
+    ],
+)
+def test_updating_episodes_should_accumulate_year_with_pagination(imdb_id, episode_count_data):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    for count_data in episode_count_data:
+        start_year, end_year, start_year_episode_count, end_year_episode_count, total_episode_count = count_data
+        assert parsed.get_episodes_by_year(start_year) == []
+        assert parsed.get_episodes_by_year(end_year) == []
+        web.update_title(
+            parsed,
+            page="episodes_with_pagination",
+            keys=["episodes"],
+            filter_type="year",
+            start_year=start_year,
+            end_year=end_year,
+            paginate_result=True,
+        )
+        assert len(parsed.get_episodes_by_year(start_year)) == start_year_episode_count
+        assert len(parsed.get_episodes_by_year(end_year)) == end_year_episode_count
+        assert len([ep for season in parsed.episodes.values() for ep in season.values()]) == total_episode_count

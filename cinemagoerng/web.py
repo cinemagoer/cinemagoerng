@@ -141,11 +141,11 @@ def update_title(
             setattr(title, key, value)
 
     if paginate_result and data.get("has_next_page", False):
+        kwargs["after"] = f'"{data["end_cursor"]}"'
         update_title(
             title,
             page=page,
             keys=keys,
-            paginate_result=True,
-            after=f'"{data["end_cursor"]}"',
+            paginate_result=paginate_result,
             **kwargs,
         )
