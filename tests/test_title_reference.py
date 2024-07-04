@@ -47,11 +47,7 @@ def test_title_parser_should_set_plot(imdb_id, plot, lang):
 @pytest.mark.parametrize(
     ("imdb_id", "plot", "lang"),
     [
-        (
-            "tt0133093",
-            "Thomas A. Anderson is a man living two lives.",
-            "en-US",
-        ),  # The Matrix
+        ("tt0133093", "Thomas A. Anderson is a man living two lives.", "en-US"),  # The Matrix
         ("tt3629794", None, None),  # Aslan
     ],
 )
