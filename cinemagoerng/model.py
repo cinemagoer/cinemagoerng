@@ -83,7 +83,7 @@ class Certification:
 
 
 @dataclass
-class Votes:
+class AdvisoryVotes:
     none: int = 0
     mild: int = 0
     moderate: int = 0
@@ -94,7 +94,7 @@ class Votes:
 class Advisory:
     details: list[str] = field(default_factory=list)
     status: Literal["None", "Mild", "Moderate", "Severe"] = "None"
-    votes: Votes = field(default_factory=Votes)
+    votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
 
 
 @dataclass
