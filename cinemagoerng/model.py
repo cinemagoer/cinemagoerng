@@ -113,7 +113,9 @@ class Advisories:
     spoiler_violence: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
     spoiler_profanity: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
     spoiler_alcohol: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_frightening: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
+    spoiler_frightening: SpoilerAdvisory = field(
+        default_factory=SpoilerAdvisory
+    )
 
 
 @dataclass(kw_only=True)
@@ -130,7 +132,7 @@ class _Title:
     plot: dict[str, str] = field(default_factory=dict)
     plot_summaries: list[dict[str, str]] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
-    akas: list[Aka] = field(default_factory=list)
+    akas: list[AKA] = field(default_factory=list)
     certification: Certification | None = None
     advisories: Advisories | None = None
 
@@ -272,7 +274,16 @@ class TVSpecial(_TimedTitle):
     type_id: Literal["tvSpecial"] = "tvSpecial"
 
 
-Title: TypeAlias = Movie | TVMovie | ShortMovie | TVShortMovie \
-                 | VideoMovie | MusicVideo | VideoGame \
-                 | TVSeries | TVMiniSeries | TVEpisode \
-                 | TVSpecial  # noqa: E126
+Title: TypeAlias = (
+    Movie
+    | TVMovie
+    | ShortMovie
+    | TVShortMovie
+    | VideoMovie
+    | MusicVideo
+    | VideoGame
+    | TVSeries
+    | TVMiniSeries
+    | TVEpisode
+    | TVSpecial
+)  # noqa: E126

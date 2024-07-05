@@ -53,12 +53,17 @@ def _spec(page: str, /) -> piculet.Spec:
     return piculet.load_spec(json.loads(content))
 
 
-TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "parental_guide"]
-TitleUpdatePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "akas", "parental_guide"]
+TitlePage: TypeAlias = Literal[
+    "main", "reference", "taglines", "episodes", "parental_guide"
+]
+TitleUpdatePage: TypeAlias = Literal[
+    "main", "reference", "taglines", "episodes", "akas", "parental_guide"
+]
 
 
-def get_title(imdb_id: str, *, page: TitlePage = "reference",
-              **kwargs) -> model.Title | None:
+def get_title(
+    imdb_id: str, *, page: TitlePage = "reference", **kwargs
+) -> model.Title | None:
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": imdb_id} | kwargs)
     try:
@@ -67,18 +72,29 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
         if e.status == HTTPStatus.NOT_FOUND:
             return None
         raise e  # pragma: no cover
-    data = piculet.scrape(document, doctype=spec.doctype, rules=spec.rules,
-                          pre=spec.pre, post=spec.post)
+    data = piculet.scrape(
+        document,
+        doctype=spec.doctype,
+        rules=spec.rules,
+        pre=spec.pre,
+        post=spec.post,
+    )
     return piculet.deserialize(data, model.Title)
 
 
-def update_title(title: model.Title, /, *, page: TitleUpdatePage,
-                 keys: list[str], **kwargs) -> None:
+def update_title(
+    title: model.Title, /, *, page: TitleUpdatePage, keys: list[str], **kwargs
+) -> None:
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
     document = fetch(url, key=f"title_{title.imdb_id}_{page}.{spec.doctype}")
-    data = piculet.scrape(document, doctype=spec.doctype, rules=spec.rules,
-                          pre=spec.pre, post=spec.post)
+    data = piculet.scrape(
+        document,
+        doctype=spec.doctype,
+        rules=spec.rules,
+        pre=spec.pre,
+        post=spec.post,
+    )
     for key in keys:
         value = data.get(key)
         if value is None:
