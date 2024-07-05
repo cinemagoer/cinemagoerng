@@ -16,7 +16,7 @@
 import html
 import json
 import re
-from typing import TypedDict, Any
+from typing import Any, TypedDict
 
 from .piculet import (
     MapNode,
@@ -25,9 +25,7 @@ from .piculet import (
     Transformer,
     TreeNode,
     TreePath,
-    deserialize,
 )
-from . import model, piculet
 
 
 def parse_next_data(root: TreeNode) -> MapNode:
