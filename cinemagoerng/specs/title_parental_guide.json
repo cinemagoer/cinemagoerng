@@ -11,26 +11,32 @@
 	  }
 	},
 	{
-      "key": "type_id",
-      "extractor": {
-        "path": "normalize-space(//div[@div='quicklinks']//span[@class='nobr']/text())",
-        "transforms": ["type_id"]
-      }
-    },
-    {
-      "key": "title",
-      "extractor": {
-        "path": "//h3[@itemprop='name']/a/text()",
-        "transforms": ["strip"]
-      }
-    },
+	  "key": "type_id",
+	  "extractor": {
+		"path": "normalize-space(//div[@div='quicklinks']//span[@class='nobr']/text())",
+		"transforms": [
+		  "type_id"
+		]
+	  }
+	},
 	{
-      "key": "__dict__",
-      "extractor": {
-        "path": "translate(normalize-space(//h3[@itemprop='name']//span/text()), '()', '')",
-        "transforms": ["year_range"]
-      }
-    },
+	  "key": "title",
+	  "extractor": {
+		"path": "//h3[@itemprop='name']/a/text()",
+		"transforms": [
+		  "strip"
+		]
+	  }
+	},
+	{
+	  "key": "__dict__",
+	  "extractor": {
+		"path": "translate(normalize-space(//h3[@itemprop='name']//span/text()), '()', '')",
+		"transforms": [
+		  "year_range"
+		]
+	  }
+	},
 	{
 	  "key": "certification",
 	  "extractor": {
@@ -62,7 +68,9 @@
 				  "key": "attribute",
 				  "extractor": {
 					"path": "substring-after(.//text()[2], ' ')",
-					"transforms": ["strip"]
+					"transforms": [
+					  "strip"
+					]
 				  }
 				}
 			  ]
@@ -73,10 +81,14 @@
 	},
 	{
 	  "key": "advisories",
-	  "transforms": ["flatten_list_of_dicts"],
+	  "transforms": [
+		"flatten_list_of_dicts"
+	  ],
 	  "extractor": {
 		"foreach": "//section[starts-with(@id, 'advisory-')]",
-		"transforms": ["make_dict"],
+		"transforms": [
+		  "make_dict"
+		],
 		"rules": [
 		  {
 			"key": "key",
@@ -92,7 +104,9 @@
 				  "key": "details",
 				  "extractor": {
 					"foreach": ".//li[@class='ipl-zebra-list__item']",
-					"transforms": ["extract_value"],
+					"transforms": [
+					  "extract_value"
+					],
 					"rules": [
 					  {
 						"key": "value",
@@ -111,10 +125,14 @@
 				},
 				{
 				  "key": "votes",
-				  "transforms": ["flatten_list_of_dicts"],
+				  "transforms": [
+					"flatten_list_of_dicts"
+				  ],
 				  "extractor": {
 					"foreach": ".//span[@class='ipl-vote-button']",
-					"transforms": ["make_dict"],
+					"transforms": [
+					  "make_dict"
+					],
 					"rules": [
 					  {
 						"key": "key",
@@ -141,5 +159,7 @@
 	  }
 	}
   ],
-  "post": ["unpack_dicts"]
+  "post": [
+	"unpack_dicts"
+  ]
 }
