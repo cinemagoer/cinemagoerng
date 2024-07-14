@@ -44,10 +44,12 @@ def remove_see_more(root: TreeNode) -> TreeNode:
 
 
 def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
-    registry.update({
-        "parse_next_data": parse_next_data,
-        "remove_see_more": remove_see_more,
-    })
+    registry.update(
+        {
+            "parse_next_data": parse_next_data,
+            "remove_see_more": remove_see_more,
+        }
+    )
 
 
 def unpack_dicts(data):
@@ -76,11 +78,13 @@ def set_plot_langs(data):
 
 
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
-    registry.update({
-        "unpack_dicts": unpack_dicts,
-        "generate_episode_map": generate_episode_map,
-        "set_plot_langs": set_plot_langs,
-    })
+    registry.update(
+        {
+            "unpack_dicts": unpack_dicts,
+            "generate_episode_map": generate_episode_map,
+            "set_plot_langs": set_plot_langs,
+        }
+    )
 
 
 class DateDict(TypedDict):
@@ -98,8 +102,20 @@ def make_date(x: DateDict) -> str | None:
     return f"{year}-{month:02}-{day:02}"
 
 
-_month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+_month_names = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+]
 _month_nums = {m: (i + 1) for i, m in enumerate(_month_names)}
 
 
@@ -148,7 +164,7 @@ def parse_runtime(value: str) -> int:
 
 
 def parse_vote_count(value: str) -> int:
-    return int(value[1:-1].replace(",", ""))   # remove parens around value
+    return int(value[1:-1].replace(",", ""))  # remove parens around value
 
 
 def parse_ranking(value: str) -> int:
@@ -216,24 +232,26 @@ def parse_episode_number(value: str) -> str:
 
 
 def update_transformers(registry: dict[str, Transformer]) -> None:
-    registry.update({
-        "date": make_date,
-        "text_date": parse_text_date,
-        "unescape": html.unescape,
-        "div60": lambda x: x // 60,
-        "href_id": parse_href_id,
-        "type_id": parse_type_id,
-        "year_range": parse_year_range,
-        "country_code": parse_country_code,
-        "language_code": parse_language_code,
-        "runtime": parse_runtime,
-        "vote_count": parse_vote_count,
-        "ranking": parse_ranking,
-        "locale": parse_locale,
-        "credit_section_id": parse_credit_section_id,
-        "credit_info": parse_credit_info,
-        "episode_series_title": parse_episode_series_title,
-        "episode_count": parse_episode_count,
-        "season_number": parse_season_number,
-        "episode_number": parse_episode_number,
-    })
+    registry.update(
+        {
+            "date": make_date,
+            "text_date": parse_text_date,
+            "unescape": html.unescape,
+            "div60": lambda x: x // 60,
+            "href_id": parse_href_id,
+            "type_id": parse_type_id,
+            "year_range": parse_year_range,
+            "country_code": parse_country_code,
+            "language_code": parse_language_code,
+            "runtime": parse_runtime,
+            "vote_count": parse_vote_count,
+            "ranking": parse_ranking,
+            "locale": parse_locale,
+            "credit_section_id": parse_credit_section_id,
+            "credit_info": parse_credit_info,
+            "episode_series_title": parse_episode_series_title,
+            "episode_count": parse_episode_count,
+            "season_number": parse_season_number,
+            "episode_number": parse_episode_number,
+        }
+    )

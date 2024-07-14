@@ -223,7 +223,16 @@ class TVSpecial(_TimedTitle):
     type_id: Literal["tvSpecial"] = "tvSpecial"
 
 
-Title: TypeAlias = Movie | TVMovie | ShortMovie | TVShortMovie \
-                 | VideoMovie | MusicVideo | VideoGame \
-                 | TVSeries | TVMiniSeries | TVEpisode \
-                 | TVSpecial  # noqa: E126
+Title: TypeAlias = (
+    Movie
+    | TVMovie
+    | ShortMovie
+    | TVShortMovie
+    | VideoMovie
+    | MusicVideo
+    | VideoGame
+    | TVSeries
+    | TVMiniSeries
+    | TVEpisode
+    | TVSpecial
+)
