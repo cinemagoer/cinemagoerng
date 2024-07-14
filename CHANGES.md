@@ -1,5 +1,9 @@
 # CHANGES
 
+## 0.4 (unreleased)
+
+- Add support for parsing parental guidance pages (@mhdzumair).
+
 ## 0.3 (unreleased)
 
 - Add support for extracting data from GraphQL (@mhdzumair).
