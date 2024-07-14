@@ -286,4 +286,4 @@ Title: TypeAlias = (
     | TVMiniSeries
     | TVEpisode
     | TVSpecial
-)  # noqa: E126
+)

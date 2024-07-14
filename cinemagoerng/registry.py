@@ -241,9 +241,7 @@ def extract_value(value: dict) -> str:
 
 
 def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
-    """
-    Convert a list of dictionaries to a single dictionary.
-    """
+    """Convert a list of dictionaries to a single dictionary."""
     return {k: v for d in value for k, v in d.items()}
 
 

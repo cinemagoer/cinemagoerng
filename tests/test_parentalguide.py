@@ -3,8 +3,10 @@ import pytest
 from cinemagoerng import web
 
 
-@pytest.mark.parametrize(("imdb_id", "nudity_status", "mpaa_rating"), [
-    (
+@pytest.mark.parametrize(
+    ("imdb_id", "nudity_status", "mpaa_rating"),
+    [
+        (
             "tt0133093",  # The Matrix
             "Mild",
             "Rated R for sci-fi violence and brief language",
