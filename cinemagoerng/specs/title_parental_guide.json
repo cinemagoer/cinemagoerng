@@ -4,162 +4,162 @@
   "doctype": "html",
   "path_type": "xpath",
   "rules": [
-	{
-	  "key": "imdb_id",
-	  "extractor": {
-		"path": "//meta[@property='pageId']/@content"
-	  }
-	},
-	{
-	  "key": "type_id",
-	  "extractor": {
-		"path": "normalize-space(//div[@div='quicklinks']//span[@class='nobr']/text())",
-		"transforms": [
-		  "type_id"
-		]
-	  }
-	},
-	{
-	  "key": "title",
-	  "extractor": {
-		"path": "//h3[@itemprop='name']/a/text()",
-		"transforms": [
-		  "strip"
-		]
-	  }
-	},
-	{
-	  "key": "__dict__",
-	  "extractor": {
-		"path": "translate(normalize-space(//h3[@itemprop='name']//span/text()), '()', '')",
-		"transforms": [
-		  "year_range"
-		]
-	  }
-	},
-	{
-	  "key": "certification",
-	  "extractor": {
-		"rules": [
-		  {
-			"key": "mpaa",
-			"extractor": {
-			  "path": "//tr[@id='mpaa-rating']/td[2]//text()"
-			}
-		  },
-		  {
-			"key": "certificates",
-			"extractor": {
-			  "foreach": "//tr[@id='certifications-list']//li",
-			  "rules": [
-				{
-				  "key": "country",
-				  "extractor": {
-					"path": "substring-before(.//a/text(), ':')"
-				  }
-				},
-				{
-				  "key": "certificate",
-				  "extractor": {
-					"path": "substring-after(.//a/text(), ':')"
-				  }
-				},
-				{
-				  "key": "attribute",
-				  "extractor": {
-					"path": "substring-after(.//text()[2], ' ')",
-					"transforms": [
-					  "strip"
-					]
-				  }
-				}
-			  ]
-			}
-		  }
-		]
-	  }
-	},
-	{
-	  "key": "advisories",
-	  "transforms": [
-		"flatten_list_of_dicts"
-	  ],
-	  "extractor": {
-		"foreach": "//section[starts-with(@id, 'advisory-')]",
-		"transforms": [
-		  "make_dict"
-		],
-		"rules": [
-		  {
-			"key": "key",
-			"extractor": {
-			  "path": "translate(substring-after(./@id, 'advisory-'), '-', '_')"
-			}
-		  },
-		  {
-			"key": "value",
-			"extractor": {
-			  "rules": [
-				{
-				  "key": "details",
-				  "extractor": {
-					"foreach": ".//li[@class='ipl-zebra-list__item']",
-					"transforms": [
-					  "extract_value"
-					],
-					"rules": [
-					  {
-						"key": "value",
-						"extractor": {
-						  "path": "normalize-space(.//text())"
-						}
-					  }
-					]
-				  }
-				},
-				{
-				  "key": "status",
-				  "extractor": {
-					"path": "normalize-space(.//span[contains(@class, 'ipl-status-pill')]/text())"
-				  }
-				},
-				{
-				  "key": "votes",
-				  "transforms": [
-					"flatten_list_of_dicts"
-				  ],
-				  "extractor": {
-					"foreach": ".//span[@class='ipl-vote-button']",
-					"transforms": [
-					  "make_dict"
-					],
-					"rules": [
-					  {
-						"key": "key",
-						"extractor": {
-						  "path": "./button/@value"
-						}
-					  },
-					  {
-						"key": "value",
-						"extractor": {
-						  "path": "translate(.//span/text(), ',', '')",
-						  "transforms": [
-							"int"
-						  ]
-						}
-					  }
-					]
-				  }
-				}
-			  ]
-			}
-		  }
-		]
-	  }
-	}
+    {
+      "key": "imdb_id",
+      "extractor": {
+        "path": "//meta[@property='pageId']/@content"
+      }
+    },
+    {
+      "key": "type_id",
+      "extractor": {
+        "path": "normalize-space(//div[@div='quicklinks']//span[@class='nobr']/text())",
+        "transforms": [
+          "type_id"
+        ]
+      }
+    },
+    {
+      "key": "title",
+      "extractor": {
+        "path": "//h3[@itemprop='name']/a/text()",
+        "transforms": [
+          "strip"
+        ]
+      }
+    },
+    {
+      "key": "__dict__",
+      "extractor": {
+        "path": "translate(normalize-space(//h3[@itemprop='name']//span/text()), '()', '')",
+        "transforms": [
+          "year_range"
+        ]
+      }
+    },
+    {
+      "key": "certification",
+      "extractor": {
+        "rules": [
+          {
+            "key": "mpaa",
+            "extractor": {
+              "path": "//tr[@id='mpaa-rating']/td[2]//text()"
+            }
+          },
+          {
+            "key": "certificates",
+            "extractor": {
+              "foreach": "//tr[@id='certifications-list']//li",
+              "rules": [
+                {
+                  "key": "country",
+                  "extractor": {
+                    "path": "substring-before(.//a/text(), ':')"
+                  }
+                },
+                {
+                  "key": "certificate",
+                  "extractor": {
+                    "path": "substring-after(.//a/text(), ':')"
+                  }
+                },
+                {
+                  "key": "attribute",
+                  "extractor": {
+                    "path": "substring-after(.//text()[2], ' ')",
+                    "transforms": [
+                      "strip"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "advisories",
+      "transforms": [
+        "flatten_list_of_dicts"
+      ],
+      "extractor": {
+        "foreach": "//section[starts-with(@id, 'advisory-')]",
+        "transforms": [
+          "make_dict"
+        ],
+        "rules": [
+          {
+            "key": "key",
+            "extractor": {
+              "path": "translate(substring-after(./@id, 'advisory-'), '-', '_')"
+            }
+          },
+          {
+            "key": "value",
+            "extractor": {
+              "rules": [
+                {
+                  "key": "details",
+                  "extractor": {
+                    "foreach": ".//li[@class='ipl-zebra-list__item']",
+                    "transforms": [
+                      "extract_value"
+                    ],
+                    "rules": [
+                      {
+                        "key": "value",
+                        "extractor": {
+                          "path": "normalize-space(.//text())"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "status",
+                  "extractor": {
+                    "path": "normalize-space(.//span[contains(@class, 'ipl-status-pill')]/text())"
+                  }
+                },
+                {
+                  "key": "votes",
+                  "transforms": [
+                    "flatten_list_of_dicts"
+                  ],
+                  "extractor": {
+                    "foreach": ".//span[@class='ipl-vote-button']",
+                    "transforms": [
+                      "make_dict"
+                    ],
+                    "rules": [
+                      {
+                        "key": "key",
+                        "extractor": {
+                          "path": "./button/@value"
+                        }
+                      },
+                      {
+                        "key": "value",
+                        "extractor": {
+                          "path": "translate(.//span/text(), ',', '')",
+                          "transforms": [
+                            "int"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
   ],
   "post": [
-	"unpack_dicts"
+    "unpack_dicts"
   ]
 }
