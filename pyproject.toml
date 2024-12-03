@@ -16,7 +16,7 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
@@ -31,11 +31,22 @@ classifiers = [
 ]
 
 requires-python = "~=3.10"
-dependencies = ["typedload", "lxml", "jmespath"]
+dependencies = [
+    "typedload",
+    "lxml",
+    "jmespath",
+]
 
 [project.optional-dependencies]
-tests = ["pytest", "pytest-cov"]
-types = ["mypy", "lxml-stubs", "types-jmespath"]
+tests = [
+    "pytest",
+    "pytest-cov",
+]
+types = [
+    "mypy",
+    "lxml-stubs",
+    "types-jmespath",
+]
 style = ["ruff"]
 dev = [
     "cinemagoerng[tests,types,style]",

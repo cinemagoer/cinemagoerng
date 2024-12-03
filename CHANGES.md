@@ -2,6 +2,7 @@
 
 ## 0.4 (unreleased)
 
+- Change license to GPL v3 or later.
 - Add support for parsing parental guidance pages (@mhdzumair).
 
 ## 0.3 (unreleased)
