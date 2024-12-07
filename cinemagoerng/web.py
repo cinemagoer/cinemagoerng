@@ -68,7 +68,9 @@ def get_title(
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": imdb_id} | kwargs)
     try:
-        document = fetch(url, key=f"title_{imdb_id}_{page}.{spec.doctype}")
+        document = fetch(
+            url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs
+        )
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
@@ -88,7 +90,13 @@ def update_title(
 ) -> None:
     spec = _spec(f"title_{page}")
     url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
-    document = fetch(url, key=f"title_{title.imdb_id}_{page}.{spec.doctype}")
+    document = document = fetch(
+        url,
+        imdb_id=title.imdb_id,
+        page=page,
+        doc_type=spec.doctype,
+        **kwargs,
+    )
     data = piculet.scrape(
         document,
         doctype=spec.doctype,
