@@ -244,6 +244,7 @@ class TVEpisode(_TimedTitle):
     season: str | None = None
     episode: str | None = None
     release_date: date | None = None
+    year: int | None = None
     previous_episode: str | None = None
     next_episode: str | None = None
 
@@ -257,6 +258,22 @@ class _TVSeriesBase(_TimedTitle):
     episode_count: int | None = None
     episodes: EpisodeMap = field(default_factory=dict)
     creators: list[Credit] = field(default_factory=list)
+
+    def get_episodes_by_season(self, season: str) -> list[TVEpisode]:
+        return list(self.episodes.get(season, {}).values())
+
+    def get_episodes_by_year(self, year: int) -> list[TVEpisode]:
+        return [ep for season in self.episodes.values() for ep in season.values() if ep.year == year]
+
+    def get_episode(self, season: str, episode: str) -> TVEpisode | None:
+        return self.episodes.get(season, {}).get(episode)
+
+    def add_episodes(self, new_episodes: list[TVEpisode]) -> None:
+        for ep in new_episodes:
+            if ep.episode not in self.episodes.get(ep.season, {}):
+                if ep.season not in self.episodes:
+                    self.episodes[ep.season] = {}
+                self.episodes[ep.season][ep.episode] = ep
 
 
 @dataclass(kw_only=True)
