@@ -146,11 +146,13 @@ def parse_type_id(value: str) -> str:
 
 
 def parse_year_range(value: str) -> dict[str, int]:
-    split_char = "–" if "–" in value else "-"
-    tokens = value.strip().split(split_char)
-    data = {"year": int(tokens[0])}
-    if (len(tokens) > 1) and len(tokens[1]) > 0:
-        data["end_year"] = int(tokens[1])
+    pattern = re.compile(r'\d{4}')
+    year_values = pattern.findall(value)
+    if not year_values:
+        return {}
+    data = {"year": int(year_values[0])}
+    if len(year_values) > 1:
+        data["end_year"] = int(year_values[1])
     return data
 
 
