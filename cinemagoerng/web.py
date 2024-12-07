@@ -29,7 +29,7 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def fetch(url: str, /, key: str | None = None) -> str:
+def fetch(url: str, **kwargs) -> str:
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
     if "graphql" in url:
@@ -58,7 +58,13 @@ TitlePage: TypeAlias = Literal[
     "main", "reference", "taglines", "episodes", "parental_guide"
 ]
 TitleUpdatePage: TypeAlias = Literal[
-    "main", "reference", "taglines", "episodes", "akas", "parental_guide"
+    "main",
+    "reference",
+    "taglines",
+    "episodes",
+    "episodes_with_pagination",
+    "akas",
+    "parental_guide",
 ]
 
 
@@ -66,7 +72,14 @@ def get_title(
     imdb_id: str, *, page: TitlePage = "reference", **kwargs
 ) -> model.Title | None:
     spec = _spec(f"title_{page}")
-    url = spec.url % ({"imdb_id": imdb_id} | kwargs)
+    url_params = {"imdb_id": imdb_id} | spec.url_default_params | kwargs
+
+    # Apply URL transform if specified
+    if spec.url_transform:
+        url = spec.url_transform.apply({"url": spec.url, "params": url_params})
+    else:
+        url = spec.url % url_params
+
     try:
         document = fetch(
             url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs
@@ -86,16 +99,25 @@ def get_title(
 
 
 def update_title(
-    title: model.Title, /, *, page: TitleUpdatePage, keys: list[str], **kwargs
+    title: model.Title,
+    /,
+    *,
+    page: TitleUpdatePage,
+    keys: list[str],
+    paginate: bool = False,
+    **kwargs,
 ) -> None:
     spec = _spec(f"title_{page}")
-    url = spec.url % ({"imdb_id": title.imdb_id} | kwargs)
-    document = document = fetch(
-        url,
-        imdb_id=title.imdb_id,
-        page=page,
-        doc_type=spec.doctype,
-        **kwargs,
+    url_params = {"imdb_id": title.imdb_id} | spec.url_default_params | kwargs
+
+    # Apply URL transform if specified
+    if spec.url_transform:
+        url = spec.url_transform.apply({"url": spec.url, "params": url_params})
+    else:
+        url = spec.url % url_params
+
+    document = fetch(
+        url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs
     )
     data = piculet.scrape(
         document,
@@ -109,8 +131,12 @@ def update_title(
         if value is None:
             continue
         if key == "episodes":
-            value = piculet.deserialize(value, model.EpisodeMap)
-            title.episodes.update(value)
+            if isinstance(value, dict):
+                value = piculet.deserialize(value, model.EpisodeMap)
+                title.episodes.update(value)
+            else:
+                value = piculet.deserialize(value, list[model.TVEpisode])
+                title.add_episodes(value)
         elif key == "akas":
             value = [piculet.deserialize(aka, model.AKA) for aka in value]
             title.akas.extend(value)
@@ -122,3 +148,13 @@ def update_title(
             setattr(title, key, value)
         else:
             setattr(title, key, value)
+
+    if paginate and data.get("has_next_page", False):
+        kwargs["after"] = f'"{data["end_cursor"]}"'
+        update_title(
+            title,
+            page=page,
+            keys=keys,
+            paginate=paginate,
+            **kwargs,
+        )

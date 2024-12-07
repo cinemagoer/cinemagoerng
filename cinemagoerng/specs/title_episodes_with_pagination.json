@@ -1,0 +1,149 @@
+{
+  "version": "20240703",
+  "url": "https://caching.graphql.imdb.com/?operationName=TitleEpisodesSubPagePagination&variables=%(variables)s&extensions=%(extensions)s",
+  "url_default_params": {
+    "after": "null",
+    "filter_type": "season",
+    "season": "1"
+  },
+  "url_transform": "build_episode_graphql_url",
+  "doctype": "json",
+  "path_type": "jmespath",
+  "rules": [
+    {
+      "key": "episodes",
+      "extractor": {
+        "foreach": "data.title.episodes.episodes.edges[*].node",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "id"
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "titleText.text"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "titleType.id"
+            }
+          },
+          {
+            "key": "season",
+            "extractor": {
+              "path": "series.displayableEpisodeNumber.displayableSeason.displayableProperty.value.plainText"
+            }
+          },
+          {
+            "key": "episode",
+            "extractor": {
+              "path": "series.displayableEpisodeNumber.episodeNumber.displayableProperty.value.plainText"
+            }
+          },
+          {
+            "key": "year",
+            "extractor": {
+              "path": "releaseDate.year"
+            }
+          },
+          {
+            "key": "release_date",
+            "extractor": {
+              "rules": [
+                {
+                  "key": "year",
+                  "extractor": {
+                    "path": "releaseDate.year"
+                  }
+                },
+                {
+                  "key": "month",
+                  "extractor": {
+                    "path": "releaseDate.month"
+                  }
+                },
+                {
+                  "key": "day",
+                  "extractor": {
+                    "path": "releaseDate.day"
+                  }
+                }
+              ],
+              "transforms": [
+                "date"
+              ]
+            }
+          },
+          {
+            "key": "_plot",
+            "extractor": {
+              "path": "plot.plotText.plaidHtml",
+              "transforms": [
+                "unescape"
+              ]
+            }
+          },
+          {
+            "key": "rating",
+            "extractor": {
+              "path": "ratingsSummary.aggregateRating",
+              "transforms": [
+                "decimal"
+              ]
+            }
+          },
+          {
+            "key": "vote_count",
+            "extractor": {
+              "path": "ratingsSummary.voteCount"
+            }
+          },
+          {
+            "key": "primary_image",
+            "extractor": {
+              "path": "primaryImage.url"
+            }
+          },
+          {
+            "key": "image_height",
+            "extractor": {
+              "path": "primaryImage.height"
+            }
+          },
+          {
+            "key": "image_width",
+            "extractor": {
+              "path": "primaryImage.width"
+            }
+          },
+          {
+            "key": "image_caption",
+            "extractor": {
+              "path": "primaryImage.caption.plainText"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "has_next_page",
+      "extractor": {
+        "path": "data.title.episodes.episodes.pageInfo.hasNextPage"
+      }
+    },
+    {
+      "key": "end_cursor",
+      "extractor": {
+        "path": "data.title.episodes.episodes.pageInfo.endCursor"
+      }
+    }
+  ],
+  "post": [
+    "set_plot_langs"
+  ]
+}

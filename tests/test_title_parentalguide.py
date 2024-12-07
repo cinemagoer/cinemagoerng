@@ -45,7 +45,7 @@ def test_title_update_certificate(imdb_id, nudity_status, certificate_data):
     web.update_title(parsed, page="parental_guide", keys=["certification", "advisories"])
 
     assert parsed.advisories.nudity.status == nudity_status
-    specific_certificates = [
+    us_certificates = [
         certificate for certificate in parsed.certification.certificates if certificate.country == certificate_data[0]
     ]
-    assert specific_certificates[0].certificate == certificate_data[1]
+    assert us_certificates[0].certificate == certificate_data[1]
