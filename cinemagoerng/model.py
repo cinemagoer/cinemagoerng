@@ -134,8 +134,8 @@ class _Title:
     plot_summaries: list[dict[str, str]] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
     akas: list[AKA] = field(default_factory=list)
-    certification: Certification | None = None
-    advisories: Advisories | None = None
+    certification: Certification = field(default_factory=Certification)
+    advisories: Advisories = field(default_factory=Advisories)
 
     rating: Decimal | None = None
     vote_count: int = 0
