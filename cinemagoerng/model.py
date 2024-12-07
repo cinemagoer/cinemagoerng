@@ -263,7 +263,12 @@ class _TVSeriesBase(_TimedTitle):
         return list(self.episodes.get(season, {}).values())
 
     def get_episodes_by_year(self, year: int) -> list[TVEpisode]:
-        return [ep for season in self.episodes.values() for ep in season.values() if ep.year == year]
+        return [
+            ep
+            for season in self.episodes.values()
+            for ep in season.values()
+            if ep.year == year
+        ]
 
     def get_episode(self, season: str, episode: str) -> TVEpisode | None:
         return self.episodes.get(season, {}).get(episode)

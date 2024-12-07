@@ -82,7 +82,11 @@ def set_plot_langs(data):
 
     # Flatten episodes if it's a dictionary of seasons
     if not isinstance(episodes, list):
-        episodes = [episode for season in episodes.values() for episode in season.values()]
+        episodes = [
+            episode
+            for season in episodes.values()
+            for episode in season.values()
+        ]
 
     # Update plot language for each episode
     for episode in episodes:
@@ -157,7 +161,7 @@ def parse_type_id(value: str) -> str:
 
 
 def parse_year_range(value: str) -> dict[str, int]:
-    pattern = re.compile(r'\d{4}')
+    pattern = re.compile(r"\d{4}")
     year_values = pattern.findall(value)
     if not year_values:
         return {}
