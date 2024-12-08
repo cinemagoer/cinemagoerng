@@ -198,11 +198,26 @@ def test_title_parser_should_not_set_runtime_for_video_games(page, imdb_id):
             "tt0109151",
             ["Animation", "Action", "Drama", "Sci-Fi", "Thriller"],
         ),  # Armitage III: Poly-Matrix (Video Movie)
-        ("tt7045440", ["Short", "Music"]),  # David Bowie: Ziggy Stardust (Music Video)
-        ("tt0390244", ["Action", "Adventure", "Sci-Fi"]),  # The Matrix Online (Video Game)
-        ("tt0436992", ["Adventure", "Drama", "Sci-Fi"]),  # Doctor Who (TV Series)
-        ("tt0185906", ["Drama", "History", "War"]),  # Band of Brothers (TV Mini-Series)
-        ("tt1000252", ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
+        (
+            "tt7045440",
+            ["Short", "Music"],
+        ),  # David Bowie: Ziggy Stardust (Music Video)
+        (
+            "tt0390244",
+            ["Action", "Adventure", "Sci-Fi"],
+        ),  # The Matrix Online (Video Game)
+        (
+            "tt0436992",
+            ["Adventure", "Drama", "Sci-Fi"],
+        ),  # Doctor Who (TV Series)
+        (
+            "tt0185906",
+            ["Action", "Drama", "History", "War"],
+        ),  # Band of Brothers (TV Mini-Series)
+        (
+            "tt1000252",
+            ["Adventure", "Drama", "Sci-Fi"],
+        ),  # Blink (TV Series Episode)
         ("tt0261024", ["Documentary", "Music"]),  # Live Aid
     ],
 )
