@@ -19,9 +19,19 @@ import json
 from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Literal, Optional, TypeAlias
 from urllib.error import HTTPError
-from urllib.request import Request, urlopen
+from urllib.parse import urlparse
+from urllib.request import ProxyHandler, Request, build_opener, urlopen
+
+
+try:
+    import socks
+    from sockshandler import SocksiPyHandler
+
+    SOCKS_AVAILABLE = True
+except ImportError:
+    SOCKS_AVAILABLE = False
 
 from . import model, piculet, registry
 
@@ -29,12 +39,103 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def fetch(url: str, **kwargs) -> str:
+def _parse_proxy_url(proxy_url: str) -> tuple[str, str, int, Optional[str], Optional[str]]:
+    """Parse proxy URL into components.
+
+    Args:
+        proxy_url: Proxy URL in format [scheme://][user:pass@]hostname:port
+
+    Returns:
+        Tuple of (proxy_type, host, port, username, password)
+
+    Raises:
+        ValueError: If URL format is invalid
+    """
+    parsed = urlparse(proxy_url)
+
+    # Handle scheme
+    if parsed.scheme:
+        proxy_type = parsed.scheme.lower()
+    else:
+        proxy_type = "http"
+
+    if proxy_type not in ("http", "socks4", "socks5"):
+        raise ValueError(f"Unsupported proxy type: {proxy_type}")
+
+    # Handle auth
+    username = None
+    password = None
+    if "@" in parsed.netloc:
+        auth, host_port = parsed.netloc.split("@", 1)
+        if ":" in auth:
+            username, password = auth.split(":", 1)
+    else:
+        host_port = parsed.netloc
+
+    # Handle host/port
+    if ":" not in host_port:
+        raise ValueError("Proxy URL must include port number")
+
+    host, port_str = host_port.rsplit(":", 1)
+    try:
+        port = int(port_str)
+    except ValueError:
+        raise ValueError(f"Invalid port number: {port_str}")
+
+    return proxy_type, host, port, username, password
+
+
+def fetch(url: str, proxy_url: Optional[str] = None, **kwargs) -> str:
+    """
+    Fetch content from a URL with optional proxy support.
+
+    Args:
+        url: The URL to fetch
+        proxy_url: Optional proxy URL in format [scheme://][user:pass@]hostname:port
+                  Supported schemes: http, socks4, socks5
+        **kwargs: Additional keyword arguments
+
+    Returns:
+        str: The decoded content from the URL
+
+    Raises:
+        ImportError: If SOCKS proxy is requested but PySocks is not installed
+        ValueError: If invalid proxy configuration is provided
+    """
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
     if "graphql" in url:
         request.add_header("Content-Type", "application/json")
-    with urlopen(request) as response:
+
+    opener = None
+    if proxy_url is not None:
+        proxy_type, host, port, username, password = _parse_proxy_url(proxy_url)
+
+        if proxy_type == "http":
+            proxy_dict = {}
+            auth = ""
+            if username and password:
+                auth = f"{username}:{password}@"
+            proxy_url = f"http://{auth}{host}:{port}"
+            proxy_dict = {"http": proxy_url, "https": proxy_url}
+            opener = build_opener(ProxyHandler(proxy_dict))
+        else:  # socks4 or socks5
+            if not SOCKS_AVAILABLE:
+                raise ImportError(
+                    "SOCKS proxy support requires the 'PySocks' package. "
+                    "Install it with: pip install cinemagoerng[socks]"
+                )
+            socks_type = socks.PROXY_TYPE_SOCKS4 if proxy_type == "socks4" else socks.PROXY_TYPE_SOCKS5
+            opener = build_opener(
+                SocksiPyHandler(
+                    proxytype=socks_type, proxyaddr=host, proxyport=port, username=username, password=password
+                )
+            )
+
+    # Use the opener's open method if we have a proxy, otherwise use the default urlopen
+    url_opener = opener.open if opener is not None else urlopen
+
+    with url_opener(request) as response:
         content: bytes = response.read()
     return content.decode("utf-8")
 
@@ -66,7 +167,9 @@ TitleUpdatePage: TypeAlias = Literal[
 ]
 
 
-def get_title(imdb_id: str, *, page: TitlePage = "reference", **kwargs) -> model.Title | None:
+def get_title(
+    imdb_id: str, *, page: TitlePage = "reference", proxy_url: Optional[str] = None, **kwargs
+) -> model.Title | None:
     spec = _spec(f"title_{page}")
     url_params = {"imdb_id": imdb_id} | spec.url_default_params | kwargs
 
@@ -77,7 +180,7 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference", **kwargs) -> model
         url = spec.url % url_params
 
     try:
-        document = fetch(url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs)
+        document = fetch(url, proxy_url=proxy_url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs)
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
@@ -98,19 +201,19 @@ def update_title(
     *,
     page: TitleUpdatePage,
     keys: list[str],
+    proxy_url: Optional[str] = None,
     paginate_result: bool = False,
     **kwargs,
 ) -> None:
     spec = _spec(f"title_{page}")
     url_params = {"imdb_id": title.imdb_id} | spec.url_default_params | kwargs
 
-    # Apply URL transform if specified
     if spec.url_transform:
         url = spec.url_transform.apply({"url": spec.url, "params": url_params})
     else:
         url = spec.url % url_params
 
-    document = fetch(url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs)
+    document = fetch(url, proxy_url=proxy_url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs)
     data = piculet.scrape(
         document,
         doctype=spec.doctype,
@@ -147,6 +250,7 @@ def update_title(
             title,
             page=page,
             keys=keys,
+            proxy_url=proxy_url,
             paginate_result=paginate_result,
             **kwargs,
         )

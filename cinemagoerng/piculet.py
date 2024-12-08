@@ -291,11 +291,11 @@ def scrape(
             root = parse_xml(document)
         case "json":
             root = json.loads(document)
-    if pre is not None:
+    if pre:
         for preprocess in pre:
             root = preprocess.apply(root)
     data = collect(root, rules)
-    if post is not None:
+    if post:
         for postprocess in post:
             postprocess.apply(data)
     return data
