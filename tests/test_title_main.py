@@ -69,7 +69,7 @@ def test_title_parser_should_set_title_from_original_title(page, imdb_id, title)
     [
         (
             "tt0133093",
-            "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_.jpg",
+            "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_.jpg",
         ),  # The Matrix
         ("tt3629794", None),  # Aslan
     ],
@@ -271,7 +271,7 @@ def test_title_parser_should_set_top_ranking(page, imdb_id, rank):
             "tt7045440",
             1,
             [  # David Bowie: Ziggy Stardust
-                ("nm0000309", "David Bowie", "David Bowie", []),
+                ("nm0000309", "David Bowie", "Self", []),
             ],
         ),
         (
