@@ -7,16 +7,16 @@ import cinemagoerng.web
 
 def load_env() -> None:
     """Load environment variables from .env file if it exists."""
-    env_path = Path(__file__).parent.parent / '.env'
+    env_path = Path(__file__).parent.parent / ".env"
     if not env_path.exists():
         return
 
     with open(env_path) as f:
         for line in f:
             line = line.strip()
-            if not line or line.startswith('#'):
+            if not line or line.startswith("#"):
                 continue
-            key, value = line.split('=', 1)
+            key, value = line.split("=", 1)
             os.environ[key.strip()] = value.strip()
 
 
@@ -36,16 +36,16 @@ def fetch_cached(url: str, imdb_id: str, page: str, doc_type: str, **kwargs) -> 
     Cached version of fetch that supports proxy configuration from environment.
     """
     # Get proxy from environment if not explicitly provided
-    proxy_url: Optional[str] = kwargs.get('proxy_url') or os.getenv('IMDB_PROXY_URL')
+    proxy_url: Optional[str] = kwargs.get("proxy_url") or os.getenv("IMDB_PROXY_URL")
     if proxy_url:
-        kwargs['proxy_url'] = proxy_url
+        kwargs["proxy_url"] = proxy_url
     else:
-        kwargs.pop('proxy_url', None)
+        kwargs.pop("proxy_url", None)
 
     # Generate cache key
     key = f"title_{imdb_id}_{page}"
     # Remove proxy from cache key to ensure same cache for proxy/non-proxy
-    extra_args = [f"{k}={v}" for k, v in kwargs.items() if k != 'proxy_url']
+    extra_args = [f"{k}={v}" for k, v in kwargs.items() if k != "proxy_url"]
     key += "_" + "_".join(extra_args) if extra_args else ""
     key += f".{doc_type}"
 
