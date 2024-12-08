@@ -94,7 +94,7 @@ class AdvisoryVotes:
 @dataclass
 class Advisory:
     details: list[str] = field(default_factory=list)
-    status: Literal["None", "Mild", "Moderate", "Severe"] = "None"
+    status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = "Unknown"
     votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
 
 
