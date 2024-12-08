@@ -258,9 +258,12 @@ DocType: TypeAlias = Literal["html", "xml", "json"]
 class Spec:
     version: str
     url: str
+    url_default_params: dict[str, Any] = field(default_factory=dict)
+    url_transform: Transform | None = None
     doctype: DocType
     pre: list[Preprocess] = field(default_factory=list)
     post: list[Postprocess] = field(default_factory=list)
+    rules: list[TreeRule] | list[MapRule]
 
 
 @dataclass(kw_only=True)

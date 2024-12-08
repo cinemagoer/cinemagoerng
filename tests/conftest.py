@@ -11,12 +11,12 @@ if not cache_dir.exists():
 fetch_orig = cinemagoerng.web.fetch
 
 
-def fetch_cached(url, key):
+def fetch_cached(url: str, imdb_id: str, page: str, doc_type: str, **kwargs):
+    key = f"title_{imdb_id}_{page}"
+    extra_args = [f"{k}={v}" for k, v in kwargs.items()]
+    key += "_" + "_".join(extra_args) if extra_args else ""
+    key += f".{doc_type}"
     cache_path = cache_dir / key
-    if "?season=" in url:
-        season = url.split("?season=")[-1]
-        suffix = cache_path.suffix
-        cache_path = cache_path.with_suffix(f".season{season}{suffix}")
     if key == "tt0000001_main.html":
         cache_path.unlink(missing_ok=True)
     if cache_path.exists():

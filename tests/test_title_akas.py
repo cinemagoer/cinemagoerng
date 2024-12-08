@@ -28,3 +28,15 @@ def test_title_akas_parser_should_set_akas(imdb_id, n, akas):
             (aka.title, aka.country_code, aka.country, aka.language_code, aka.language, aka.is_alternative, aka.notes)
             for aka in parsed.akas
         ] == akas
+
+
+@pytest.mark.parametrize(
+    ("imdb_id", "akas_count"),
+    [
+        ("tt0133093", 65),  # The Matrix
+    ],
+)
+def test_title_akas_parser_pagination(imdb_id, akas_count):
+    parsed = web.get_title(imdb_id=imdb_id)
+    web.update_title(parsed, page="akas", keys=["akas"], paginate_result=True)
+    assert len(parsed.akas) == akas_count
