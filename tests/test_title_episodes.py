@@ -129,7 +129,14 @@ def test_title_episodes_parser_should_set_basic_episode_info(imdb_id, season, ep
     assert len(parsed.episodes[season]) == episode_count
     for item in episode_data:
         ep = parsed.episodes[season][item[0]]
-        assert (ep.season, ep.episode, ep.imdb_id, ep.title, ep.year, ep.release_date) == (season,) + item
+        assert (
+            ep.season,
+            ep.episode,
+            ep.imdb_id,
+            ep.title,
+            ep.year,
+            ep.release_date,
+        ) == (season,) + item
 
 
 @pytest.mark.parametrize(
@@ -159,7 +166,12 @@ def test_title_episodes_parser_should_set_vote_count(imdb_id, season, episode, v
 @pytest.mark.parametrize(
     ("imdb_id", "season", "episode", "plot"),
     [
-        ("tt0436992", "3", "10", "Sally Sparrow receives a cryptic message"),  # Doctor Who: Blink
+        (
+            "tt0436992",
+            "3",
+            "10",
+            "Sally Sparrow receives a cryptic message",
+        ),  # Doctor Who: Blink
     ],
 )
 def test_title_episodes_parser_should_set_plot(imdb_id, season, episode, plot):
@@ -272,7 +284,13 @@ def test_updating_episodes_should_accumulate_seasons_with_pagination(imdb_id, ep
 def test_updating_episodes_should_accumulate_year_with_pagination(imdb_id, episode_count_data):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     for count_data in episode_count_data:
-        start_year, end_year, start_year_episode_count, end_year_episode_count, total_episode_count = count_data
+        (
+            start_year,
+            end_year,
+            start_year_episode_count,
+            end_year_episode_count,
+            total_episode_count,
+        ) = count_data
         assert parsed.get_episodes_by_year(start_year) == []
         assert parsed.get_episodes_by_year(end_year) == []
         web.update_title(

@@ -54,9 +54,7 @@ def _spec(page: str, /) -> piculet.Spec:
     return piculet.load_spec(json.loads(content))
 
 
-TitlePage: TypeAlias = Literal[
-    "main", "reference", "taglines", "episodes", "parental_guide"
-]
+TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "parental_guide"]
 TitleUpdatePage: TypeAlias = Literal[
     "main",
     "reference",
@@ -68,9 +66,7 @@ TitleUpdatePage: TypeAlias = Literal[
 ]
 
 
-def get_title(
-    imdb_id: str, *, page: TitlePage = "reference", **kwargs
-) -> model.Title | None:
+def get_title(imdb_id: str, *, page: TitlePage = "reference", **kwargs) -> model.Title | None:
     spec = _spec(f"title_{page}")
     url_params = {"imdb_id": imdb_id} | spec.url_default_params | kwargs
 
@@ -81,9 +77,7 @@ def get_title(
         url = spec.url % url_params
 
     try:
-        document = fetch(
-            url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs
-        )
+        document = fetch(url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs)
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
@@ -116,9 +110,7 @@ def update_title(
     else:
         url = spec.url % url_params
 
-    document = fetch(
-        url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs
-    )
+    document = fetch(url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs)
     data = piculet.scrape(
         document,
         doctype=spec.doctype,

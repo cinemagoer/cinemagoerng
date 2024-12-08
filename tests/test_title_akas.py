@@ -11,8 +11,24 @@ from cinemagoerng import web
             3,
             [  # A Ay
                 ("Луна", "SUHH", "Soviet Union", "ru", "Russian", False, []),
-                ("Oh, Moon!", "US", "United States", None, None, True, ["literal English title"]),
-                ("Oh, Moon!", "XWW", "World-wide", "en", "English", True, ["complete title"]),
+                (
+                    "Oh, Moon!",
+                    "US",
+                    "United States",
+                    None,
+                    None,
+                    True,
+                    ["literal English title"],
+                ),
+                (
+                    "Oh, Moon!",
+                    "XWW",
+                    "World-wide",
+                    "en",
+                    "English",
+                    True,
+                    ["complete title"],
+                ),
             ],
         ),
         ("tt3629794", 0, []),  # Aslan
@@ -25,7 +41,15 @@ def test_title_akas_parser_should_set_akas(imdb_id, n, akas):
     assert len(parsed.akas) == n
     if len(akas) > 0:
         assert [
-            (aka.title, aka.country_code, aka.country, aka.language_code, aka.language, aka.is_alternative, aka.notes)
+            (
+                aka.title,
+                aka.country_code,
+                aka.country,
+                aka.language_code,
+                aka.language,
+                aka.is_alternative,
+                aka.notes,
+            )
             for aka in parsed.akas
         ] == akas
 

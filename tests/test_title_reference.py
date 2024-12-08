@@ -47,7 +47,11 @@ def test_title_parser_should_set_plot(imdb_id, plot, lang):
 @pytest.mark.parametrize(
     ("imdb_id", "plot", "lang"),
     [
-        ("tt0133093", "Thomas A. Anderson is a man living two lives.", "en-US"),  # The Matrix
+        (
+            "tt0133093",
+            "Thomas A. Anderson is a man living two lives.",
+            "en-US",
+        ),  # The Matrix
         ("tt3629794", None, None),  # Aslan
     ],
 )
@@ -103,7 +107,12 @@ def test_title_parser_should_set_bottom_ranking(imdb_id, rank):
                 ("nm0537158", "Louis Mahoney", "Old Billy", []),
                 ("nm1631281", "Thomas Nelstrop", "Ben Wainwright", []),
                 ("nm2286323", "Ian Boldsworth", "Banto", []),
-                ("nm0768205", "Raymond Sawyer", "Desk Sergeant", ["as Ray Sawyer"]),
+                (
+                    "nm0768205",
+                    "Raymond Sawyer",
+                    "Desk Sergeant",
+                    ["as Ray Sawyer"],
+                ),
                 ("nm4495179", "Elen Thomas", "Weeping Angel", ["uncredited"]),
             ],
         ),
@@ -132,23 +141,58 @@ def test_title_reference_parser_should_set_all_cast(imdb_id, n, cast):
             "tt0133093",
             2,
             [  # The Matrix
-                ("nm0905154", "Lana Wachowski", None, ["as The Wachowski Brothers"]),
-                ("nm0905152", "Lilly Wachowski", None, ["as The Wachowski Brothers"]),
+                (
+                    "nm0905154",
+                    "Lana Wachowski",
+                    None,
+                    ["as The Wachowski Brothers"],
+                ),
+                (
+                    "nm0905152",
+                    "Lilly Wachowski",
+                    None,
+                    ["as The Wachowski Brothers"],
+                ),
             ],
         ),
         (
             "tt0092580",
             10,
             [  # Aria
-                ("nm0000265", "Robert Altman", None, ['segment "Les Boréades"']),
-                ("nm0000915", "Bruce Beresford", None, ['segment "Die tote Stadt"']),
+                (
+                    "nm0000265",
+                    "Robert Altman",
+                    None,
+                    ['segment "Les Boréades"'],
+                ),
+                (
+                    "nm0000915",
+                    "Bruce Beresford",
+                    None,
+                    ['segment "Die tote Stadt"'],
+                ),
                 ("nm0117317", "Bill Bryden", None, ['segment "I pagliacci"']),
                 ("nm0000419", "Jean-Luc Godard", None, ['segment "Armide"']),
-                ("nm0418746", "Derek Jarman", None, ['segment "Depuis le jour"']),
+                (
+                    "nm0418746",
+                    "Derek Jarman",
+                    None,
+                    ['segment "Depuis le jour"'],
+                ),
                 ("nm0734466", "Franc Roddam", None, ['segment "Liebestod"']),
-                ("nm0001676", "Nicolas Roeg", None, ['segment "Un ballo in maschera"']),
+                (
+                    "nm0001676",
+                    "Nicolas Roeg",
+                    None,
+                    ['segment "Un ballo in maschera"'],
+                ),
                 ("nm0001692", "Ken Russell", None, ['segment "Nessun dorma"']),
-                ("nm0836430", "Charles Sturridge", None, ['segment "La virgine degli angeli"']),
+                (
+                    "nm0836430",
+                    "Charles Sturridge",
+                    None,
+                    ['segment "La virgine degli angeli"'],
+                ),
                 ("nm0854697", "Julien Temple", None, ['segment "Rigoletto"']),
             ],
         ),
@@ -176,8 +220,18 @@ def test_title_reference_parser_should_set_all_directors(imdb_id, n, directors):
             "tt0133093",
             2,
             [  # The Matrix
-                ("nm0905152", "Lilly Wachowski", None, ["written by", "as The Wachowski Brothers"]),
-                ("nm0905154", "Lana Wachowski", None, ["written by", "as The Wachowski Brothers"]),
+                (
+                    "nm0905152",
+                    "Lilly Wachowski",
+                    None,
+                    ["written by", "as The Wachowski Brothers"],
+                ),
+                (
+                    "nm0905154",
+                    "Lana Wachowski",
+                    None,
+                    ["written by", "as The Wachowski Brothers"],
+                ),
             ],
         ),
         (
@@ -186,7 +240,12 @@ def test_title_reference_parser_should_set_all_directors(imdb_id, n, directors):
             [  # Suspiria
                 ("nm0000783", "Dario Argento", None, ["screenplay"]),
                 ("nm0630453", "Daria Nicolodi", None, ["screenplay"]),
-                ("nm0211063", "Thomas De Quincey", None, ['book "Suspiria de Profundis"', "uncredited"]),
+                (
+                    "nm0211063",
+                    "Thomas De Quincey",
+                    None,
+                    ['book "Suspiria de Profundis"', "uncredited"],
+                ),
             ],
         ),
         ("tt0092580", 10, []),  # Aria
@@ -237,8 +296,18 @@ def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, c
             [  # Blink
                 ("nm2289913", "Charlotte Mitchell", "costume supervisor", []),
                 ("nm2939651", "Sara Morgan", "costume assistant", []),
-                ("nm1574636", "Bobbie Peach", "costume assistant", ["as Bobby Peach"]),
-                ("nm1834907", "Stephen Kill", "costume prop maker", ["uncredited"]),
+                (
+                    "nm1574636",
+                    "Bobbie Peach",
+                    "costume assistant",
+                    ["as Bobby Peach"],
+                ),
+                (
+                    "nm1834907",
+                    "Stephen Kill",
+                    "costume prop maker",
+                    ["uncredited"],
+                ),
             ],
         ),
     ],

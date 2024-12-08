@@ -82,11 +82,7 @@ def set_plot_langs(data):
 
     # Flatten episodes if it's a dictionary of seasons
     if not isinstance(episodes, list):
-        episodes = [
-            episode
-            for season in episodes.values()
-            for episode in season.values()
-        ]
+        episodes = [episode for season in episodes.values() for episode in season.values()]
 
     # Update plot language for each episode
     for episode in episodes:
