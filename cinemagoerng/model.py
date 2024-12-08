@@ -73,13 +73,13 @@ class AKA:
 @dataclass
 class Certificate:
     country: str
-    certificate: str
-    attribute: str | None = None
+    ratings: list[str]
 
 
 @dataclass
 class Certification:
-    mpaa: str | None = None
+    mpa_rating: str | None = "Not Rated"
+    mpa_rating_reason: str | None = None
     certificates: list[Certificate] = field(default_factory=list)
 
 
@@ -92,8 +92,14 @@ class AdvisoryVotes:
 
 
 @dataclass
+class AdvisoryDetail:
+    text: str
+    is_spoiler: bool
+
+
+@dataclass
 class Advisory:
-    details: list[str] = field(default_factory=list)
+    details: list[AdvisoryDetail] = field(default_factory=list)
     status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = "Unknown"
     votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
 
@@ -110,13 +116,6 @@ class Advisories:
     profanity: Advisory = field(default_factory=Advisory)
     alcohol: Advisory = field(default_factory=Advisory)
     frightening: Advisory = field(default_factory=Advisory)
-    spoiler_nudity: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_violence: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_profanity: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_alcohol: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_frightening: SpoilerAdvisory = field(
-        default_factory=SpoilerAdvisory
-    )
 
 
 @dataclass(kw_only=True)
