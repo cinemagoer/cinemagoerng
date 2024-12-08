@@ -11,3 +11,4 @@ dist
 imdb-cache
 .vscode
 .idea
+.env

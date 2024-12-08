@@ -10,7 +10,13 @@ from cinemagoerng import piculet
 @pytest.fixture(scope="module")
 def movie_spec():
     """Empty scraping spec for Piculet tests."""
-    return {"version": "1", "url": "", "doctype": "html", "path_type": "xpath", "rules": []}
+    return {
+        "version": "1",
+        "url": "",
+        "doctype": "html",
+        "path_type": "xpath",
+        "rules": [],
+    }
 
 
 @pytest.fixture(scope="module")
@@ -97,14 +103,26 @@ def test_scrape_should_produce_concatenated_text(movie, movie_spec):
 
 
 def test_scrape_should_produce_concatenated_text_using_given_separator(movie, movie_spec):
-    rule = {"key": "cast_names", "extractor": {"path": '//table[@class="cast"]/tr/td[1]/a/text()', "sep": ", "}}
+    rule = {
+        "key": "cast_names",
+        "extractor": {
+            "path": '//table[@class="cast"]/tr/td[1]/a/text()',
+            "sep": ", ",
+        },
+    }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"cast_names": "Jack Nicholson, Shelley Duvall"}
 
 
 def test_scrape_should_transform_text(movie, movie_spec):
-    rule = {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transforms": ["int"]}}
+    rule = {
+        "key": "year",
+        "extractor": {
+            "path": '//span[@class="year"]/text()',
+            "transforms": ["int"],
+        },
+    }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"year": 1980}
@@ -113,7 +131,13 @@ def test_scrape_should_transform_text(movie, movie_spec):
 def test_scrape_should_produce_multiple_items_for_multiple_rules(movie, movie_spec):
     rules = [
         {"key": "title", "extractor": {"path": "//title/text()"}},
-        {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transforms": ["int"]}},
+        {
+            "key": "year",
+            "extractor": {
+                "path": '//span[@class="year"]/text()',
+                "transforms": ["int"],
+            },
+        },
     ]
     spec = piculet.load_spec(movie_spec | {"rules": rules})
     data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
@@ -131,7 +155,13 @@ def test_scrape_should_exclude_data_for_rules_with_no_result(movie, movie_spec):
 
 
 def test_scrape_should_produce_list_for_multivalued_rule(movie, movie_spec):
-    rule = {"key": "genres", "extractor": {"foreach": '//ul[@class="genres"]/li', "path": "./text()"}}
+    rule = {
+        "key": "genres",
+        "extractor": {
+            "foreach": '//ul[@class="genres"]/li',
+            "path": "./text()",
+        },
+    }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
     assert data == {"genres": ["Horror", "Drama"]}
@@ -169,8 +199,14 @@ def test_scrape_should_produce_subitems_for_subrules(movie, movie_spec):
         "key": "director",
         "extractor": {
             "rules": [
-                {"key": "name", "extractor": {"path": '//div[@class="director"]//a/text()'}},
-                {"key": "link", "extractor": {"path": '//div[@class="director"]//a/@href'}},
+                {
+                    "key": "name",
+                    "extractor": {"path": '//div[@class="director"]//a/text()'},
+                },
+                {
+                    "key": "link",
+                    "extractor": {"path": '//div[@class="director"]//a/@href'},
+                },
             ],
         },
     }

@@ -69,7 +69,7 @@ def test_title_parser_should_set_title_from_original_title(page, imdb_id, title)
     [
         (
             "tt0133093",
-            "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_.jpg",
+            "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_.jpg",
         ),  # The Matrix
         ("tt3629794", None),  # Aslan
     ],
@@ -193,16 +193,34 @@ def test_title_parser_should_not_set_runtime_for_video_games(page, imdb_id):
         ("tt0133093", ["Action", "Sci-Fi"]),  # The Matrix
         ("tt0389150", ["Documentary"]),  # The Matrix Defence
         ("tt2971344", ["Short"]),  # Matrix: First Dream (Short Movie)
-        ("tt0365467", ["Documentary", "Short", "Sci-Fi"]),  # Making 'The Matrix' (TV Short Movie)
+        (
+            "tt0365467",
+            ["Documentary", "Short", "Sci-Fi"],
+        ),  # Making 'The Matrix' (TV Short Movie)
         (
             "tt0109151",
             ["Animation", "Action", "Drama", "Sci-Fi", "Thriller"],
         ),  # Armitage III: Poly-Matrix (Video Movie)
-        ("tt7045440", ["Short", "Music"]),  # David Bowie: Ziggy Stardust (Music Video)
-        ("tt0390244", ["Action", "Adventure", "Sci-Fi"]),  # The Matrix Online (Video Game)
-        ("tt0436992", ["Adventure", "Drama", "Sci-Fi"]),  # Doctor Who (TV Series)
-        ("tt0185906", ["Drama", "History", "War"]),  # Band of Brothers (TV Mini-Series)
-        ("tt1000252", ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
+        (
+            "tt7045440",
+            ["Short", "Music"],
+        ),  # David Bowie: Ziggy Stardust (Music Video)
+        (
+            "tt0390244",
+            ["Action", "Adventure", "Sci-Fi"],
+        ),  # The Matrix Online (Video Game)
+        (
+            "tt0436992",
+            ["Adventure", "Drama", "Sci-Fi"],
+        ),  # Doctor Who (TV Series)
+        (
+            "tt0185906",
+            ["Action", "Drama", "History", "War"],
+        ),  # Band of Brothers (TV Mini-Series)
+        (
+            "tt1000252",
+            ["Adventure", "Drama", "Sci-Fi"],
+        ),  # Blink (TV Series Episode)
         ("tt0261024", ["Documentary", "Music"]),  # Live Aid
     ],
 )
@@ -216,7 +234,11 @@ def test_title_parser_should_set_genres(page, imdb_id, genres):
     ("imdb_id", "plot", "lang"),
     [
         ("tt0133093", "When a beautiful stranger", "en-US"),  # The Matrix
-        ("tt0436992", "The further adventures in time and space", "en-US"),  # Doctor Who
+        (
+            "tt0436992",
+            "The further adventures in time and space",
+            "en-US",
+        ),  # Doctor Who
         ("tt3629794", "Plot undisclosed.", "en-US"),  # Aslan
     ],
 )
@@ -271,7 +293,7 @@ def test_title_parser_should_set_top_ranking(page, imdb_id, rank):
             "tt7045440",
             1,
             [  # David Bowie: Ziggy Stardust
-                ("nm0000309", "David Bowie", "David Bowie", []),
+                ("nm0000309", "David Bowie", "Self", []),
             ],
         ),
         (
@@ -296,7 +318,12 @@ def test_title_parser_should_set_top_ranking(page, imdb_id, rank):
                 ("nm0537158", "Louis Mahoney", "Old Billy", []),
                 ("nm1631281", "Thomas Nelstrop", "Ben Wainwright", []),
                 ("nm2286323", "Ian Boldsworth", "Banto", []),
-                ("nm0768205", "Raymond Sawyer", "Desk Sergeant", ["as Ray Sawyer"]),
+                (
+                    "nm0768205",
+                    "Raymond Sawyer",
+                    "Desk Sergeant",
+                    ["as Ray Sawyer"],
+                ),
                 ("nm4495179", "Elen Thomas", "Weeping Angel", ["uncredited"]),
             ],
         ),
@@ -443,8 +470,16 @@ def test_title_parser_should_set_episode_count(imdb_id, episode_count):
 @pytest.mark.parametrize(
     ("imdb_id", "type_", "series_data"),
     [
-        ("tt1000252", model.TVSeries, ("tt0436992", "Doctor Who")),  # Doctor Who: Blink
-        ("tt1247466", model.TVMiniSeries, ("tt0185906", "Band of Brothers")),  # Band of Brothers: Points
+        (
+            "tt1000252",
+            model.TVSeries,
+            ("tt0436992", "Doctor Who"),
+        ),  # Doctor Who: Blink
+        (
+            "tt1247466",
+            model.TVMiniSeries,
+            ("tt0185906", "Band of Brothers"),
+        ),  # Band of Brothers: Points
     ],
 )
 def test_title_parser_should_set_series_for_episode(page, imdb_id, type_, series_data):

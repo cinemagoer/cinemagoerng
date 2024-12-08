@@ -38,6 +38,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+socks = ["PySocks>=1.7.1"]
 tests = [
     "pytest",
     "pytest-cov",
@@ -79,7 +80,7 @@ show_missing = true
 skip_covered = true
 
 [tool.ruff]
-line-length = 79
+line-length = 120
 
 [tool.ruff.lint]
 select = ["A", "E", "F", "I", "T", "W"]

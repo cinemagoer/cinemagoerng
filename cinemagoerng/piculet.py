@@ -240,9 +240,7 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
     return data if len(data) > 0 else _EMPTY
 
 
-def collect(
-    root: TreeNode | MapNode, rules: list[TreeRule] | list[MapRule]
-) -> MapNode:
+def collect(root: TreeNode | MapNode, rules: list[TreeRule] | list[MapRule]) -> MapNode:
     data: dict[str, Any] = {}
     for rule in rules:
         subdata = extract(root, rule)
@@ -258,9 +256,12 @@ DocType: TypeAlias = Literal["html", "xml", "json"]
 class Spec:
     version: str
     url: str
+    url_default_params: dict[str, Any] = field(default_factory=dict)
+    url_transform: Transform | None = None
     doctype: DocType
     pre: list[Preprocess] = field(default_factory=list)
     post: list[Postprocess] = field(default_factory=list)
+    rules: list[TreeRule] | list[MapRule]
 
 
 @dataclass(kw_only=True)
@@ -290,11 +291,11 @@ def scrape(
             root = parse_xml(document)
         case "json":
             root = json.loads(document)
-    if pre is not None:
+    if pre:
         for preprocess in pre:
             root = preprocess.apply(root)
     data = collect(root, rules)
-    if post is not None:
+    if post:
         for postprocess in post:
             postprocess.apply(data)
     return data
@@ -315,7 +316,5 @@ dump_spec = partial(typedload.dump, strconstructed=_spec_classes)
 
 _data_classes = {Decimal}
 
-deserialize = partial(
-    typedload.load, strconstructed=_data_classes, pep563=True, basiccast=False
-)
+deserialize = partial(typedload.load, strconstructed=_data_classes, pep563=True, basiccast=False)
 serialize = partial(typedload.dump, strconstructed=_data_classes)
