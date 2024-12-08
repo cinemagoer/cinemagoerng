@@ -57,7 +57,7 @@ def test_title_akas_parser_should_set_akas(imdb_id, n, akas):
 @pytest.mark.parametrize(
     ("imdb_id", "akas_count"),
     [
-        ("tt0133093", 65),  # The Matrix
+        ("tt0133093", 68),  # The Matrix
     ],
 )
 def test_title_akas_parser_pagination(imdb_id, akas_count):

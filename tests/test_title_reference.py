@@ -8,7 +8,7 @@ from cinemagoerng import web
     [
         (
             "tt0133093",
-            "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX101_CR0,0,101,150_.jpg",
+            "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_SX101_CR0,0,101,150_.jpg",
         ),  # The Matrix
         ("tt3629794", None),  # Aslan
     ],
@@ -34,7 +34,7 @@ def test_title_parser_should_set_first_tagline(imdb_id, tagline):
     [
         (
             "tt0266697",
-            "After awakening from a four-year coma, a former assassin wreaks vengeance on the team of assassins who betrayed her.",
+            "After waking from a four-year coma, a former assassin wreaks vengeance on the team of assassins who betrayed her.",
             "en-US",
         )
     ],
@@ -82,7 +82,7 @@ def test_title_parser_should_set_bottom_ranking(imdb_id, rank):
             "tt7045440",
             1,
             [  # David Bowie: Ziggy Stardust
-                ("nm0000309", "David Bowie", "David Bowie", []),
+                ("nm0000309", "David Bowie", "Self", []),
             ],
         ),
         (

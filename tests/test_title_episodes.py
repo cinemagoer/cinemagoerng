@@ -46,7 +46,7 @@ def test_title_episodes_parser_should_set_title_from_original_title(imdb_id, tit
     [
         (
             "tt0412142",
-            "https://m.media-amazon.com/images/M/MV5BMDA4NjQzN2ItZDhhNC00ZjVlLWFjNTgtMTEyNDQyOGNjMDE1XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_.jpg",
+            "https://m.media-amazon.com/images/M/MV5BMjgxYjAwNmMtYTAwZC00YmQxLWJlOTMtMWM0NGJmNDE0YmI2XkEyXkFqcGc@._V1_.jpg",
         ),  # House M.D.
     ],
 )
