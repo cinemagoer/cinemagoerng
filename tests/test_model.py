@@ -14,8 +14,12 @@ from cinemagoerng.model import Credit, Movie
         ("tt0389150", ["GB"], ["United Kingdom"]),  # The Matrix Defence
     ],
 )
-def test_title_countries_property_should_return_country_names(imdb_id, country_codes, countries):
-    movie = Movie(imdb_id=imdb_id, title="The Matrix", country_codes=country_codes)
+def test_title_countries_property_should_return_country_names(
+    imdb_id, country_codes, countries
+):
+    movie = Movie(
+        imdb_id=imdb_id, title="The Matrix", country_codes=country_codes
+    )
     assert movie.countries == countries
 
 
@@ -32,7 +36,9 @@ def test_title_countries_property_should_return_country_names(imdb_id, country_c
         ("tt2971344", "Matrix: First Dream", ["zxx"], ["None"]),
     ],
 )
-def test_title_languages_property_should_return_language_names(imdb_id, title, language_codes, languages):
+def test_title_languages_property_should_return_language_names(
+    imdb_id, title, language_codes, languages
+):
     movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.languages == languages
 
@@ -59,7 +65,9 @@ def test_title_languages_property_should_return_language_names(imdb_id, title, l
         ("tt10277922", "The", ["en"], "The"),
     ],
 )
-def test_title_sort_title_property_should_strip_article(imdb_id, title, language_codes, sort_title):
+def test_title_sort_title_property_should_strip_article(
+    imdb_id, title, language_codes, sort_title
+):
     movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.sort_title == sort_title
 
@@ -77,7 +85,9 @@ def test_title_sort_title_property_should_strip_article(imdb_id, title, language
         ("nm0000309", "David Bowie", None, [], None),
     ],
 )
-def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, role, notes, as_name):
+def test_title_credit_as_name_property_should_return_bare_name(
+    imdb_id, name, role, notes, as_name
+):
     credit = Credit(imdb_id=imdb_id, name=name, role=role, notes=notes)
     assert credit.as_name == as_name
 
@@ -101,6 +111,8 @@ def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, ro
         ),
     ],
 )
-def test_title_uncredited_property_should_return_boolean(imdb_id, name, role, notes, uncredited):
+def test_title_uncredited_property_should_return_boolean(
+    imdb_id, name, role, notes, uncredited
+):
     credit = Credit(imdb_id=imdb_id, name=name, role=role, notes=notes)
     assert credit.uncredited == uncredited

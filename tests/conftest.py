@@ -31,12 +31,16 @@ if not cache_dir.exists():
 fetch_orig = cinemagoerng.web.fetch
 
 
-def fetch_cached(url: str, imdb_id: str, page: str, doc_type: str, **kwargs) -> str:
+def fetch_cached(
+    url: str, imdb_id: str, page: str, doc_type: str, **kwargs
+) -> str:
     """
     Cached version of fetch that supports proxy configuration from environment.
     """
     # Get proxy from environment if not explicitly provided
-    proxy_url: Optional[str] = kwargs.get("proxy_url") or os.getenv("IMDB_PROXY_URL")
+    proxy_url: Optional[str] = kwargs.get("proxy_url") or os.getenv(
+        "IMDB_PROXY_URL"
+    )
     if proxy_url:
         kwargs["proxy_url"] = proxy_url
     else:

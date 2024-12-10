@@ -240,7 +240,9 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
     return data if len(data) > 0 else _EMPTY
 
 
-def collect(root: TreeNode | MapNode, rules: list[TreeRule] | list[MapRule]) -> MapNode:
+def collect(
+    root: TreeNode | MapNode, rules: list[TreeRule] | list[MapRule]
+) -> MapNode:
     data: dict[str, Any] = {}
     for rule in rules:
         subdata = extract(root, rule)
@@ -316,5 +318,7 @@ dump_spec = partial(typedload.dump, strconstructed=_spec_classes)
 
 _data_classes = {Decimal}
 
-deserialize = partial(typedload.load, strconstructed=_data_classes, pep563=True, basiccast=False)
+deserialize = partial(
+    typedload.load, strconstructed=_data_classes, pep563=True, basiccast=False
+)
 serialize = partial(typedload.dump, strconstructed=_data_classes)

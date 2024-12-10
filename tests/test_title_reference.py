@@ -13,7 +13,9 @@ from cinemagoerng import web
         ("tt3629794", None),  # Aslan
     ],
 )
-def test_title_parser_should_set_primary_image_from_thumbnail(imdb_id, primary_image):
+def test_title_parser_should_set_primary_image_from_thumbnail(
+    imdb_id, primary_image
+):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert parsed.primary_image == primary_image
 
@@ -72,7 +74,11 @@ def test_title_parser_should_set_first_plot_summary(imdb_id, plot, lang):
 )
 def test_title_parser_should_set_bottom_ranking(imdb_id, rank):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert (abs(parsed.bottom_ranking - rank) < 10) if rank is not None else (parsed.bottom_ranking is None)
+    assert (
+        (abs(parsed.bottom_ranking - rank) < 10)
+        if rank is not None
+        else (parsed.bottom_ranking is None)
+    )
 
 
 @pytest.mark.parametrize(
@@ -124,7 +130,10 @@ def test_title_reference_parser_should_set_all_cast(imdb_id, n, cast):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.cast) == n
     if len(cast) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed.cast] == cast
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed.cast
+        ] == cast
 
 
 @pytest.mark.parametrize(
@@ -199,11 +208,16 @@ def test_title_reference_parser_should_set_all_cast(imdb_id, n, cast):
         ("tt3629794", 0, []),  # Aslan
     ],
 )
-def test_title_reference_parser_should_set_all_directors(imdb_id, n, directors):
+def test_title_reference_parser_should_set_all_directors(
+    imdb_id, n, directors
+):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.directors) == n
     if len(directors) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed.directors] == directors
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed.directors
+        ] == directors
 
 
 @pytest.mark.parametrize(
@@ -256,7 +270,10 @@ def test_title_reference_parser_should_set_all_writers(imdb_id, n, writers):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.writers) == n
     if len(writers) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed.writers] == writers
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed.writers
+        ] == writers
 
 
 @pytest.mark.parametrize(
@@ -280,11 +297,16 @@ def test_title_reference_parser_should_set_all_writers(imdb_id, n, writers):
         ("tt0185906", 0, []),  # Band of Brothers (Mini-Series)
     ],
 )
-def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, creators):
+def test_title_reference_parser_should_set_all_creators_for_series(
+    imdb_id, n, creators
+):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.creators) == n
     if len(creators) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed.creators] == creators
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed.creators
+        ] == creators
 
 
 @pytest.mark.parametrize(
@@ -317,7 +339,10 @@ def test_title_reference_parser_should_set_all_crew(imdb_id, n, crew):
     parsed_crew = parsed.costume_department
     assert len(parsed_crew) == n
     if len(crew) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed_crew] == crew
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed_crew
+        ] == crew
 
 
 @pytest.mark.parametrize(
@@ -327,6 +352,8 @@ def test_title_reference_parser_should_set_all_crew(imdb_id, n, crew):
         ("tt1247466", 10),  # Band of Brothers: Points
     ],
 )
-def test_title_reference_parser_should_set_series_episode_count_for_episode(imdb_id, episode_count):
+def test_title_reference_parser_should_set_series_episode_count_for_episode(
+    imdb_id, episode_count
+):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert parsed.series.episode_count == episode_count

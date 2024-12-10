@@ -82,7 +82,11 @@ def set_plot_langs(data):
 
     # Flatten episodes if it's a dictionary of seasons
     if not isinstance(episodes, list):
-        episodes = [episode for season in episodes.values() for episode in season.values()]
+        episodes = [
+            episode
+            for season in episodes.values()
+            for episode in season.values()
+        ]
 
     # Update plot language for each episode
     for episode in episodes:
@@ -283,7 +287,7 @@ def build_episode_graphql_url(url_data: dict[str, Any]) -> str:
 
     extensions = {
         "persistedQuery": {
-            "sha256Hash": "e5b755e1254e3bc3a36b34aff729b1d107a63263dec628a8f59935c9e778c70e",
+            "sha256Hash": "e5b755e1254e3bc3a36b34aff729b1d107a63263dec628a8f59935c9e778c70e",  # noqa: E501
             "version": 1,
         }
     }

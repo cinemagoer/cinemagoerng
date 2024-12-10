@@ -80,7 +80,7 @@ show_missing = true
 skip_covered = true
 
 [tool.ruff]
-line-length = 120
+line-length = 79
 
 [tool.ruff.lint]
 select = ["A", "E", "F", "I", "T", "W"]

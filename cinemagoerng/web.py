@@ -39,7 +39,9 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def _parse_proxy_url(proxy_url: str) -> tuple[str, str, int, Optional[str], Optional[str]]:
+def _parse_proxy_url(
+    proxy_url: str,
+) -> tuple[str, str, int, Optional[str], Optional[str]]:
     """Parse proxy URL into components.
 
     Args:
@@ -109,7 +111,9 @@ def fetch(url: str, proxy_url: Optional[str] = None, **kwargs) -> str:
 
     opener = None
     if proxy_url is not None:
-        proxy_type, host, port, username, password = _parse_proxy_url(proxy_url)
+        proxy_type, host, port, username, password = _parse_proxy_url(
+            proxy_url
+        )
 
         if proxy_type == "http":
             proxy_dict = {}
@@ -125,14 +129,22 @@ def fetch(url: str, proxy_url: Optional[str] = None, **kwargs) -> str:
                     "SOCKS proxy support requires the 'PySocks' package. "
                     "Install it with: pip install cinemagoerng[socks]"
                 )
-            socks_type = socks.PROXY_TYPE_SOCKS4 if proxy_type == "socks4" else socks.PROXY_TYPE_SOCKS5
+            socks_type = (
+                socks.PROXY_TYPE_SOCKS4
+                if proxy_type == "socks4"
+                else socks.PROXY_TYPE_SOCKS5
+            )
             opener = build_opener(
                 SocksiPyHandler(
-                    proxytype=socks_type, proxyaddr=host, proxyport=port, username=username, password=password
+                    proxytype=socks_type,
+                    proxyaddr=host,
+                    proxyport=port,
+                    username=username,
+                    password=password,
                 )
             )
 
-    # Use the opener's open method if we have a proxy, otherwise use the default urlopen
+    # Use the opener's open method if we have a proxy, otherwise use the default urlopen # noqa: E501
     url_opener = opener.open if opener is not None else urlopen
 
     with url_opener(request) as response:
@@ -155,7 +167,9 @@ def _spec(page: str, /) -> piculet.Spec:
     return piculet.load_spec(json.loads(content))
 
 
-TitlePage: TypeAlias = Literal["main", "reference", "taglines", "episodes", "parental_guide"]
+TitlePage: TypeAlias = Literal[
+    "main", "reference", "taglines", "episodes", "parental_guide"
+]
 TitleUpdatePage: TypeAlias = Literal[
     "main",
     "reference",
@@ -168,7 +182,11 @@ TitleUpdatePage: TypeAlias = Literal[
 
 
 def get_title(
-    imdb_id: str, *, page: TitlePage = "reference", proxy_url: Optional[str] = None, **kwargs
+    imdb_id: str,
+    *,
+    page: TitlePage = "reference",
+    proxy_url: Optional[str] = None,
+    **kwargs,
 ) -> model.Title | None:
     spec = _spec(f"title_{page}")
     url_params = {"imdb_id": imdb_id} | spec.url_default_params | kwargs
@@ -180,7 +198,14 @@ def get_title(
         url = spec.url % url_params
 
     try:
-        document = fetch(url, proxy_url=proxy_url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs)
+        document = fetch(
+            url,
+            proxy_url=proxy_url,
+            imdb_id=imdb_id,
+            page=page,
+            doc_type=spec.doctype,
+            **kwargs,
+        )
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
@@ -213,7 +238,14 @@ def update_title(
     else:
         url = spec.url % url_params
 
-    document = fetch(url, proxy_url=proxy_url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs)
+    document = fetch(
+        url,
+        proxy_url=proxy_url,
+        imdb_id=title.imdb_id,
+        page=page,
+        doc_type=spec.doctype,
+        **kwargs,
+    )
     data = piculet.scrape(
         document,
         doctype=spec.doctype,

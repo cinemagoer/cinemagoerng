@@ -58,7 +58,9 @@ def test_title_parser_should_instantiate_correct_type(page, imdb_id, type_):
         ("tt0261024", "Live Aid"),
     ],
 )
-def test_title_parser_should_set_title_from_original_title(page, imdb_id, title):
+def test_title_parser_should_set_title_from_original_title(
+    page, imdb_id, title
+):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.title == title
 
@@ -124,7 +126,9 @@ def test_title_parser_should_set_end_year(page, imdb_id, end_year):
         ("tt0261024",),  # Live Aid
     ],
 )
-def test_title_parser_should_not_set_end_year_for_other_than_series(page, imdb_id):
+def test_title_parser_should_not_set_end_year_for_other_than_series(
+    page, imdb_id
+):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert not hasattr(parsed, "end_year")
 
@@ -257,7 +261,11 @@ def test_title_parser_should_set_plot(page, imdb_id, plot, lang):
 )
 def test_title_parser_should_set_rating(page, imdb_id, rating):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
-    assert (abs(parsed.rating - rating) < Decimal("0.3")) if rating is not None else (parsed.rating is None)
+    assert (
+        (abs(parsed.rating - rating) < Decimal("0.3"))
+        if rating is not None
+        else (parsed.rating is None)
+    )
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
@@ -270,7 +278,9 @@ def test_title_parser_should_set_rating(page, imdb_id, rating):
 )
 def test_title_parser_should_set_vote_count(page, imdb_id, votes):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
-    assert (parsed.vote_count >= votes) if votes > 0 else (parsed.vote_count == 0)
+    assert (
+        (parsed.vote_count >= votes) if votes > 0 else (parsed.vote_count == 0)
+    )
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
@@ -283,7 +293,11 @@ def test_title_parser_should_set_vote_count(page, imdb_id, votes):
 )
 def test_title_parser_should_set_top_ranking(page, imdb_id, rank):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
-    assert (abs(parsed.top_ranking - rank) < 10) if rank is not None else (parsed.top_ranking is None)
+    assert (
+        (abs(parsed.top_ranking - rank) < 10)
+        if rank is not None
+        else (parsed.top_ranking is None)
+    )
 
 
 @pytest.mark.parametrize(
@@ -335,7 +349,10 @@ def test_title_parser_should_set_main_cast(imdb_id, n, cast):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert len(parsed.cast) == n
     if len(cast) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed.cast] == cast
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed.cast
+        ] == cast
 
 
 @pytest.mark.parametrize(
@@ -372,7 +389,10 @@ def test_title_main_parser_should_set_main_directors(imdb_id, n, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert len(parsed.directors) == n
     if len(directors) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed.directors] == directors
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed.directors
+        ] == directors
 
 
 @pytest.mark.parametrize(
@@ -410,7 +430,10 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert len(parsed.writers) == n
     if len(writers) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed.writers] == writers
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed.writers
+        ] == writers
 
 
 @pytest.mark.parametrize(
@@ -434,11 +457,16 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
         ("tt0185906", 0, []),  # Band of Brothers (Mini-Series)
     ],
 )
-def test_title_main_parser_should_set_main_creators_for_series(imdb_id, n, creators):
+def test_title_main_parser_should_set_main_creators_for_series(
+    imdb_id, n, creators
+):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert len(parsed.creators) == n
     if len(creators) > 0:
-        assert [(credit.imdb_id, credit.name, credit.role, credit.notes) for credit in parsed.creators] == creators
+        assert [
+            (credit.imdb_id, credit.name, credit.role, credit.notes)
+            for credit in parsed.creators
+        ] == creators
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
@@ -482,7 +510,9 @@ def test_title_parser_should_set_episode_count(imdb_id, episode_count):
         ),  # Band of Brothers: Points
     ],
 )
-def test_title_parser_should_set_series_for_episode(page, imdb_id, type_, series_data):
+def test_title_parser_should_set_series_for_episode(
+    page, imdb_id, type_, series_data
+):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert isinstance(parsed.series, type_)
     assert (parsed.series.imdb_id, parsed.series.title) == series_data
@@ -507,7 +537,9 @@ def test_title_parser_should_set_series_year_for_episode(imdb_id, year):
         ("tt1000252", "3", "10"),  # Doctor Who: Blink
     ],
 )
-def test_title_parser_should_set_season_and_episode_number_for_episode(page, imdb_id, season, episode):
+def test_title_parser_should_set_season_and_episode_number_for_episode(
+    page, imdb_id, season, episode
+):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert (parsed.season, parsed.episode) == (season, episode)
 
@@ -519,7 +551,9 @@ def test_title_parser_should_set_season_and_episode_number_for_episode(page, imd
         ("tt1000252", date(2007, 6, 9)),  # Doctor Who: Blink
     ],
 )
-def test_title_parser_should_set_release_date_for_episode(page, imdb_id, release_date):
+def test_title_parser_should_set_release_date_for_episode(
+    page, imdb_id, release_date
+):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.release_date == release_date
 
@@ -532,7 +566,9 @@ def test_title_parser_should_set_release_date_for_episode(page, imdb_id, release
         ("tt0562992", None),  # Doctor Who: Rose
     ],
 )
-def test_title_parser_should_set_previous_episode_for_episode(page, imdb_id, episode_id):
+def test_title_parser_should_set_previous_episode_for_episode(
+    page, imdb_id, episode_id
+):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.previous_episode == episode_id
 
@@ -545,6 +581,8 @@ def test_title_parser_should_set_previous_episode_for_episode(page, imdb_id, epi
         ("tt2121965", None),  # House M.D.: Everybody Dies
     ],
 )
-def test_title_parser_should_set_next_episode_for_episode(page, imdb_id, episode_id):
+def test_title_parser_should_set_next_episode_for_episode(
+    page, imdb_id, episode_id
+):
     parsed = web.get_title(imdb_id=imdb_id, page=page)
     assert parsed.next_episode == episode_id

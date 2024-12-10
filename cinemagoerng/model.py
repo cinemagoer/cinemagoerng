@@ -100,7 +100,9 @@ class AdvisoryDetail:
 @dataclass
 class Advisory:
     details: list[AdvisoryDetail] = field(default_factory=list)
-    status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = "Unknown"
+    status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = (
+        "Unknown"
+    )
     votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
 
 
@@ -262,7 +264,12 @@ class _TVSeriesBase(_TimedTitle):
         return list(self.episodes.get(season, {}).values())
 
     def get_episodes_by_year(self, year: int) -> list[TVEpisode]:
-        return [ep for season in self.episodes.values() for ep in season.values() if ep.year == year]
+        return [
+            ep
+            for season in self.episodes.values()
+            for ep in season.values()
+            if ep.year == year
+        ]
 
     def get_episode(self, season: str, episode: str) -> TVEpisode | None:
         return self.episodes.get(season, {}).get(episode)

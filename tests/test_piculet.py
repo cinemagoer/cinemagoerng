@@ -32,12 +32,16 @@ class Movie:
 
 def test_deserialize_should_support_decimal():
     movie = piculet.deserialize({"score": "9.8"}, Movie)
-    assert isinstance(movie.score, Decimal) and (movie.score.as_integer_ratio() == (49, 5))
+    assert isinstance(movie.score, Decimal) and (
+        movie.score.as_integer_ratio() == (49, 5)
+    )
 
 
 def test_serialize_should_support_decimal():
     movie = Movie(score=Decimal("9.8"))
-    assert isinstance(movie.score, Decimal) and (piculet.serialize(movie) == {"score": "9.8"})
+    assert isinstance(movie.score, Decimal) and (
+        piculet.serialize(movie) == {"score": "9.8"}
+    )
 
 
 def test_load_spec_should_load_transform_from_str(movie_spec):
@@ -49,7 +53,10 @@ def test_load_spec_should_load_transform_from_str(movie_spec):
 def test_dump_spec_should_dump_transform_as_str(movie_spec):
     rule = {"key": "k", "extractor": {"path": "/", "transforms": ["lower"]}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert piculet.dump_spec(spec)["rules"][0]["extractor"]["transforms"][0] == "lower"
+    assert (
+        piculet.dump_spec(spec)["rules"][0]["extractor"]["transforms"][0]
+        == "lower"
+    )
 
 
 def test_load_spec_should_raise_error_for_unknown_transform(movie_spec):
@@ -72,13 +79,17 @@ def test_dump_spec_should_dump_tree_path_as_str(movie_spec):
 
 def test_load_spec_should_load_map_path_from_str(movie_spec):
     rule = {"key": "k", "extractor": {"path": "p"}}
-    spec = piculet.load_spec(movie_spec | {"path_type": "jmespath", "rules": [rule]})
+    spec = piculet.load_spec(
+        movie_spec | {"path_type": "jmespath", "rules": [rule]}
+    )
     assert isinstance(spec.rules[0].extractor.path, piculet.MapPath)
 
 
 def test_dump_spec_should_dump_map_path_as_str(movie_spec):
     rule = {"key": "k", "extractor": {"path": "p"}}
-    spec = piculet.load_spec(movie_spec | {"path_type": "jmespath", "rules": [rule]})
+    spec = piculet.load_spec(
+        movie_spec | {"path_type": "jmespath", "rules": [rule]}
+    )
     assert piculet.dump_spec(spec)["rules"][0]["extractor"]["path"] == "p"
 
 
@@ -102,7 +113,9 @@ def test_scrape_should_produce_concatenated_text(movie, movie_spec):
     assert data == {"full_title": "The Shining (1980)"}
 
 
-def test_scrape_should_produce_concatenated_text_using_given_separator(movie, movie_spec):
+def test_scrape_should_produce_concatenated_text_using_given_separator(
+    movie, movie_spec
+):
     rule = {
         "key": "cast_names",
         "extractor": {
@@ -128,7 +141,9 @@ def test_scrape_should_transform_text(movie, movie_spec):
     assert data == {"year": 1980}
 
 
-def test_scrape_should_produce_multiple_items_for_multiple_rules(movie, movie_spec):
+def test_scrape_should_produce_multiple_items_for_multiple_rules(
+    movie, movie_spec
+):
     rules = [
         {"key": "title", "extractor": {"path": "//title/text()"}},
         {
@@ -144,7 +159,9 @@ def test_scrape_should_produce_multiple_items_for_multiple_rules(movie, movie_sp
     assert data == {"title": "The Shining", "year": 1980}
 
 
-def test_scrape_should_exclude_data_for_rules_with_no_result(movie, movie_spec):
+def test_scrape_should_exclude_data_for_rules_with_no_result(
+    movie, movie_spec
+):
     rules = [
         {"key": "title", "extractor": {"path": "//title/text()"}},
         {"key": "foo", "extractor": {"path": "//foo/text()"}},
@@ -167,7 +184,9 @@ def test_scrape_should_produce_list_for_multivalued_rule(movie, movie_spec):
     assert data == {"genres": ["Horror", "Drama"]}
 
 
-def test_scrape_should_transform_each_item_in_multivalued_result(movie, movie_spec):
+def test_scrape_should_transform_each_item_in_multivalued_result(
+    movie, movie_spec
+):
     rule = {
         "key": "genres",
         "extractor": {
@@ -181,7 +200,9 @@ def test_scrape_should_transform_each_item_in_multivalued_result(movie, movie_sp
     assert data == {"genres": ["horror", "drama"]}
 
 
-def test_scrape_should_exclude_empty_items_in_multivalued_rule_results(movie, movie_spec):
+def test_scrape_should_exclude_empty_items_in_multivalued_rule_results(
+    movie, movie_spec
+):
     rule = {
         "key": "foos",
         "extractor": {
@@ -201,7 +222,9 @@ def test_scrape_should_produce_subitems_for_subrules(movie, movie_spec):
             "rules": [
                 {
                     "key": "name",
-                    "extractor": {"path": '//div[@class="director"]//a/text()'},
+                    "extractor": {
+                        "path": '//div[@class="director"]//a/text()'
+                    },
                 },
                 {
                     "key": "link",
@@ -212,10 +235,14 @@ def test_scrape_should_produce_subitems_for_subrules(movie, movie_spec):
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
     data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
-    assert data == {"director": {"link": "/people/1", "name": "Stanley Kubrick"}}
+    assert data == {
+        "director": {"link": "/people/1", "name": "Stanley Kubrick"}
+    }
 
 
-def test_scrape_should_produce_subitem_lists_for_multivalued_subrules(movie, movie_spec):
+def test_scrape_should_produce_subitem_lists_for_multivalued_subrules(
+    movie, movie_spec
+):
     rule = {
         "key": "cast",
         "extractor": {
