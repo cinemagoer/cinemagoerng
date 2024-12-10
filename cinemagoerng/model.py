@@ -73,13 +73,13 @@ class AKA:
 @dataclass
 class Certificate:
     country: str
-    certificate: str
-    attribute: str | None = None
+    ratings: list[str]
 
 
 @dataclass
 class Certification:
-    mpaa: str | None = None
+    mpa_rating: str | None = "Not Rated"
+    mpa_rating_reason: str | None = None
     certificates: list[Certificate] = field(default_factory=list)
 
 
@@ -92,9 +92,17 @@ class AdvisoryVotes:
 
 
 @dataclass
+class AdvisoryDetail:
+    text: str
+    is_spoiler: bool
+
+
+@dataclass
 class Advisory:
-    details: list[str] = field(default_factory=list)
-    status: Literal["None", "Mild", "Moderate", "Severe"] = "None"
+    details: list[AdvisoryDetail] = field(default_factory=list)
+    status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = (
+        "Unknown"
+    )
     votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
 
 
@@ -110,13 +118,6 @@ class Advisories:
     profanity: Advisory = field(default_factory=Advisory)
     alcohol: Advisory = field(default_factory=Advisory)
     frightening: Advisory = field(default_factory=Advisory)
-    spoiler_nudity: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_violence: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_profanity: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_alcohol: SpoilerAdvisory = field(default_factory=SpoilerAdvisory)
-    spoiler_frightening: SpoilerAdvisory = field(
-        default_factory=SpoilerAdvisory
-    )
 
 
 @dataclass(kw_only=True)
@@ -134,8 +135,8 @@ class _Title:
     plot_summaries: list[dict[str, str]] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
     akas: list[AKA] = field(default_factory=list)
-    certification: Certification | None = None
-    advisories: Advisories | None = None
+    certification: Certification = field(default_factory=Certification)
+    advisories: Advisories = field(default_factory=Advisories)
 
     rating: Decimal | None = None
     vote_count: int = 0
@@ -244,6 +245,7 @@ class TVEpisode(_TimedTitle):
     season: str | None = None
     episode: str | None = None
     release_date: date | None = None
+    year: int | None = None
     previous_episode: str | None = None
     next_episode: str | None = None
 
@@ -257,6 +259,27 @@ class _TVSeriesBase(_TimedTitle):
     episode_count: int | None = None
     episodes: EpisodeMap = field(default_factory=dict)
     creators: list[Credit] = field(default_factory=list)
+
+    def get_episodes_by_season(self, season: str) -> list[TVEpisode]:
+        return list(self.episodes.get(season, {}).values())
+
+    def get_episodes_by_year(self, year: int) -> list[TVEpisode]:
+        return [
+            ep
+            for season in self.episodes.values()
+            for ep in season.values()
+            if ep.year == year
+        ]
+
+    def get_episode(self, season: str, episode: str) -> TVEpisode | None:
+        return self.episodes.get(season, {}).get(episode)
+
+    def add_episodes(self, new_episodes: list[TVEpisode]) -> None:
+        for ep in new_episodes:
+            if ep.episode not in self.episodes.get(ep.season, {}):
+                if ep.season not in self.episodes:
+                    self.episodes[ep.season] = {}
+                self.episodes[ep.season][ep.episode] = ep
 
 
 @dataclass(kw_only=True)

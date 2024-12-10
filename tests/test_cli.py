@@ -12,7 +12,9 @@ def test_cli_should_report_correct_version(capsys):
     assert std.out.strip() == __version__
 
 
-def test_cli_get_title_should_report_error_for_nonexisting_imdb_num(cov, capsys):
+def test_cli_get_title_should_report_error_for_nonexisting_imdb_num(
+    cov, capsys
+):
     if cov is None:
         pytest.skip("uses live network connection")
     with pytest.raises(SystemExit):
@@ -141,7 +143,9 @@ def test_cli_get_title_should_include_country(capsys, imdb_num):
         (133093,),  # The Matrix
     ],
 )
-def test_cli_get_title_should_include_countries_in_plural_form(capsys, imdb_num):
+def test_cli_get_title_should_include_countries_in_plural_form(
+    capsys, imdb_num
+):
     cli.main(["get", "title", str(imdb_num)])
     std = capsys.readouterr()
     assert re.search(r"Countries: [\w ]+, [\w ]+(, [\w ]+)*\n", std.out)
@@ -165,7 +169,9 @@ def test_cli_get_title_should_include_language(capsys, imdb_num):
         (429489,),  # A Ay
     ],
 )
-def test_cli_get_title_should_include_languages_in_plural_form(capsys, imdb_num):
+def test_cli_get_title_should_include_languages_in_plural_form(
+    capsys, imdb_num
+):
     cli.main(["get", "title", str(imdb_num)])
     std = capsys.readouterr()
     assert re.search(r"Languages: \w+, \w+(, \w+)*\n", std.out)
@@ -237,7 +243,9 @@ def test_cli_get_title_should_include_taglines_by_default(capsys, imdb_num):
         (133093,),  # The Matrix
     ],
 )
-def test_cli_get_title_should_include_all_taglines_if_requested(capsys, imdb_num):
+def test_cli_get_title_should_include_all_taglines_if_requested(
+    capsys, imdb_num
+):
     cli.main(["get", "title", str(imdb_num), "--taglines"])
     std = capsys.readouterr()
     assert re.search(r"Taglines:\n  - \w.*\n  - \w.*\n", std.out)

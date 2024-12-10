@@ -1,76 +1,91 @@
 {
-  "version": "20240704",
+  "version": "20241208",
   "url": "https://www.imdb.com/title/%(imdb_id)s/parentalguide",
   "doctype": "html",
-  "path_type": "xpath",
+  "path_type": "jmespath",
+  "pre": ["parse_next_data"],
   "rules": [
     {
       "key": "imdb_id",
       "extractor": {
-        "path": "//meta[@property='pageId']/@content"
+        "path": "props.pageProps.contentData.entityMetadata.id"
       }
     },
     {
       "key": "type_id",
       "extractor": {
-        "path": "normalize-space(//div[@div='quicklinks']//span[@class='nobr']/text())",
-        "transforms": [
-          "type_id"
-        ]
+        "path": "props.pageProps.contentData.entityMetadata.titleType.id"
       }
     },
     {
       "key": "title",
       "extractor": {
-        "path": "//h3[@itemprop='name']/a/text()",
-        "transforms": [
-          "strip"
-        ]
+        "path": "props.pageProps.contentData.entityMetadata.originalTitleText.text"
       }
     },
     {
-      "key": "__dict__",
+      "key": "primary_image",
       "extractor": {
-        "path": "translate(normalize-space(//h3[@itemprop='name']//span/text()), '()', '')",
-        "transforms": [
-          "year_range"
-        ]
+        "path": "props.pageProps.contentData.entityMetadata.primaryImage.url"
       }
+    },
+    {
+      "key": "year",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.releaseYear.year"
+      }
+    },
+    {
+      "key": "end_year",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.releaseYear.endYear"
+      }
+    },
+    {
+      "key": "genres",
+      "extractor": {
+        "foreach": "props.pageProps.contentData.entityMetadata.titleGenres.genres[*].genre",
+        "path": "text"
+      }
+    },
+    {
+      "key": "runtime",
+        "extractor": {
+		  "path": "props.pageProps.contentData.entityMetadata.runtime.seconds",
+		  "transforms": ["div60"]
+        }
     },
     {
       "key": "certification",
       "extractor": {
         "rules": [
           {
-            "key": "mpaa",
+            "key": "mpa_rating",
             "extractor": {
-              "path": "//tr[@id='mpaa-rating']/td[2]//text()"
+              "path": "props.pageProps.contentData.entityMetadata.certificate.rating"
+            }
+          },
+          {
+            "key": "mpa_rating_reason",
+            "extractor": {
+              "path": "props.pageProps.contentData.contentRatingData.ratingReason"
             }
           },
           {
             "key": "certificates",
             "extractor": {
-              "foreach": "//tr[@id='certifications-list']//li",
+              "foreach": "props.pageProps.contentData.certificates[*]",
               "rules": [
                 {
                   "key": "country",
                   "extractor": {
-                    "path": "substring-before(.//a/text(), ':')"
+                    "path": "country"
                   }
                 },
                 {
-                  "key": "certificate",
+                  "key": "ratings",
                   "extractor": {
-                    "path": "substring-after(.//a/text(), ':')"
-                  }
-                },
-                {
-                  "key": "attribute",
-                  "extractor": {
-                    "path": "substring-after(.//text()[2], ' ')",
-                    "transforms": [
-                      "strip"
-                    ]
+                    "path": "ratings[*].rating"
                   }
                 }
               ]
@@ -85,7 +100,7 @@
         "flatten_list_of_dicts"
       ],
       "extractor": {
-        "foreach": "//section[starts-with(@id, 'advisory-')]",
+        "foreach": "props.pageProps.contentData.categories[*]",
         "transforms": [
           "make_dict"
         ],
@@ -93,7 +108,10 @@
           {
             "key": "key",
             "extractor": {
-              "path": "translate(substring-after(./@id, 'advisory-'), '-', '_')"
+              "path": "id",
+              "transforms": [
+                  "lower"
+              ]
             }
           },
           {
@@ -103,15 +121,18 @@
                 {
                   "key": "details",
                   "extractor": {
-                    "foreach": ".//li[@class='ipl-zebra-list__item']",
-                    "transforms": [
-                      "extract_value"
-                    ],
+                    "foreach": "items[*]",
                     "rules": [
                       {
-                        "key": "value",
+                        "key": "text",
                         "extractor": {
-                          "path": "normalize-space(.//text())"
+                          "path": "text"
+                        }
+                      },
+                      {
+                        "key": "is_spoiler",
+                        "extractor": {
+                          "path": "isSpoiler"
                         }
                       }
                     ]
@@ -120,7 +141,7 @@
                 {
                   "key": "status",
                   "extractor": {
-                    "path": "normalize-space(.//span[contains(@class, 'ipl-status-pill')]/text())"
+                    "path": "severitySummary.text"
                   }
                 },
                 {
@@ -129,7 +150,7 @@
                     "flatten_list_of_dicts"
                   ],
                   "extractor": {
-                    "foreach": ".//span[@class='ipl-vote-button']",
+                    "foreach": "severityBreakdown[*]",
                     "transforms": [
                       "make_dict"
                     ],
@@ -137,16 +158,16 @@
                       {
                         "key": "key",
                         "extractor": {
-                          "path": "./button/@value"
+                          "path": "text",
+                          "transforms": [
+                              "lower"
+                          ]
                         }
                       },
                       {
                         "key": "value",
                         "extractor": {
-                          "path": "translate(.//span/text(), ',', '')",
-                          "transforms": [
-                            "int"
-                          ]
+                          "path": "votes"
                         }
                       }
                     ]
@@ -158,8 +179,5 @@
         ]
       }
     }
-  ],
-  "post": [
-    "unpack_dicts"
   ]
 }

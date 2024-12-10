@@ -74,9 +74,24 @@ def generate_episode_map(data):
 
 
 def set_plot_langs(data):
-    for season in data["episodes"].values():
-        for episode in season.values():
-            episode["plot"] = {data["_page_lang"]: episode["_plot"]}
+    episodes = data.get("episodes")
+    default_lang = data.get("_page_lang", "en-US")
+
+    if not episodes:
+        return
+
+    # Flatten episodes if it's a dictionary of seasons
+    if not isinstance(episodes, list):
+        episodes = [
+            episode
+            for season in episodes.values()
+            for episode in season.values()
+        ]
+
+    # Update plot language for each episode
+    for episode in episodes:
+        if "_plot" in episode:
+            episode["plot"] = {default_lang: episode["_plot"]}
 
 
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
@@ -146,11 +161,13 @@ def parse_type_id(value: str) -> str:
 
 
 def parse_year_range(value: str) -> dict[str, int]:
-    split_char = "–" if "–" in value else "-"
-    tokens = value.strip().split(split_char)
-    data = {"year": int(tokens[0])}
-    if (len(tokens) > 1) and len(tokens[1]) > 0:
-        data["end_year"] = int(tokens[1])
+    pattern = re.compile(r"\d{4}")
+    year_values = pattern.findall(value)
+    if not year_values:
+        return {}
+    data = {"year": int(year_values[0])}
+    if len(year_values) > 1:
+        data["end_year"] = int(year_values[1])
     return data
 
 
@@ -247,6 +264,41 @@ def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
     return {k: v for d in value for k, v in d.items()}
 
 
+def build_episode_graphql_url(url_data: dict[str, Any]) -> str:
+    url = url_data["url"]
+    params = url_data["params"]
+    variables: dict[str, Any] = {
+        "after": params["after"].replace('"', ""),
+        "const": params["imdb_id"],
+        "first": 50,
+        "locale": "en-US",
+        "originalTitleText": False,
+        "returnUrl": "https://www.imdb.com/close_me",
+        "sort": {"by": "EPISODE_THEN_RELEASE", "order": "ASC"},
+    }
+
+    if params["filter_type"] == "year":
+        variables["filter"] = {
+            "releasedOnOrAfter": {"year": params["start_year"]},
+            "releasedOnOrBefore": {"year": params["end_year"]},
+        }
+    elif params["filter_type"] == "season":
+        variables["filter"] = {"includeSeasons": [params["season"]]}
+
+    extensions = {
+        "persistedQuery": {
+            "sha256Hash": "e5b755e1254e3bc3a36b34aff729b1d107a63263dec628a8f59935c9e778c70e",  # noqa: E501
+            "version": 1,
+        }
+    }
+
+    # Properly escape the JSON for GraphQL
+    variables_json = json.dumps(variables, separators=(",", ":"))
+    extensions_json = json.dumps(extensions, separators=(",", ":"))
+
+    return url % {"variables": variables_json, "extensions": extensions_json}
+
+
 def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update(
         {
@@ -272,5 +324,6 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
             "exists": exists,
             "extract_value": extract_value,
             "flatten_list_of_dicts": flatten_list_of_dicts,
+            "build_episode_graphql_url": build_episode_graphql_url,
         }
     )

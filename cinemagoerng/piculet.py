@@ -258,9 +258,12 @@ DocType: TypeAlias = Literal["html", "xml", "json"]
 class Spec:
     version: str
     url: str
+    url_default_params: dict[str, Any] = field(default_factory=dict)
+    url_transform: Transform | None = None
     doctype: DocType
     pre: list[Preprocess] = field(default_factory=list)
     post: list[Postprocess] = field(default_factory=list)
+    rules: list[TreeRule] | list[MapRule]
 
 
 @dataclass(kw_only=True)
@@ -290,11 +293,11 @@ def scrape(
             root = parse_xml(document)
         case "json":
             root = json.loads(document)
-    if pre is not None:
+    if pre:
         for preprocess in pre:
             root = preprocess.apply(root)
     data = collect(root, rules)
-    if post is not None:
+    if post:
         for postprocess in post:
             postprocess.apply(data)
     return data

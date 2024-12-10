@@ -38,6 +38,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+socks = ["PySocks>=1.7.1"]
 tests = [
     "pytest",
     "pytest-cov",
