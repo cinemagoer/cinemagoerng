@@ -285,7 +285,7 @@ def build_episode_graphql_url(url_data: dict[str, Any]) -> str:
 
     extensions = {
         "persistedQuery": {
-            "sha256Hash": "e5b755e1254e3bc3a36b34aff729b1d107a63263dec628a8f59935c9e778c70e",
+            "sha256Hash": "e5b755e1254e3bc3a36b34aff729b1d107a63263dec628a8f59935c9e778c70e",  # noqa: E501
             "version": 1,
         }
     }

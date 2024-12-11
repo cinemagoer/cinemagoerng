@@ -100,7 +100,7 @@ class AdvisoryDetail:
 @dataclass
 class Advisory:
     details: list[AdvisoryDetail] = field(default_factory=list)
-    status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = "Unknown"
+    status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = "Unknown"  # noqa: E501
     votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
 
 
