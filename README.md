@@ -17,6 +17,7 @@ and celebrity information from IMDb.
 - Support for alternate titles (AKAs).
 - Taglines and parental guide information.
 - Episode data for TV series.
+- Synchronous and Asynchronous support for all operations
 - Modern Python typing support.
 - Clean, intuitive API.
 
@@ -25,11 +26,10 @@ and celebrity information from IMDb.
 You can install CinemagoerNG using pip:
 
 ```bash
-# Basic installation
 pip install cinemagoerng
 
-# For development
-pip install cinemagoerng[dev]
+# Or, for the latest version from GitHub:
+pip install git+https://github.com/cinemagoer/cinemagoerng.git
 ```
 
 ## Basic Usage
@@ -45,6 +45,9 @@ print(movie.title)       # "The Matrix"
 print(movie.sort_title)  # "Matrix"
 print(movie.year)        # 1999
 print(movie.runtime)     # 136
+
+# Async Usage
+movie = await web.get_title_async("tt0133093")
 
 # Access movie genres
 for genre in movie.genres:
@@ -65,10 +68,36 @@ web.update_title(movie, page="taglines", keys=["taglines"])
 for tagline in movie.taglines:
     print(tagline)
 
+# Async Usage
+await web.update_title_async(movie, page="taglines", keys=["taglines"])
+
 # Get alternate titles (AKAs)
 web.update_title(movie, page="akas", keys=["akas"])
 for aka in movie.akas:
     print(f"{aka.title} ({aka.country})")
+```
+
+### Configuring HTTPX Parameters
+
+CinemagoerNG uses HTTPX for making HTTP requests. You can customize the HTTPX client configuration by passing parameters:
+
+```python
+# Using HTTP proxy
+movie = web.get_title("tt0133093", httpx_kwargs={"proxy": "http://proxy.example.com:8080"})
+
+# Using SOCKS5 proxy (requires httpx[socks] extra)
+movie = web.get_title("tt0133093", httpx_kwargs={"proxy": "socks5://127.0.0.1:1080"})
+
+# Configuring timeout and other parameters
+movie = web.get_title("tt0133093", httpx_kwargs={
+    "timeout": 60.0,
+    "proxy": "http://proxy.example.com:8080",
+    "follow_redirects": False
+})
+
+# Using with update
+web.update_title(movie, page="episodes", keys=["episodes"], 
+                httpx_kwargs={"timeout": 60.0})
 ```
 
 ## Available Data
@@ -100,6 +129,9 @@ CinemagoerNG can retrieve various types of information:
 - Episode information (for TV series)
 - Parental guide
 - Reference information
+
+## Advanced Usage Examples
+For comprehensive examples of how to use CinemagoerNG's features, check out our test files in the [tests](tests) directory.
 
 ## Development
 

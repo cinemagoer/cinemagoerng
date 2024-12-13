@@ -19,9 +19,9 @@ import json
 from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
-from typing import Literal, TypeAlias
-from urllib.error import HTTPError
-from urllib.request import Request, urlopen
+from typing import Literal, Optional, TypeAlias
+
+import httpx
 
 from . import model, piculet, registry
 
@@ -29,15 +29,48 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def fetch(url: str, **kwargs) -> str:
-    request = Request(url)
-    request.add_header("User-Agent", _USER_AGENT)
-    if "graphql" in url:
-        request.add_header("Content-Type", "application/json")
-    with urlopen(request) as response:
-        content: bytes = response.read()
-    return content.decode("utf-8")
+class HTTPClient:
+    def __init__(self):
+        self.headers = {"User-Agent": _USER_AGENT}
+        self._default_client_params = {
+            "timeout": 30.0,
+            "follow_redirects": True,
+        }
 
+    def _get_headers(self, url: str) -> dict:
+        headers = self.headers.copy()
+        if "graphql" in url:
+            headers["Content-Type"] = "application/json"
+        return headers
+
+    def _merge_client_params(
+        self, httpx_kwargs: Optional[dict] = None
+    ) -> dict:
+        params = self._default_client_params.copy()
+        if httpx_kwargs:
+            params.update(httpx_kwargs)
+        return params
+
+    async def fetch_async(
+        self, url: str, httpx_kwargs: Optional[dict] = None, **kwargs
+    ) -> str:
+        client_params = self._merge_client_params(httpx_kwargs)
+        async with httpx.AsyncClient(**client_params) as client:
+            response = await client.get(url, headers=self._get_headers(url))
+            response.raise_for_status()
+            return response.text
+
+    def fetch(
+        self, url: str, httpx_kwargs: Optional[dict] = None, **kwargs
+    ) -> str:
+        client_params = self._merge_client_params(httpx_kwargs)
+        with httpx.Client(**client_params) as client:
+            response = client.get(url, headers=self._get_headers(url))
+            response.raise_for_status()
+            return response.text
+
+
+_http_client = HTTPClient()
 
 registry.update_preprocessors(piculet.preprocessors)
 registry.update_postprocessors(piculet.postprocessors)
@@ -69,33 +102,49 @@ TitleUpdatePage: TypeAlias = Literal[
 
 
 def get_title(
-    imdb_id: str, *, page: TitlePage = "reference", **kwargs
+    imdb_id: str,
+    *,
+    page: TitlePage = "reference",
+    httpx_kwargs: Optional[dict] = None,
+    **kwargs,
 ) -> model.Title | None:
-    spec = _spec(f"title_{page}")
-    url_params = {"imdb_id": imdb_id} | spec.url_default_params | kwargs
-
-    # Apply URL transform if specified
-    if spec.url_transform:
-        url = spec.url_transform.apply({"url": spec.url, "params": url_params})
-    else:
-        url = spec.url % url_params
-
+    """Get title information synchronously."""
+    operation = GetTitle(_http_client.fetch)
     try:
-        document = fetch(
-            url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs
+        return operation.execute(
+            _spec(f"title_{page}"),
+            imdb_id=imdb_id,
+            httpx_kwargs=httpx_kwargs,
+            page=page,
+            **kwargs,
         )
-    except HTTPError as e:
-        if e.status == HTTPStatus.NOT_FOUND:
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == HTTPStatus.NOT_FOUND:
             return None
-        raise e  # pragma: no cover
-    data = piculet.scrape(
-        document,
-        doctype=spec.doctype,
-        rules=spec.rules,
-        pre=spec.pre,
-        post=spec.post,
-    )
-    return piculet.deserialize(data, model.Title)
+        raise
+
+
+async def get_title_async(
+    imdb_id: str,
+    *,
+    page: TitlePage = "reference",
+    httpx_kwargs: Optional[dict] = None,
+    **kwargs,
+) -> model.Title | None:
+    """Get title information asynchronously."""
+    operation = GetTitle(_http_client.fetch_async)
+    try:
+        return await operation.execute_async(
+            _spec(f"title_{page}"),
+            imdb_id=imdb_id,
+            httpx_kwargs=httpx_kwargs,
+            page=page,
+            **kwargs,
+        )
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == HTTPStatus.NOT_FOUND:
+            return None
+        raise
 
 
 def update_title(
@@ -104,57 +153,38 @@ def update_title(
     *,
     page: TitleUpdatePage,
     keys: list[str],
-    paginate: bool = False,
+    httpx_kwargs: Optional[dict] = None,
+    paginate_result: bool = False,
     **kwargs,
 ) -> None:
-    spec = _spec(f"title_{page}")
-    url_params = {"imdb_id": title.imdb_id} | spec.url_default_params | kwargs
-
-    # Apply URL transform if specified
-    if spec.url_transform:
-        url = spec.url_transform.apply({"url": spec.url, "params": url_params})
-    else:
-        url = spec.url % url_params
-
-    document = fetch(
-        url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs
+    """Update title with additional information synchronously."""
+    operation = UpdateTitle(_http_client.fetch, title, keys)
+    operation.execute(
+        _spec(f"title_{page}"),
+        imdb_id=title.imdb_id,
+        httpx_kwargs=httpx_kwargs,
+        page=page,
+        paginate_result=paginate_result,
+        **kwargs,
     )
-    data = piculet.scrape(
-        document,
-        doctype=spec.doctype,
-        rules=spec.rules,
-        pre=spec.pre,
-        post=spec.post,
-    )
-    for key in keys:
-        value = data.get(key)
-        if value is None:
-            continue
-        if key == "episodes":
-            if isinstance(value, dict):
-                value = piculet.deserialize(value, model.EpisodeMap)
-                title.episodes.update(value)
-            else:
-                value = piculet.deserialize(value, list[model.TVEpisode])
-                title.add_episodes(value)
-        elif key == "akas":
-            value = [piculet.deserialize(aka, model.AKA) for aka in value]
-            title.akas.extend(value)
-        elif key == "certification":
-            value = piculet.deserialize(value, model.Certification)
-            setattr(title, key, value)
-        elif key == "advisories":
-            value = piculet.deserialize(value, model.Advisories)
-            setattr(title, key, value)
-        else:
-            setattr(title, key, value)
 
-    if paginate and data.get("has_next_page", False):
-        kwargs["after"] = f'"{data["end_cursor"]}"'
-        update_title(
-            title,
-            page=page,
-            keys=keys,
-            paginate=paginate,
-            **kwargs,
-        )
+
+async def update_title_async(
+    title: model.Title,
+    /,
+    *,
+    page: TitleUpdatePage,
+    keys: list[str],
+    httpx_kwargs: Optional[dict] = None,
+    paginate_result: bool = False,
+    **kwargs,
+) -> None:
+    operation = UpdateTitle(_http_client.fetch_async, title, keys)
+    await operation.execute_async(
+        _spec(f"title_{page}"),
+        imdb_id=title.imdb_id,
+        httpx_kwargs=httpx_kwargs,
+        page=page,
+        paginate_result=paginate_result,
+        **kwargs,
+    )
