@@ -158,4 +158,3 @@ class UpdateTitle(Operation[None]):
         if kwargs.get("paginate_result") and data.get("has_next_page", False):
             kwargs["after"] = f'"{data["end_cursor"]}"'
             await self.execute_async(**kwargs)
-
