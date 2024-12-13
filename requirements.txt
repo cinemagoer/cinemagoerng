@@ -2,3 +2,4 @@
 jmespath==1.0.1
 lxml==5.3.0
 typedload==2.37
+httpx==0.28.1
