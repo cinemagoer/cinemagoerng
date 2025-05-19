@@ -1,6 +1,6 @@
 {
-  "version": "20241208",
-  "url": "https://www.imdb.com/title/%(imdb_id)s/parentalguide",
+  "version": "20250519",
+  "url": "https://www.imdb.com/title/%(imdb_id)s/parentalguide/",
   "doctype": "html",
   "path_type": "jmespath",
   "pre": [

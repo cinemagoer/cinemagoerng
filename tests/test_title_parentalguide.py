@@ -9,13 +9,13 @@ from cinemagoerng import web
         (
             "tt0133093",  # The Matrix
             "Mild",
-            "R",
+            "13+",
             "Rated R for sci-fi violence and brief language",
         ),
         (
             "tt0468569",  # The Dark Knight
             "None",
-            "PG-13",
+            "16+",
             "Rated PG-13 for intense sequences of violence and some menace",
         ),
     ],
