@@ -78,7 +78,7 @@ def test_title_parser_should_set_bottom_ranking(imdb_id, rank):
             "tt7045440",
             1,
             [  # David Bowie: Ziggy Stardust
-                ("nm0000309", "David Bowie", "Self", []),
+                ("nm0000309", "David Bowie", "David Bowie", []),
             ],
         ),
         (

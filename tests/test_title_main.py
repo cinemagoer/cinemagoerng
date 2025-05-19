@@ -200,7 +200,7 @@ def test_title_parser_should_not_set_runtime_for_video_games(page, imdb_id):
         ),  # Armitage III: Poly-Matrix (Video Movie)
         (
             "tt7045440",
-            ["Short", "Music"],
+            ["Music"],
         ),  # David Bowie: Ziggy Stardust (Music Video)
         (
             "tt0390244",
@@ -286,7 +286,7 @@ def test_title_parser_should_set_top_ranking(page, imdb_id, rank):
             "tt7045440",
             1,
             [  # David Bowie: Ziggy Stardust
-                ("nm0000309", "David Bowie", "Self", []),
+                ("nm0000309", "David Bowie", "David Bowie", []),
             ],
         ),
         (

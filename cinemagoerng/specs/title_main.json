@@ -1,5 +1,5 @@
 {
-  "version": "20240526",
+  "version": "20250519",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -46,7 +46,7 @@
     {
       "key": "country_codes",
       "extractor": {
-        "foreach": "props.pageProps.mainColumnData.countriesOfOrigin.countries[*]",
+        "foreach": "props.pageProps.mainColumnData.countriesDetails.countries[*]",
         "path": "id"
       }
     },
