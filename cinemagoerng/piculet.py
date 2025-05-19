@@ -37,7 +37,7 @@ from lxml.etree import fromstring as parse_xml
 from lxml.html import fromstring as parse_html
 
 
-MapNode: TypeAlias = Mapping[str, Any]
+MapNode: TypeAlias = Mapping[str, Any] | dict[str, Any]
 MutableMapNode: TypeAlias = MutableMapping[str, Any]
 
 
