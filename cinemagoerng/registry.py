@@ -21,26 +21,26 @@ import re
 from typing import Any, TypedDict
 
 from .piculet import (
-    MapNode,
+    JSONNode,
     Postprocessor,
     Preprocessor,
     Transformer,
-    TreeNode,
-    TreePath,
+    XMLNode,
+    XMLPath,
 )
 
 
-def parse_next_data(root: TreeNode) -> MapNode:
-    path = TreePath("//script[@id='__NEXT_DATA__']/text()")
+def parse_next_data(root: XMLNode) -> JSONNode:
+    path = XMLPath("//script[@id='__NEXT_DATA__']/text()")
     next_data = path.apply(root)[0]
     return json.loads(next_data)
 
 
-def remove_see_more(root: TreeNode) -> TreeNode:
-    path = TreePath("//a[text()='See more »']")
+def remove_see_more(root: XMLNode) -> XMLNode:
+    path = XMLPath("//a[text()='See more »']")
     links = path.select(root)
     for link in links:
-        parent: TreeNode = link.getparent()  # type: ignore
+        parent: XMLNode = link.getparent()  # type: ignore
         parent.remove(link)
     return root
 
