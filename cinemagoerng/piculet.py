@@ -26,6 +26,7 @@ from typing import (
     Mapping,
     TypeAlias,
     TypedDict,
+    TypeVar,
     Union,
 )
 
@@ -39,6 +40,8 @@ from lxml.html import fromstring as parse_html
 
 JSONNode: TypeAlias = Mapping[str, Any]
 
+Node = TypeVar("Node", XMLNode, JSONNode)
+
 
 CollectedData = Mapping[str, Any]
 
@@ -46,7 +49,7 @@ CollectedData = Mapping[str, Any]
 _EMPTY: CollectedData = MappingProxyType({})
 
 
-Preprocessor: TypeAlias = Callable[[XMLNode | JSONNode], XMLNode | JSONNode]
+Preprocessor: TypeAlias = Callable[[Node], Node]
 
 preprocessors: dict[str, Preprocessor] = {}
 
