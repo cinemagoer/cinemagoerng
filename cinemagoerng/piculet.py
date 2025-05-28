@@ -26,24 +26,27 @@ from typing import (
     Mapping,
     TypeAlias,
     TypeVar,
-    Union,
 )
 
+import lxml.etree
+import lxml.html
 import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
-from lxml.etree import _Element as XMLNode
-from lxml.etree import fromstring as parse_xml
-from lxml.html import fromstring as parse_html
 
 
+XMLNode: TypeAlias = lxml.etree._Element
 JSONNode: TypeAlias = Mapping[str, Any]
-
 Node = TypeVar("Node", XMLNode, JSONNode)
+
+_PARSERS: dict[str, Callable[[str], XMLNode | JSONNode]] = {
+    "html": lxml.html.fromstring,
+    "xml": lxml.etree.fromstring,
+    "json": json.loads,
+}
 
 
 CollectedData = Mapping[str, Any]
-
 
 _EMPTY: CollectedData = MappingProxyType({})
 
@@ -277,13 +280,7 @@ def scrape(
     pre: list[Preprocess] | None = None,
     post: list[Postprocess] | None = None,
 ) -> CollectedData:
-    match doctype:
-        case "html":
-            root = parse_html(document)
-        case "xml":
-            root = parse_xml(document)
-        case "json":
-            root = json.loads(document)
+    root = _PARSERS[doctype](document)
     if pre is not None:
         for preprocess in pre:
             root = preprocess.apply(root)
@@ -307,7 +304,7 @@ serialize = partial(typedload.dump, strconstructed=_data_classes)
 _spec_classes = {Preprocess, Postprocess, Transform, XMLPath, JSONPath}
 load_spec = partial(
     deserialize,
-    type_=Union[XMLSpec, JSONSpec],
+    type_=XMLSpec | JSONSpec,
     strconstructed=_spec_classes,
     failonextra=True,
 )
