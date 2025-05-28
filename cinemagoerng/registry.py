@@ -66,11 +66,13 @@ def unpack_dicts(data):
     if collected is not None:
         data.update(collected)
         del data["__dict__"]
+    return data
 
 
 def generate_episode_map(data):
     for season, episodes in data["episodes"].items():
         data["episodes"][season] = {ep["episode"]: ep for ep in episodes}
+    return data
 
 
 def set_plot_langs(data):
@@ -78,7 +80,7 @@ def set_plot_langs(data):
     default_lang = data.get("_page_lang", "en-US")
 
     if not episodes:
-        return
+        return data
 
     # Flatten episodes if it's a dictionary of seasons
     if not isinstance(episodes, list):
@@ -92,6 +94,7 @@ def set_plot_langs(data):
     for episode in episodes:
         if "_plot" in episode:
             episode["plot"] = {default_lang: episode["_plot"]}
+    return data
 
 
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:

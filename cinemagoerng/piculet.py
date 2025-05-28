@@ -63,7 +63,7 @@ class Preprocess:
         return self.name
 
 
-Postprocessor: TypeAlias = Callable[[CollectedData], None]
+Postprocessor: TypeAlias = Callable[[CollectedData], CollectedData]
 
 postprocessors: dict[str, Postprocessor] = {}
 
@@ -304,7 +304,7 @@ def scrape(
     data = collect(root, rules)
     if post is not None:
         for postprocess in post:
-            postprocess.apply(data)
+            data = postprocess.apply(data)
     return data
 
 
