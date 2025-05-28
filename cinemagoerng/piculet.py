@@ -25,7 +25,6 @@ from typing import (
     Literal,
     Mapping,
     TypeAlias,
-    TypedDict,
     TypeVar,
     Union,
 )
@@ -77,18 +76,6 @@ class Postprocess:
         return self.name
 
 
-class DictItem(TypedDict):
-    key: str
-    value: Any | None
-
-
-def make_dict(item: DictItem, /) -> dict[str, Any]:
-    value = item.get("value")
-    if value is None:
-        return {}
-    return {item["key"]: value}
-
-
 Transformer: TypeAlias = Callable[[Any], Any]
 
 
@@ -97,7 +84,6 @@ transformers: dict[str, Transformer] = {
     "int": int,
     "json": json.loads,
     "lower": str.lower,
-    "make_dict": make_dict,
     "str": str,
     "strip": str.strip,
 }
