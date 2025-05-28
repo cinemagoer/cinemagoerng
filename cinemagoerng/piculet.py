@@ -27,6 +27,7 @@ from typing import (
     MutableMapping,
     TypeAlias,
     TypedDict,
+    Union,
 )
 
 import typedload
@@ -307,7 +308,7 @@ _spec_classes = {Preprocess, Postprocess, Transform, XMLPath, JSONPath}
 
 load_spec = partial(
     typedload.load,
-    type_=XMLSpec | JSONSpec,
+    type_=Union[XMLSpec, JSONSpec],
     strconstructed=_spec_classes,
     pep563=True,
     failonextra=True,
