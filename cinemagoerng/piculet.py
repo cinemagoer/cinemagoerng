@@ -24,7 +24,6 @@ from typing import (
     List,
     Literal,
     Mapping,
-    MutableMapping,
     TypeAlias,
     TypedDict,
     Union,
@@ -39,10 +38,12 @@ from lxml.html import fromstring as parse_html
 
 
 JSONNode: TypeAlias = Mapping[str, Any]
-MutableMapNode: TypeAlias = MutableMapping[str, Any]
 
 
-_EMPTY: JSONNode = MappingProxyType({})
+CollectedData = Mapping[str, Any]
+
+
+_EMPTY: CollectedData = MappingProxyType({})
 
 
 Preprocessor: TypeAlias = Callable[[XMLNode | JSONNode], XMLNode | JSONNode]
@@ -59,7 +60,7 @@ class Preprocess:
         return self.name
 
 
-Postprocessor: TypeAlias = Callable[[MutableMapNode], None]
+Postprocessor: TypeAlias = Callable[[CollectedData], None]
 
 postprocessors: dict[str, Postprocessor] = {}
 
@@ -169,7 +170,7 @@ class XMLCollector(Extractor):
     rules: List["XMLRule"] = field(default_factory=list)
     foreach: XMLPath | None = None
 
-    def extract(self, root: XMLNode) -> JSONNode:
+    def extract(self, root: XMLNode) -> CollectedData:
         return collect(root, self.rules)
 
 
@@ -178,7 +179,7 @@ class JSONCollector(Extractor):
     rules: List["JSONRule"] = field(default_factory=list)
     foreach: JSONPath | None = None
 
-    def extract(self, root: JSONNode) -> JSONNode:
+    def extract(self, root: JSONNode) -> CollectedData:
         return collect(root, self.rules)
 
 
@@ -198,7 +199,9 @@ class JSONRule:
     transforms: list[Transform] = field(default_factory=list)
 
 
-def extract(root: XMLNode | JSONNode, rule: XMLRule | JSONRule) -> JSONNode:
+def extract(
+    root: XMLNode | JSONNode, rule: XMLRule | JSONRule
+) -> CollectedData:
     data: dict[str, Any] = {}
 
     if rule.foreach is None:
@@ -243,7 +246,7 @@ def extract(root: XMLNode | JSONNode, rule: XMLRule | JSONRule) -> JSONNode:
 
 def collect(
     root: XMLNode | JSONNode, rules: list[XMLRule] | list[JSONRule]
-) -> JSONNode:
+) -> CollectedData:
     data: dict[str, Any] = {}
     for rule in rules:
         subdata = extract(root, rule)
@@ -286,7 +289,7 @@ def scrape(
     rules: list[XMLRule] | list[JSONRule],
     pre: list[Preprocess] | None = None,
     post: list[Postprocess] | None = None,
-) -> JSONNode:
+) -> CollectedData:
     match doctype:
         case "html":
             root = parse_html(document)
