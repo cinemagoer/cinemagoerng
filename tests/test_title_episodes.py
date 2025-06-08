@@ -46,7 +46,8 @@ def test_title_episodes_parser_should_set_title_from_original_title(imdb_id, tit
     [
         (
             "tt0412142",
-            "https://m.media-amazon.com/images/M/MV5BMjgxYjAwNmMtYTAwZC00YmQxLWJlOTMtMWM0NGJmNDE0YmI2XkEyXkFqcGc@._V1_.jpg",
+            "https://m.media-amazon.com/images/M/"
+                "MV5BMjgxYjAwNmMtYTAwZC00YmQxLWJlOTMtMWM0NGJmNDE0YmI2XkEyXkFqcGc@._V1_.jpg",
         ),  # House M.D.
     ],
 )
@@ -100,9 +101,9 @@ def test_title_episodes_parser_should_instantiate_episodes(imdb_id):
             "tt0436992",
             "1",
             13,
-            [  # Doctor Who
-                # ("1", "tt0562992", "Rose", 2006, date(2006, 3, 17)),  # XXX: page contains incorrect data
-                # ("13", "tt0563000", "The Parting of the Ways", 2006, date(2006, 6, 9)),  # XXX: page contains incorrect data
+            [  # Doctor Who  # XXX: pages contain incorrect data
+                # ("1", "tt0562992", "Rose", 2006, date(2006, 3, 17)),
+                # ("13", "tt0563000", "The Parting of the Ways", 2006, date(2006, 6, 9)),
             ],
         ),
         (
