@@ -12,7 +12,15 @@ authors = [
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE.txt"]
 
-keywords = ["imdb", "cinema", "movie", "film", "cast", "actor", "director"]
+keywords = [
+    "imdb",
+    "cinema",
+    "movie",
+    "film",
+    "cast",
+    "actor",
+    "director",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -40,22 +48,22 @@ dependencies = [
 
 [dependency-groups]
 test = [
-    "pytest>=8.3.5",
+    "pytest>=8.4.0",
     "pytest-cov>=6.1.1",
 ]
 typing = [
-    "mypy>=1.15.0",
+    "mypy>=1.16.0",
     "lxml-stubs>=0.5.1",
-    "types-jmespath>=1.0.2",
+    "types-jmespath>=1.0.2.20250529",
 ]
 style = [
-    "ruff>=0.11.10",
+    "ruff>=0.11.13",
 ]
 dev = [
     {include-group = "test"},
     {include-group = "typing"},
     {include-group = "style"},
-    "tox-uv>=1.25.0",
+    "tox-uv>=1.26.0",
 ]
 
 [project.urls]
