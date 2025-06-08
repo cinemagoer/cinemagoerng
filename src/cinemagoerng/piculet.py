@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -37,9 +39,13 @@ from lxml.etree import XPath as compile_xpath
 
 XMLNode: TypeAlias = lxml.etree._Element
 JSONNode: TypeAlias = Mapping[str, Any]
+
 Node = TypeVar("Node", XMLNode, JSONNode)
 
-_PARSERS: dict[str, Callable[[str], XMLNode | JSONNode]] = {
+
+DocType: TypeAlias = Literal["html", "xml", "json"]
+
+_PARSERS: dict[DocType, Callable[[str], XMLNode | JSONNode]] = {
     "html": lxml.html.fromstring,
     "xml": lxml.etree.fromstring,
     "json": json.loads,
@@ -85,7 +91,6 @@ Transformer: TypeAlias = Callable[[Any], Any]
 transformers: dict[str, Transformer] = {
     "decimal": lambda x: Decimal(str(x)),
     "int": int,
-    "json": json.loads,
     "lower": str.lower,
     "str": str,
     "strip": str.strip,
@@ -156,7 +161,7 @@ class JSONPicker:
 
 @dataclass(kw_only=True)
 class XMLCollector:
-    rules: List["XMLRule"] = field(default_factory=list)
+    rules: List[XMLRule] = field(default_factory=list)
     foreach: XMLPath | None = None
     transforms: list[Transform] = field(default_factory=list)
 
@@ -166,7 +171,7 @@ class XMLCollector:
 
 @dataclass(kw_only=True)
 class JSONCollector:
-    rules: List["JSONRule"] = field(default_factory=list)
+    rules: List[JSONRule] = field(default_factory=list)
     foreach: JSONPath | None = None
     transforms: list[Transform] = field(default_factory=list)
 
@@ -244,9 +249,6 @@ def collect(
         if len(subdata) > 0:
             data.update(subdata)
     return data if len(data) > 0 else _EMPTY
-
-
-DocType: TypeAlias = Literal["html", "xml", "json"]
 
 
 @dataclass(kw_only=True)
