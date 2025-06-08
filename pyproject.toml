@@ -72,13 +72,6 @@ repository = "https://github.com/cinemagoer/cinemagoerng"
 [project.scripts]
 cinemagoerng = "cinemagoerng:cli.main"
 
-[tool.setuptools]
-packages = ["cinemagoerng"]
-include-package-data = false
-
-[tool.setuptools.package-data]
-cinemagoerng = ["specs/*.json"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
@@ -121,13 +114,13 @@ commands =
 
 [testenv:types]
 commands =
-    mypy cinemagoerng tests
+    mypy src tests
 
 [testenv:style]
 commands =
-    ruff check cinemagoerng tests
+    ruff check src tests
 """
 
 [build-system]
-requires = ["setuptools>=77.0.0"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build"]
+build-backend = "uv_build"
