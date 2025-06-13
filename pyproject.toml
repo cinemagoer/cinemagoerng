@@ -6,8 +6,8 @@ readme = "README.md"
 
 authors = [
     {name = "H. Turgut Uyar", email = "uyar@tekir.org"},
-    {name = "Mohamed Zumair", email = "mhdzumair@gmail.com"},
     {name = "Davide Alberani", email = "da@mimante.net"},
+    {name = "Mohamed Zumair", email = "mhdzumair@gmail.com"},
 ]
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE.txt"]
