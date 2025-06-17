@@ -1,4 +1,4 @@
-# Copyright 2024 H. Turgut Uyar <uyar@tekir.org>
+# Copyright 2024-2025 H. Turgut Uyar <uyar@tekir.org>
 #
 # This file is part of CinemagoerNG.
 #
@@ -36,20 +36,10 @@ def parse_next_data(root: XMLNode) -> JSONNode:
     return json.loads(next_data)
 
 
-def remove_see_more(root: XMLNode) -> XMLNode:
-    path = XMLPath("//a[text()='See more »']")
-    links = path.select(root)
-    for link in links:
-        parent: XMLNode = link.getparent()  # type: ignore
-        parent.remove(link)
-    return root
-
-
 def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
     registry.update(
         {
             "parse_next_data": parse_next_data,
-            "remove_see_more": remove_see_more,
         }
     )
 
@@ -151,6 +141,47 @@ _month_names = [
 _month_nums = {m: (i + 1) for i, m in enumerate(_month_names)}
 
 
+_CREDIT_CATEGORIES = {
+    "director": "directors",
+}
+
+
+def parse_credit_category(value: str) -> str:
+    return _CREDIT_CATEGORIES.get(value, value)
+
+
+class CreditNotes(TypedDict):
+    imdb_id: str
+    name: str
+    roles: list[str]
+    notes: list[str]
+
+
+_re_credit_notes = re.compile(r"""\(([^)]*)\)*""")
+
+
+def parse_credit_notes(value: CreditNotes) -> CreditNotes:
+    if "roles" not in value:
+        value["roles"] = []
+    if "notes" not in value:
+        value["notes"] = []
+    roles: list[str] = []
+    notes: list[str] = []
+    for note in value["notes"]:
+        subnotes: list[str] = _re_credit_notes.findall(note)
+        if len(subnotes) == 0:
+            roles.append(note)
+        else:
+            notes.extend(subnotes)
+        parens = note.find("(")
+        role = note[:parens].strip()
+        if len(role) > 0:
+            roles.append(role)
+    value["roles"].extend(roles)
+    value["notes"].extend(notes)
+    return value
+
+
 def parse_text_date(x: str) -> str | None:
     tokens = x.split("(")[0].split()
     if len(tokens) != 3:
@@ -158,92 +189,6 @@ def parse_text_date(x: str) -> str | None:
     day, month_name, year = tokens
     month = _month_nums[month_name]
     return f"{year}-{month:02}-{day}"
-
-
-def parse_href_id(value: str) -> str:
-    if "?" in value:
-        value = value.split("?")[0]
-    if value[-1] == "/":
-        value = value[:-1]
-    return value.split("/")[-1]
-
-
-def parse_type_id(value: str) -> str:
-    if value[0] == "(" and value[-1] == ")":
-        value = value[1:-1]
-    first, *rest = value.strip().split(" ")
-    return "".join([first.lower()] + rest)
-
-
-def parse_year_range(value: str) -> dict[str, int]:
-    split_char = "–" if "–" in value else "-"
-    tokens = value.strip().split(split_char)
-    data = {"year": int(tokens[0])}
-    if (len(tokens) > 1) and len(tokens[1]) > 0:
-        data["end_year"] = int(tokens[1])
-    return data
-
-
-def parse_country_code(value: str) -> str:
-    return value.split("/country/")[-1]
-
-
-def parse_language_code(value: str) -> str:
-    return value.split("/language/")[-1]
-
-
-def parse_runtime(value: str) -> int:
-    return int(value.replace(" min", ""))
-
-
-def parse_vote_count(value: str) -> int:
-    return int(value[1:-1].replace(",", ""))  # remove parens around value
-
-
-def parse_ranking(value: str) -> int:
-    return int(value.split("#")[-1])
-
-
-_re_locale = re.compile(r"""locale: '([^']+)'""")
-
-
-def parse_locale(value: str) -> str | None:
-    matched = _re_locale.search(value)
-    return matched.group(1) if matched is not None else None
-
-
-CREDIT_SECTIONS = {
-    "production_managers_": "production_managers",
-    "costume_departmen": "costume_department",
-    "miscellaneous": "additional_crew",
-}
-
-
-def parse_credit_section_id(value: str) -> str:
-    return CREDIT_SECTIONS.get(value, value)
-
-
-class CreditInfo(TypedDict):
-    role: str | None
-    notes: list[str]
-
-
-_re_credit_notes = re.compile(r"""\(([^)]*)\)*""")
-
-
-def parse_credit_info(value: str) -> CreditInfo:
-    value = value.strip()
-    parsed: CreditInfo = {"role": None, "notes": []}
-    notes: list[str] = _re_credit_notes.findall(value)
-    if len(notes) == 0:
-        parsed["role"] = value.strip()
-    else:
-        parsed["notes"] = [note for note in notes if len(note) > 0]
-        parens = value.find("(")
-        role = value[:parens].strip()
-        if len(role) > 0:
-            parsed["role"] = role
-    return parsed
 
 
 def parse_episode_series_title(value: str) -> str | None:
@@ -317,20 +262,12 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         {
             "make_dict": make_dict,
             "date": make_date,
+            "credit_category": parse_credit_category,
+            "credit_notes": parse_credit_notes,
             "text_date": parse_text_date,
             "unescape": html.unescape,
             "div60": lambda x: x // 60,
-            "href_id": parse_href_id,
-            "type_id": parse_type_id,
-            "year_range": parse_year_range,
-            "country_code": parse_country_code,
-            "language_code": parse_language_code,
-            "runtime": parse_runtime,
-            "vote_count": parse_vote_count,
-            "ranking": parse_ranking,
-            "locale": parse_locale,
-            "credit_section_id": parse_credit_section_id,
-            "credit_info": parse_credit_info,
+            "split&": lambda s: s.split(" & "),
             "episode_series_title": parse_episode_series_title,
             "episode_count": parse_episode_count,
             "season_number": parse_season_number,

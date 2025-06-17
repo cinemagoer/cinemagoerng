@@ -33,7 +33,7 @@ class Person:
 
 @dataclass
 class Credit(Person):
-    role: str | None = None
+    roles: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
     @property
@@ -132,7 +132,7 @@ class _Title:
     language_codes: list[str] = field(default_factory=list)
     genres: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
-    plot_summaries: list[dict[str, str]] = field(default_factory=list)
+    plot_summaries: list[str] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
     akas: list[AKA] = field(default_factory=list)
     certification: Certification | None = None

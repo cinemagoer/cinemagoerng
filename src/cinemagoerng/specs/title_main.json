@@ -134,9 +134,10 @@
             }
           },
           {
-            "key": "role",
+            "key": "roles",
             "extractor": {
-              "path": "characters[0].name"
+              "foreach": "characters[*]",
+              "path": "name"
             }
           },
           {
