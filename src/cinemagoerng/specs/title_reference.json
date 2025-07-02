@@ -1,104 +1,83 @@
 {
-  "version": "20240702",
+  "version": "20250613",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
   "doctype": "html",
-  "path_type": "xpath",
+  "path_type": "jmespath",
   "pre": [
-    "remove_see_more"
+    "parse_next_data"
   ],
   "rules": [
     {
       "key": "imdb_id",
       "extractor": {
-        "path": "//meta[@property='pageId']/@content"
+        "path": "props.pageProps.aboveTheFoldData.id"
       }
     },
     {
       "key": "type_id",
       "extractor": {
-        "path": "//h3[@itemprop='name']/following-sibling::ul/li[last()]/text()",
-        "transforms": [
-          "type_id"
-        ]
+        "path": "props.pageProps.aboveTheFoldData.titleType.id"
       }
     },
     {
       "key": "title",
       "extractor": {
-        "path": "//h3[@itemprop='name']/text()",
-        "transforms": [
-          "strip"
-        ]
-      }
-    },
-    {
-      "key": "title",
-      "extractor": {
-        "path": "//span[@class='titlereference-original-title-label']/preceding-sibling::text()",
-        "transforms": [
-          "strip"
-        ]
+        "path": "props.pageProps.aboveTheFoldData.originalTitleText.text"
       }
     },
     {
       "key": "primary_image",
       "extractor": {
-        "path": "//img[@class='titlereference-primary-image']/@src"
+        "path": "props.pageProps.aboveTheFoldData.primaryImage.url"
       }
     },
     {
-      "key": "__dict__",
+      "key": "year",
       "extractor": {
-        "path": "//span[@class='titlereference-title-year']//a/text()",
-        "transforms": [
-          "year_range"
-        ]
+        "path": "props.pageProps.aboveTheFoldData.releaseYear.year"
+      }
+    },
+    {
+      "key": "end_year",
+      "extractor": {
+        "path": "props.pageProps.aboveTheFoldData.releaseYear.endYear"
       }
     },
     {
       "key": "country_codes",
       "extractor": {
-        "foreach": "//td[text()='Country']/..//li/a",
-        "path": "./@href",
-        "transforms": [
-          "country_code"
-        ]
+        "foreach": "props.pageProps.mainColumnData.countriesDetails.countries[*]",
+        "path": "id"
       }
     },
     {
       "key": "language_codes",
       "extractor": {
-        "foreach": "//td[text()='Language']/..//li/a",
-        "path": "./@href",
-        "transforms": [
-          "language_code"
-        ]
+        "foreach": "props.pageProps.mainColumnData.spokenLanguages.spokenLanguages[*]",
+        "path": "id"
       }
     },
     {
       "key": "runtime",
       "extractor": {
-        "path": "//td[text()='Runtime']/..//li/text()",
+        "path": "props.pageProps.aboveTheFoldData.runtime.seconds",
         "transforms": [
-          "runtime"
+          "div60"
         ]
       }
     },
     {
       "key": "genres",
       "extractor": {
-        "foreach": "//td[text()='Genres']/..//li/a",
-        "path": "./text()"
+        "foreach": "props.pageProps.mainColumnData.genres.genres[*]",
+        "path": "text"
       }
     },
     {
       "key": "taglines",
       "extractor": {
-        "foreach": "//td[text()='Taglines']",
-        "path": "./following-sibling::td/text()",
-        "transforms": [
-          "strip"
-        ]
+        "foreach": "props.pageProps.mainColumnData.taglines.edges[*]",
+        "path": "node.text"
       }
     },
     {
@@ -108,16 +87,13 @@
           {
             "key": "key",
             "extractor": {
-              "path": "//script/text()",
-              "transforms": [
-                "locale"
-              ]
+              "path": "props.pageProps.mainColumnData.plot.language.id"
             }
           },
           {
             "key": "value",
             "extractor": {
-              "path": "normalize-space(//section[@class='titlereference-section-overview']/div[not(.//a)]/text())"
+              "path": "props.pageProps.mainColumnData.plot.plotText.plainText"
             }
           }
         ],
@@ -129,24 +105,18 @@
     {
       "key": "plot_summaries",
       "extractor": {
-        "foreach": "//td[text()='Plot Summary']/..",
         "rules": [
           {
             "key": "key",
             "extractor": {
-              "path": "//script/text()",
-              "transforms": [
-                "locale"
-              ]
+              "path": "locale"
             }
           },
           {
             "key": "value",
             "extractor": {
-              "path": ".//p/text()",
-              "transforms": [
-                "strip"
-              ]
+              "foreach": "props.pageProps.mainColumnData.summaries.edges[*]",
+              "path": "node.plotText.plaidHtml"
             }
           }
         ],
@@ -158,7 +128,7 @@
     {
       "key": "rating",
       "extractor": {
-        "path": "//div[@class='ipl-rating-star ']//span[@class='ipl-rating-star__rating']/text()",
+        "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
         "transforms": [
           "decimal"
         ]
@@ -167,222 +137,14 @@
     {
       "key": "vote_count",
       "extractor": {
-        "path": "//span[@class='ipl-rating-star__total-votes']/text()",
-        "transforms": [
-          "vote_count"
-        ]
+        "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
       }
     },
     {
       "key": "top_ranking",
       "extractor": {
-        "path": "//a[@href='/chart/top']/text()",
-        "transforms": [
-          "ranking"
-        ]
-      }
-    },
-    {
-      "key": "bottom_ranking",
-      "extractor": {
-        "path": "//a[@href='/chart/bottom']/text()",
-        "transforms": [
-          "ranking"
-        ]
-      }
-    },
-    {
-      "key": "cast",
-      "extractor": {
-        "foreach": "//h4[@id='cast']/ancestor::header/following-sibling::table[1]//tr[@class]",
-        "rules": [
-          {
-            "key": "imdb_id",
-            "extractor": {
-              "path": ".//a[@itemprop='url']/@href",
-              "transforms": [
-                "href_id"
-              ]
-            }
-          },
-          {
-            "key": "name",
-            "extractor": {
-              "path": ".//span[@itemprop='name']/text()"
-            }
-          },
-          {
-            "key": "__dict__",
-            "extractor": {
-              "path": ".//td[@class='character']/div/text()",
-              "transforms": [
-                "credit_info"
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "foreach": "//h4[@id!='cast']",
-      "key": {
-        "path": "./@id",
-        "transforms": [
-          "credit_section_id"
-        ]
-      },
-      "extractor": {
-        "foreach": "./ancestor::header/following-sibling::table[1]//tr//a",
-        "rules": [
-          {
-            "key": "imdb_id",
-            "extractor": {
-              "path": "./@href",
-              "transforms": [
-                "href_id"
-              ]
-            }
-          },
-          {
-            "key": "name",
-            "extractor": {
-              "path": "./text()"
-            }
-          },
-          {
-            "key": "__dict__",
-            "extractor": {
-              "path": ".//ancestor::tr/td[text()='...']/following-sibling::td/text()",
-              "transforms": [
-                "credit_info"
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "key": "creators",
-      "extractor": {
-        "foreach": "//div[@class='titlereference-overview-section'][contains(text(), 'Creator')]//a",
-        "rules": [
-          {
-            "key": "imdb_id",
-            "extractor": {
-              "path": "./@href",
-              "transforms": [
-                "href_id"
-              ]
-            }
-          },
-          {
-            "key": "name",
-            "extractor": {
-              "path": "./text()"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "key": "series",
-      "extractor": {
-        "rules": [
-          {
-            "key": "imdb_id",
-            "extractor": {
-              "path": "//h4/a/@href",
-              "transforms": [
-                "href_id"
-              ]
-            }
-          },
-          {
-            "key": "type_id",
-            "extractor": {
-              "path": "//h4/span[@class='titlereference-parent-title-year']/text()",
-              "transforms": [
-                "type_id"
-              ]
-            }
-          },
-          {
-            "key": "title",
-            "extractor": {
-              "path": "/html/head/title/text()",
-              "transforms": [
-                "episode_series_title"
-              ]
-            }
-          },
-          {
-            "key": "episode_count",
-            "extractor": {
-              "path": "//a[contains(text(), 'All Episodes')]/text()",
-              "transforms": [
-                "episode_count"
-              ]
-            }
-          }
-        ]
-      }
-    },
-    {
-      "key": "season_count",
-      "extractor": {
-        "path": "//div[contains(text(), 'Seasons')]/a[1]/text()",
-        "transforms": [
-          "int"
-        ]
-      }
-    },
-    {
-      "key": "season",
-      "extractor": {
-        "path": "//div[@class='titlereference-overview-season-episode-section']//li[contains(text(), 'Season')]/text()",
-        "transforms": [
-          "season_number"
-        ]
-      }
-    },
-    {
-      "key": "episode",
-      "extractor": {
-        "path": "//div[@class='titlereference-overview-season-episode-section']//li[contains(text(), 'Episode')]/text()",
-        "transforms": [
-          "episode_number"
-        ]
-      }
-    },
-    {
-      "key": "release_date",
-      "extractor": {
-        "path": "//div[@id='main']//a[contains(@href, '/releaseinfo')]/text()",
-        "transforms": [
-          "text_date"
-        ]
-      }
-    },
-    {
-      "key": "previous_episode",
-      "extractor": {
-        "path": "//a[contains(text(), 'Previous')]/@href",
-        "transforms": [
-          "href_id"
-        ]
-      }
-    },
-    {
-      "key": "next_episode",
-      "extractor": {
-        "path": "//a[contains(text(), 'Next')]/@href",
-        "transforms": [
-          "href_id"
-        ]
+        "path": "props.pageProps.mainColumnData.ratingsSummary.topRanking.rank"
       }
     }
-  ],
-  "post": [
-    "unpack_dicts"
   ]
 }

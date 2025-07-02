@@ -1,4 +1,4 @@
-# Copyright 2024 H. Turgut Uyar <uyar@tekir.org>
+# Copyright 2024-2025 H. Turgut Uyar <uyar@tekir.org>
 #
 # This file is part of CinemagoerNG.
 #
@@ -130,7 +130,7 @@ class _Title:
     language_codes: list[str] = field(default_factory=list)
     genres: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
-    plot_summaries: list[dict[str, str]] = field(default_factory=list)
+    plot_summaries: dict[str, list[str]] = field(default_factory=dict)
     taglines: list[str] = field(default_factory=list)
     akas: list[AKA] = field(default_factory=list)
     certification: Certification | None = None

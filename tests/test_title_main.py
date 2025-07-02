@@ -63,7 +63,7 @@ def test_title_parser_should_set_title_from_original_title(page, imdb_id, title)
     assert parsed.title == title
 
 
-@pytest.mark.parametrize(("page",), [("main",), ("taglines",)])
+@pytest.mark.parametrize(("page",), [("main",), ("reference",), ("taglines",)])
 @pytest.mark.parametrize(
     ("imdb_id", "primary_image"),
     [

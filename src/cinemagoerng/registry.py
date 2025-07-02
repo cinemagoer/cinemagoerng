@@ -1,4 +1,4 @@
-# Copyright 2024 H. Turgut Uyar <uyar@tekir.org>
+# Copyright 2024-2025 H. Turgut Uyar <uyar@tekir.org>
 #
 # This file is part of CinemagoerNG.
 #
@@ -36,36 +36,12 @@ def parse_next_data(root: TreeNode) -> MapNode:
     return json.loads(next_data)
 
 
-def remove_see_more(root: TreeNode) -> TreeNode:
-    path = TreePath("//a[text()='See more »']")
-    links = path.select(root)
-    for link in links:
-        parent: TreeNode = link.getparent()  # type: ignore
-        parent.remove(link)
-    return root
-
-
 def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
     registry.update(
         {
             "parse_next_data": parse_next_data,
-            "remove_see_more": remove_see_more,
         }
     )
-
-
-def unpack_dicts(data):
-    for child in data.values():
-        if isinstance(child, dict):
-            unpack_dicts(child)
-        if isinstance(child, list):
-            for subchild in child:
-                if isinstance(subchild, dict):
-                    unpack_dicts(subchild)
-    collected = data.get("__dict__")
-    if collected is not None:
-        data.update(collected)
-        del data["__dict__"]
 
 
 def generate_episode_map(data):
@@ -97,7 +73,6 @@ def set_plot_langs(data):
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     registry.update(
         {
-            "unpack_dicts": unpack_dicts,
             "generate_episode_map": generate_episode_map,
             "set_plot_langs": set_plot_langs,
         }
@@ -151,50 +126,6 @@ def parse_href_id(value: str) -> str:
     if value[-1] == "/":
         value = value[:-1]
     return value.split("/")[-1]
-
-
-def parse_type_id(value: str) -> str:
-    if value[0] == "(" and value[-1] == ")":
-        value = value[1:-1]
-    first, *rest = value.strip().split(" ")
-    return "".join([first.lower()] + rest)
-
-
-def parse_year_range(value: str) -> dict[str, int]:
-    split_char = "–" if "–" in value else "-"
-    tokens = value.strip().split(split_char)
-    data = {"year": int(tokens[0])}
-    if (len(tokens) > 1) and len(tokens[1]) > 0:
-        data["end_year"] = int(tokens[1])
-    return data
-
-
-def parse_country_code(value: str) -> str:
-    return value.split("/country/")[-1]
-
-
-def parse_language_code(value: str) -> str:
-    return value.split("/language/")[-1]
-
-
-def parse_runtime(value: str) -> int:
-    return int(value.replace(" min", ""))
-
-
-def parse_vote_count(value: str) -> int:
-    return int(value[1:-1].replace(",", ""))  # remove parens around value
-
-
-def parse_ranking(value: str) -> int:
-    return int(value.split("#")[-1])
-
-
-_re_locale = re.compile(r"""locale: '([^']+)'""")
-
-
-def parse_locale(value: str) -> str | None:
-    matched = _re_locale.search(value)
-    return matched.group(1) if matched is not None else None
 
 
 CREDIT_SECTIONS = {
@@ -305,14 +236,6 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
             "unescape": html.unescape,
             "div60": lambda x: x // 60,
             "href_id": parse_href_id,
-            "type_id": parse_type_id,
-            "year_range": parse_year_range,
-            "country_code": parse_country_code,
-            "language_code": parse_language_code,
-            "runtime": parse_runtime,
-            "vote_count": parse_vote_count,
-            "ranking": parse_ranking,
-            "locale": parse_locale,
             "credit_section_id": parse_credit_section_id,
             "credit_info": parse_credit_info,
             "episode_series_title": parse_episode_series_title,

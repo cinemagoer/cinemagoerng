@@ -4,45 +4,14 @@ from cinemagoerng import web
 
 
 @pytest.mark.parametrize(
-    ("imdb_id", "primary_image"),
-    [
-        (
-            "tt0133093",
-            "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_SX101_CR0,0,101,150_.jpg",
-        ),  # The Matrix
-        ("tt3629794", None),  # Aslan
-    ],
-)
-def test_title_parser_should_set_primary_image_from_thumbnail(imdb_id, primary_image):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert parsed.primary_image == primary_image
-
-
-@pytest.mark.parametrize(
     ("imdb_id", "tagline"),
     [
         ("tt0133093", "Free your mind"),  # The Matrix
     ],
 )
-def test_title_parser_should_set_first_tagline(imdb_id, tagline):
+def test_title_reference_parser_should_set_first_tagline(imdb_id, tagline):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert parsed.taglines == [tagline]
-
-
-@pytest.mark.parametrize(
-    ("imdb_id", "plot", "lang"),
-    [
-        (
-            "tt0266697",
-            "After waking from a four-year coma, a former assassin"
-            " wreaks vengeance on the team of assassins who betrayed her.",
-            "en-US",
-        )
-    ],
-)
-def test_title_parser_should_set_plot(imdb_id, plot, lang):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    assert parsed.plot[lang] == plot
 
 
 @pytest.mark.parametrize(
@@ -52,14 +21,15 @@ def test_title_parser_should_set_plot(imdb_id, plot, lang):
         ("tt3629794", None, None),  # Aslan
     ],
 )
-def test_title_parser_should_set_first_plot_summary(imdb_id, plot, lang):
+def test_title_reference_parser_should_set_first_plot_summary(imdb_id, plot, lang):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     if plot is None:
-        assert parsed.plot_summaries == []
+        assert parsed.plot_summaries == {}
     else:
-        assert parsed.plot_summaries[0][lang].startswith(plot)
+        assert parsed.plot_summaries[lang][0].startswith(plot)
 
 
+@pytest.mark.skip(reason="data not available anymore")
 @pytest.mark.parametrize(
     ("imdb_id", "rank"),
     [
