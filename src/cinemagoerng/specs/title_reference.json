@@ -145,6 +145,48 @@
       "extractor": {
         "path": "props.pageProps.mainColumnData.ratingsSummary.topRanking.rank"
       }
+    },
+    {
+      "foreach": "props.pageProps.mainColumnData.categories[*]",
+      "key": {
+        "path": "id",
+        "transforms": [
+          "credit_category"
+        ]
+      },
+      "extractor": {
+        "foreach": "section.items[*]",
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "id"
+            }
+          },
+          {
+            "key": "name",
+            "extractor": {
+              "path": "rowTitle"
+            }
+          },
+          {
+            "key": "notes",
+            "extractor": {
+              "path": "attributes",
+              "transforms": [
+                "split&",
+                "credit_note"
+              ]
+            }
+          },
+          {
+            "key": "characters",
+            "extractor": {
+              "path": "characters"
+            }
+          }
+        ]
+      }
     }
   ]
 }

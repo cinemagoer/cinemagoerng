@@ -30,6 +30,11 @@ from .piculet import (
 )
 
 
+########################################################################
+# PREPROCESSORS                                                        #
+########################################################################
+
+
 def parse_next_data(root: TreeNode) -> MapNode:
     path = TreePath("//script[@id='__NEXT_DATA__']/text()")
     next_data = path.apply(root)[0]
@@ -42,6 +47,11 @@ def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
             "parse_next_data": parse_next_data,
         }
     )
+
+
+########################################################################
+# POSTPROCESSORS                                                       #
+########################################################################
 
 
 def generate_episode_map(data):
@@ -77,6 +87,11 @@ def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
             "set_plot_langs": set_plot_langs,
         }
     )
+
+
+########################################################################
+# TRANSFORMERS                                                         #
+########################################################################
 
 
 class DictItem(TypedDict):
@@ -132,46 +147,37 @@ def parse_text_date(x: str) -> str | None:
     return f"{year}-{month:02}-{day}"
 
 
-def parse_href_id(value: str) -> str:
-    if "?" in value:
-        value = value.split("?")[0]
-    if value[-1] == "/":
-        value = value[:-1]
-    return value.split("/")[-1]
-
-
-CREDIT_SECTIONS = {
-    "production_managers_": "production_managers",
-    "costume_departmen": "costume_department",
-    "miscellaneous": "additional_crew",
+_CREDIT_CATEGORIES = {
+    "creator": "creators",
+    "director": "directors",
+    "writer": "writers",
 }
 
 
-def parse_credit_section_id(value: str) -> str:
-    return CREDIT_SECTIONS.get(value, value)
+def parse_credit_category(value: str) -> str:
+    return _CREDIT_CATEGORIES.get(value, value)
 
 
-class CreditInfo(TypedDict):
-    role: str | None
-    notes: list[str]
+_re_parenthesized = re.compile(r"""\(([^)]*)\)*""")
 
 
-_re_credit_notes = re.compile(r"""\(([^)]*)\)*""")
-
-
-def parse_credit_info(value: str) -> CreditInfo:
-    value = value.strip()
-    parsed: CreditInfo = {"role": None, "notes": []}
-    notes: list[str] = _re_credit_notes.findall(value)
-    if len(notes) == 0:
-        parsed["role"] = value.strip()
-    else:
-        parsed["notes"] = [note for note in notes if len(note) > 0]
-        parens = value.find("(")
-        role = value[:parens].strip()
-        if len(role) > 0:
-            parsed["role"] = role
-    return parsed
+def parse_credit_note(value: list[str]) -> list[str]:
+    notes: list[str] = []
+    for note in value:
+        note = note.strip()
+        if len(note) == 0:
+            continue
+        parens = note.find("(")
+        if parens < 0:
+            notes.append(note)
+        else:
+            subnote = note[:parens].strip()
+            if len(subnote) > 0:
+                notes.append(subnote)
+            subnotes = _re_parenthesized.findall(note)
+            if len(subnotes) > 0:
+                notes.extend(subnotes)
+    return notes
 
 
 def parse_episode_series_title(value: str) -> str | None:
@@ -248,9 +254,9 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
             "text_date": parse_text_date,
             "unescape": html.unescape,
             "div60": lambda x: x // 60,
-            "href_id": parse_href_id,
-            "credit_section_id": parse_credit_section_id,
-            "credit_info": parse_credit_info,
+            "split&": lambda x: x.split("&"),
+            "credit_category": parse_credit_category,
+            "credit_note": parse_credit_note,
             "episode_series_title": parse_episode_series_title,
             "episode_count": parse_episode_count,
             "season_number": parse_season_number,

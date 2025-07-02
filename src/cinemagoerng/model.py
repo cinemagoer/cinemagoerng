@@ -33,7 +33,6 @@ class Person:
 
 @dataclass
 class Credit(Person):
-    role: str | None = None
     notes: list[str] = field(default_factory=list)
 
     @property
@@ -44,6 +43,11 @@ class Credit(Person):
     @property
     def uncredited(self) -> bool:
         return "uncredited" in self.notes
+
+
+@dataclass
+class CastCredit(Credit):
+    characters: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -141,7 +145,7 @@ class _Title:
     top_ranking: int | None = None
     bottom_ranking: int | None = None
 
-    cast: list[Credit] = field(default_factory=list)
+    cast: list[CastCredit] = field(default_factory=list)
     directors: list[Credit] = field(default_factory=list)
     writers: list[Credit] = field(default_factory=list)
     producers: list[Credit] = field(default_factory=list)

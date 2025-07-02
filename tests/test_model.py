@@ -46,24 +46,24 @@ def test_title_sort_title_property_should_strip_article(imdb_id, title, language
 
 
 @pytest.mark.parametrize(
-    ("imdb_id", "name", "role", "notes", "as_name"),
+    ("imdb_id", "name", "notes", "as_name"),
     [
-        ("nm0905152", "Lilly Wachowski", None, ["written by", "as The Wachowski Brothers"], "The Wachowski Brothers"),
-        ("nm0000309", "David Bowie", None, [], None),
+        ("nm0905152", "Lilly Wachowski", ["written by", "as The Wachowski Brothers"], "The Wachowski Brothers"),
+        ("nm0000309", "David Bowie", [], None),
     ],
 )
-def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, role, notes, as_name):
-    credit = Credit(imdb_id=imdb_id, name=name, role=role, notes=notes)
+def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, notes, as_name):
+    credit = Credit(imdb_id=imdb_id, name=name, notes=notes)
     assert credit.as_name == as_name
 
 
 @pytest.mark.parametrize(
-    ("imdb_id", "name", "role", "notes", "uncredited"),
+    ("imdb_id", "name", "notes", "uncredited"),
     [
-        ("nm0211063", "Thomas De Quincey", None, ['book "Suspiria de Profundis"', "uncredited"], True),
-        ("nm0905152", "Lilly Wachowski", None, ["written by", "as The Wachowski Brothers"], False),
+        ("nm0211063", "Thomas De Quincey", ['book "Suspiria de Profundis"', "uncredited"], True),
+        ("nm0905152", "Lilly Wachowski", ["written by", "as The Wachowski Brothers"], False),
     ],
 )
-def test_title_uncredited_property_should_return_boolean(imdb_id, name, role, notes, uncredited):
-    credit = Credit(imdb_id=imdb_id, name=name, role=role, notes=notes)
+def test_title_uncredited_property_should_return_boolean(imdb_id, name, notes, uncredited):
+    credit = Credit(imdb_id=imdb_id, name=name, notes=notes)
     assert credit.uncredited == uncredited
