@@ -34,7 +34,8 @@ def test_title_parser_should_set_first_tagline(imdb_id, tagline):
     [
         (
             "tt0266697",
-            "After waking from a four-year coma, a former assassin wreaks vengeance on the team of assassins who betrayed her.",
+            "After waking from a four-year coma, a former assassin"
+            " wreaks vengeance on the team of assassins who betrayed her.",
             "en-US",
         )
     ],

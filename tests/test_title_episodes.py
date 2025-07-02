@@ -102,7 +102,7 @@ def test_title_episodes_parser_should_instantiate_episodes(imdb_id):
             13,
             [  # Doctor Who
                 # ("1", "tt0562992", "Rose", 2006, date(2006, 3, 17)),  # XXX: page contains incorrect data
-                # ("13", "tt0563000", "The Parting of the Ways", 2006, date(2006, 6, 9)),  # XXX: page contains incorrect data
+                # ("13", "tt0563000", "The Parting of the Ways", 2006, date(2006, 6, 9)),  # XXX: page contains incorrect data  # noqa: E501
             ],
         ),
         (
