@@ -79,6 +79,18 @@ def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     )
 
 
+class DictItem(TypedDict):
+    key: str
+    value: Any | None
+
+
+def make_dict(item: DictItem, /) -> dict[str, Any]:
+    value = item.get("value")
+    if value is None:
+        return {}
+    return {item["key"]: value}
+
+
 class DateDict(TypedDict):
     year: int | None
     month: int | None
@@ -231,6 +243,7 @@ def build_episode_graphql_url(url_data: dict[str, Any]) -> str:
 def update_transformers(registry: dict[str, Transformer]) -> None:
     registry.update(
         {
+            "make_dict": make_dict,
             "date": make_date,
             "text_date": parse_text_date,
             "unescape": html.unescape,
