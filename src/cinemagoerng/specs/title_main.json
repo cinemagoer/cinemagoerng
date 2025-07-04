@@ -1,5 +1,5 @@
 {
-  "version": "20250519",
+  "version": "20250704",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -134,9 +134,10 @@
             }
           },
           {
-            "key": "role",
+            "key": "characters",
             "extractor": {
-              "path": "characters[0].name"
+              "foreach": "characters[*]",
+              "path": "name"
             }
           },
           {
