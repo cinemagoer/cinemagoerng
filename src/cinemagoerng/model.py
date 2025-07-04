@@ -257,7 +257,6 @@ EpisodeMap: TypeAlias = dict[str, dict[str, TVEpisode]]
 @dataclass(kw_only=True)
 class _TVSeriesBase(_TimedTitle):
     end_year: int | None = None
-    episode_count: int | None = None
     episodes: EpisodeMap = field(default_factory=dict)
     creators: list[Credit] = field(default_factory=list)
 

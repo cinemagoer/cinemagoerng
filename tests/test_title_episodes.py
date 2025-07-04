@@ -169,18 +169,6 @@ def test_title_episodes_parser_should_set_plot(imdb_id, season, episode, plot):
 
 
 @pytest.mark.parametrize(
-    ("imdb_id", "episode_count"),
-    [
-        ("tt0412142", 176),  # House M.D.
-        ("tt0185906", 10),  # Band of Brothers (Mini-Series)
-    ],
-)
-def test_title_episodes_parser_should_set_episode_count(imdb_id, episode_count):
-    parsed = web.get_title(imdb_id=imdb_id, page="episodes", season="1")
-    assert parsed.episode_count == episode_count
-
-
-@pytest.mark.parametrize(
     ("imdb_id", "episode_counts"),
     [
         (

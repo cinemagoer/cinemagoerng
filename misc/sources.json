@@ -108,11 +108,6 @@
       "reference",
       "taglines",
       "series:episodes"
-    ],
-    "episode_count": [
-      "main",
-      "episodes",
-      "episode:reference"
     ]
   },
   "tvEpisode": {

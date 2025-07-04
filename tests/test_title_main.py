@@ -429,18 +429,6 @@ def test_title_main_parser_should_set_main_creators_for_series(imdb_id, n, creat
         assert [(credit.imdb_id, credit.name, credit.notes) for credit in parsed.creators] == creators
 
 
-@pytest.mark.parametrize(
-    ("imdb_id", "episode_count"),
-    [
-        ("tt0412142", 176),  # House M.D.
-        ("tt0185906", 10),  # Band of Brothers (Mini-Series)
-    ],
-)
-def test_title_parser_should_set_episode_count(imdb_id, episode_count):
-    parsed = web.get_title(imdb_id=imdb_id, page="main")
-    assert parsed.episode_count == episode_count
-
-
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(
     ("imdb_id", "type_", "series_data"),

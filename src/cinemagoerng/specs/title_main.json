@@ -214,12 +214,6 @@
       }
     },
     {
-      "key": "episode_count",
-      "extractor": {
-        "path": "props.pageProps.mainColumnData.episodes.episodes.total"
-      }
-    },
-    {
       "key": "series",
       "extractor": {
         "rules": [
