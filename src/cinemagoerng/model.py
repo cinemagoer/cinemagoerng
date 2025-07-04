@@ -280,7 +280,6 @@ class _TVSeriesBase(_TimedTitle):
 @dataclass(kw_only=True)
 class TVSeries(_TVSeriesBase):
     type_id: Literal["tvSeries"] = "tvSeries"
-    season_count: int | None = None
 
 
 @dataclass(kw_only=True)
