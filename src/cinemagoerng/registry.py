@@ -148,9 +148,21 @@ def parse_text_date(x: str) -> str | None:
 
 
 _CREDIT_CATEGORIES = {
-    "creator": "creators",
     "director": "directors",
     "writer": "writers",
+    "producer": "producers",
+    "composer": "composers",
+    "cinematographer": "cinematographers",
+    "editor": "editors",
+    "casting_director": "casting_directors",
+    "production_designer": "production_designers",
+    "art_director": "art_directors",
+    "set_decorator": "set_decorators",
+    "costume_designer": "costume_designers",
+    "production_manager": "production_managers",
+    "assistant_director": "assistant_directors",
+    "choreographer": "choreographers",
+    "miscellaneous": "additional_crew",
 }
 
 
