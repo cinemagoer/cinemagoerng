@@ -108,31 +108,31 @@ def test_title_reference_parser_should_set_all_cast(imdb_id, n, cast):
             "tt1000252",
             1,
             [  # Blink
-                ("nm0531751", "Hettie Macdonald", [])
+                ("nm0531751", "Hettie Macdonald", None, [])
             ],
         ),
         (
             "tt0133093",
             2,
             [  # The Matrix
-                ("nm0905154", "Lana Wachowski", ["director", "as The Wachowski Brothers"]),
-                ("nm0905152", "Lilly Wachowski", ["director", "as The Wachowski Brothers"]),
+                ("nm0905154", "Lana Wachowski", "director", ["as The Wachowski Brothers"]),
+                ("nm0905152", "Lilly Wachowski", "director", ["as The Wachowski Brothers"]),
             ],
         ),
         (
             "tt0092580",
             10,
             [  # Aria
-                ("nm0000265", "Robert Altman", ["director", 'segment "Les Boréades"']),
-                ("nm0000915", "Bruce Beresford", ["director", 'segment "Die tote Stadt"']),
-                ("nm0117317", "Bill Bryden", ["director", 'segment "I pagliacci"']),
-                ("nm0000419", "Jean-Luc Godard", ["director", 'segment "Armide"']),
-                ("nm0418746", "Derek Jarman", ["director", 'segment "Depuis le jour"']),
-                ("nm0734466", "Franc Roddam", ["director", 'segment "Liebestod"']),
-                ("nm0001676", "Nicolas Roeg", ["director", 'segment "Un ballo in maschera"']),
-                ("nm0001692", "Ken Russell", ["director", 'segment "Nessun dorma"']),
-                ("nm0836430", "Charles Sturridge", ["director", 'segment "La virgine degli angeli"']),
-                ("nm0854697", "Julien Temple", ["director", 'segment "Rigoletto"']),
+                ("nm0000265", "Robert Altman", "director", ['segment "Les Boréades"']),
+                ("nm0000915", "Bruce Beresford", "director", ['segment "Die tote Stadt"']),
+                ("nm0117317", "Bill Bryden", "director", ['segment "I pagliacci"']),
+                ("nm0000419", "Jean-Luc Godard", "director", ['segment "Armide"']),
+                ("nm0418746", "Derek Jarman", "director", ['segment "Depuis le jour"']),
+                ("nm0734466", "Franc Roddam", "director", ['segment "Liebestod"']),
+                ("nm0001676", "Nicolas Roeg", "director", ['segment "Un ballo in maschera"']),
+                ("nm0001692", "Ken Russell", "director", ['segment "Nessun dorma"']),
+                ("nm0836430", "Charles Sturridge", "director", ['segment "La virgine degli angeli"']),
+                ("nm0854697", "Julien Temple", "director", ['segment "Rigoletto"']),
             ],
         ),
         ("tt3629794", 0, []),  # Aslan
@@ -142,7 +142,7 @@ def test_title_reference_parser_should_set_all_directors(imdb_id, n, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.directors) == n
     if len(directors) > 0:
-        assert [(credit.imdb_id, credit.name, credit.notes) for credit in parsed.directors] == directors
+        assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.directors] == directors
 
 
 @pytest.mark.parametrize(
@@ -152,24 +152,24 @@ def test_title_reference_parser_should_set_all_directors(imdb_id, n, directors):
             "tt7045440",
             1,
             [  # David Bowie: Ziggy Stardust
-                ("nm0000309", "David Bowie", ["writer"])
+                ("nm0000309", "David Bowie", "writer", [])
             ],
         ),
         (
             "tt0133093",
             2,
             [  # The Matrix
-                ("nm0905152", "Lilly Wachowski", ["written by", "as The Wachowski Brothers"]),
-                ("nm0905154", "Lana Wachowski", ["written by", "as The Wachowski Brothers"]),
+                ("nm0905152", "Lilly Wachowski", "written by", ["as The Wachowski Brothers"]),
+                ("nm0905154", "Lana Wachowski", "written by", ["as The Wachowski Brothers"]),
             ],
         ),
         (
             "tt0076786",
             3,
             [  # Suspiria
-                ("nm0000783", "Dario Argento", ["screenplay and"]),
-                ("nm0630453", "Daria Nicolodi", ["screenplay"]),
-                ("nm0211063", "Thomas De Quincey", ['book "Suspiria de Profundis"', "uncredited"]),
+                ("nm0000783", "Dario Argento", "screenplay and", []),
+                ("nm0630453", "Daria Nicolodi", "screenplay", []),
+                ("nm0211063", "Thomas De Quincey", 'book "Suspiria de Profundis"', ["uncredited"]),
             ],
         ),
         ("tt0092580", 10, []),  # Aria
@@ -180,7 +180,7 @@ def test_title_reference_parser_should_set_all_writers(imdb_id, n, writers):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.writers) == n
     if len(writers) > 0:
-        assert [(credit.imdb_id, credit.name, credit.notes) for credit in parsed.writers] == writers
+        assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.writers] == writers
 
 
 @pytest.mark.skip(reason="series reference page parser not done yet")
@@ -191,15 +191,15 @@ def test_title_reference_parser_should_set_all_writers(imdb_id, n, writers):
             "tt0436992",
             1,
             [  # Doctor Who
-                ("nm0628285", "Sydney Newman", [])
+                ("nm0628285", "Sydney Newman", None, [])
             ],
         ),
         (
             "tt0445114",
             2,
             [  # Extras
-                ("nm0315041", "Ricky Gervais", []),
-                ("nm0580351", "Stephen Merchant", []),
+                ("nm0315041", "Ricky Gervais", None, []),
+                ("nm0580351", "Stephen Merchant", None, []),
             ],
         ),
         ("tt0185906", 0, []),  # Band of Brothers (Mini-Series)
@@ -209,7 +209,7 @@ def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, c
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.creators) == n
     if len(creators) > 0:
-        assert [(credit.imdb_id, credit.name, credit.notes) for credit in parsed.creators] == creators
+        assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.creators] == creators
 
 
 @pytest.mark.parametrize(
@@ -219,10 +219,10 @@ def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, c
             "tt1000252",
             4,
             [  # Blink
-                ("nm2289913", "Charlotte Mitchell", ["costume supervisor"]),
-                ("nm2939651", "Sara Morgan", ["costume assistant"]),
-                ("nm1574636", "Bobbie Peach", ["costume assistant", "as Bobby Peach"]),
-                ("nm1834907", "Stephen Kill", ["costume prop maker", "uncredited"]),
+                ("nm2289913", "Charlotte Mitchell", "costume supervisor", []),
+                ("nm2939651", "Sara Morgan", "costume assistant", []),
+                ("nm1574636", "Bobbie Peach", "costume assistant", ["as Bobby Peach"]),
+                ("nm1834907", "Stephen Kill", "costume prop maker", ["uncredited"]),
             ],
         ),
     ],
@@ -232,4 +232,4 @@ def test_title_reference_parser_should_set_all_crew_members(imdb_id, n, crew):
     parsed_crew = parsed.costume_department
     assert len(parsed_crew) == n
     if len(crew) > 0:
-        assert [(credit.imdb_id, credit.name, credit.notes) for credit in parsed_crew] == crew
+        assert [(credit.imdb_id, credit.name, credit.job,credit.notes) for credit in parsed_crew] == crew

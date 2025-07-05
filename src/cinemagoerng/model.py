@@ -32,7 +32,7 @@ class Person:
 
 
 @dataclass
-class Credit(Person):
+class _Credit(Person):
     notes: list[str] = field(default_factory=list)
 
     @property
@@ -46,7 +46,12 @@ class Credit(Person):
 
 
 @dataclass
-class CastCredit(Credit):
+class CrewCredit(_Credit):
+    job: str | None = None
+
+
+@dataclass
+class CastCredit(_Credit):
     characters: list[str] = field(default_factory=list)
 
 
@@ -146,39 +151,39 @@ class _Title:
     bottom_ranking: int | None = None
 
     cast: list[CastCredit] = field(default_factory=list)
-    directors: list[Credit] = field(default_factory=list)
-    writers: list[Credit] = field(default_factory=list)
-    producers: list[Credit] = field(default_factory=list)
-    composers: list[Credit] = field(default_factory=list)
-    cinematographers: list[Credit] = field(default_factory=list)
-    editors: list[Credit] = field(default_factory=list)
-    casting_directors: list[Credit] = field(default_factory=list)
-    production_designers: list[Credit] = field(default_factory=list)
-    art_directors: list[Credit] = field(default_factory=list)
-    set_decorators: list[Credit] = field(default_factory=list)
-    costume_designers: list[Credit] = field(default_factory=list)
-    make_up_department: list[Credit] = field(default_factory=list)
-    production_managers: list[Credit] = field(default_factory=list)
-    assistant_directors: list[Credit] = field(default_factory=list)
-    art_department: list[Credit] = field(default_factory=list)
-    sound_department: list[Credit] = field(default_factory=list)
-    special_effects: list[Credit] = field(default_factory=list)
-    visual_effects: list[Credit] = field(default_factory=list)
-    stunts: list[Credit] = field(default_factory=list)
-    choreographers: list[Credit] = field(default_factory=list)
-    camera_department: list[Credit] = field(default_factory=list)
-    animation_department: list[Credit] = field(default_factory=list)
-    casting_department: list[Credit] = field(default_factory=list)
-    costume_department: list[Credit] = field(default_factory=list)
-    editorial_department: list[Credit] = field(default_factory=list)
-    electrical_department: list[Credit] = field(default_factory=list)
-    location_management: list[Credit] = field(default_factory=list)
-    music_department: list[Credit] = field(default_factory=list)
-    production_department: list[Credit] = field(default_factory=list)
-    script_department: list[Credit] = field(default_factory=list)
-    transportation_department: list[Credit] = field(default_factory=list)
-    additional_crew: list[Credit] = field(default_factory=list)
-    thanks: list[Credit] = field(default_factory=list)
+    directors: list[CrewCredit] = field(default_factory=list)
+    writers: list[CrewCredit] = field(default_factory=list)
+    producers: list[CrewCredit] = field(default_factory=list)
+    composers: list[CrewCredit] = field(default_factory=list)
+    cinematographers: list[CrewCredit] = field(default_factory=list)
+    editors: list[CrewCredit] = field(default_factory=list)
+    casting_directors: list[CrewCredit] = field(default_factory=list)
+    production_designers: list[CrewCredit] = field(default_factory=list)
+    art_directors: list[CrewCredit] = field(default_factory=list)
+    set_decorators: list[CrewCredit] = field(default_factory=list)
+    costume_designers: list[CrewCredit] = field(default_factory=list)
+    make_up_department: list[CrewCredit] = field(default_factory=list)
+    production_managers: list[CrewCredit] = field(default_factory=list)
+    assistant_directors: list[CrewCredit] = field(default_factory=list)
+    art_department: list[CrewCredit] = field(default_factory=list)
+    sound_department: list[CrewCredit] = field(default_factory=list)
+    special_effects: list[CrewCredit] = field(default_factory=list)
+    visual_effects: list[CrewCredit] = field(default_factory=list)
+    stunts: list[CrewCredit] = field(default_factory=list)
+    choreographers: list[CrewCredit] = field(default_factory=list)
+    camera_department: list[CrewCredit] = field(default_factory=list)
+    animation_department: list[CrewCredit] = field(default_factory=list)
+    casting_department: list[CrewCredit] = field(default_factory=list)
+    costume_department: list[CrewCredit] = field(default_factory=list)
+    editorial_department: list[CrewCredit] = field(default_factory=list)
+    electrical_department: list[CrewCredit] = field(default_factory=list)
+    location_management: list[CrewCredit] = field(default_factory=list)
+    music_department: list[CrewCredit] = field(default_factory=list)
+    production_department: list[CrewCredit] = field(default_factory=list)
+    script_department: list[CrewCredit] = field(default_factory=list)
+    transportation_department: list[CrewCredit] = field(default_factory=list)
+    additional_crew: list[CrewCredit] = field(default_factory=list)
+    thanks: list[CrewCredit] = field(default_factory=list)
 
     @property
     def countries(self) -> list[str]:
@@ -258,10 +263,10 @@ EpisodeMap: TypeAlias = dict[str, dict[str, TVEpisode]]
 
 
 @dataclass(kw_only=True)
-class _TVSeriesBase(_TimedTitle):
+class _TVSeries(_TimedTitle):
     end_year: int | None = None
     episodes: EpisodeMap = field(default_factory=dict)
-    creators: list[Credit] = field(default_factory=list)
+    creators: list[CrewCredit] = field(default_factory=list)
 
     def get_episodes_by_year(self, year: int) -> list[TVEpisode]:
         return [
@@ -280,12 +285,12 @@ class _TVSeriesBase(_TimedTitle):
 
 
 @dataclass(kw_only=True)
-class TVSeries(_TVSeriesBase):
+class TVSeries(_TVSeries):
     type_id: Literal["tvSeries"] = "tvSeries"
 
 
 @dataclass(kw_only=True)
-class TVMiniSeries(_TVSeriesBase):
+class TVMiniSeries(_TVSeries):
     type_id: Literal["tvMiniSeries"] = "tvMiniSeries"
 
 

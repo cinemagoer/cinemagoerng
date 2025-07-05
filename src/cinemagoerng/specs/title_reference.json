@@ -1,6 +1,6 @@
 {
-  "version": "20250704",
-  "url": "https://www.imdb.com/title/%(imdb_id)s/reference",
+  "version": "20250705",
+  "url": "https://www.imdb.com/title/%(imdb_id)s/reference/",
   "doctype": "html",
   "path_type": "jmespath",
   "pre": [
@@ -170,12 +170,11 @@
             }
           },
           {
-            "key": "notes",
+            "key": "__dict__",
             "extractor": {
               "path": "attributes",
               "transforms": [
-                "split&",
-                "credit_note"
+                "credit_attributes"
               ]
             }
           },
@@ -188,5 +187,8 @@
         ]
       }
     }
+  ],
+  "post": [
+    "unpack_dicts"
   ]
 }

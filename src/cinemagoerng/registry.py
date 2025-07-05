@@ -54,6 +54,20 @@ def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
 ########################################################################
 
 
+def unpack_dicts(data):
+    for child in data.values():
+        if isinstance(child, dict):
+            unpack_dicts(child)
+        if isinstance(child, list):
+            for subchild in child:
+                if isinstance(subchild, dict):
+                    unpack_dicts(subchild)
+    collected = data.get("__dict__")
+    if collected is not None:
+        data.update(collected)
+        del data["__dict__"]
+
+
 def generate_episode_map(data):
     for season, episodes in data["episodes"].items():
         data["episodes"][season] = {ep["episode"]: ep for ep in episodes}
@@ -83,6 +97,7 @@ def set_plot_langs(data):
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     registry.update(
         {
+            "unpack_dicts": unpack_dicts,
             "generate_episode_map": generate_episode_map,
             "set_plot_langs": set_plot_langs,
         }
@@ -173,23 +188,18 @@ def parse_credit_category(value: str) -> str:
 _re_parenthesized = re.compile(r"""\(([^)]*)\)*""")
 
 
-def parse_credit_note(value: list[str]) -> list[str]:
-    notes: list[str] = []
-    for note in value:
-        note = note.strip()
-        if len(note) == 0:
-            continue
-        parens = note.find("(")
-        if parens < 0:
-            notes.append(note)
-        else:
-            subnote = note[:parens].strip()
-            if len(subnote) > 0:
-                notes.append(subnote)
-            subnotes = _re_parenthesized.findall(note)
-            if len(subnotes) > 0:
-                notes.extend(subnotes)
-    return notes
+class CreditAttributes(TypedDict):
+    job: str | None
+    notes: list[str]
+
+
+def parse_credit_attributes(value: str) -> CreditAttributes:
+    parenthesis = value.find("(")
+    if parenthesis < 0:
+        return {"job": value, "notes": []}
+    job = value[:parenthesis].strip()
+    notes = _re_parenthesized.findall(value)
+    return {"job": job if len(job) > 0 else None, "notes": notes}
 
 
 def parse_episode_series_title(value: str) -> str | None:
@@ -262,9 +272,8 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
             "text_date": parse_text_date,
             "unescape": html.unescape,
             "div60": lambda x: x // 60,
-            "split&": lambda x: x.split("&"),
             "credit_category": parse_credit_category,
-            "credit_note": parse_credit_note,
+            "credit_attributes": parse_credit_attributes,
             "episode_series_title": parse_episode_series_title,
             "season_number": parse_season_number,
             "episode_number": parse_episode_number,

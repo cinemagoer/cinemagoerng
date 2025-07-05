@@ -319,7 +319,7 @@ def test_title_parser_should_set_top_ranking(page, imdb_id, rank):
         ("tt3629794", 0, []),  # Aslan
     ],
 )
-def test_title_parser_should_set_main_cast(imdb_id, n, cast):
+def test_title_main_parser_should_set_main_cast(imdb_id, n, cast):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert len(parsed.cast) == n
     if len(cast) > 0:
@@ -333,24 +333,24 @@ def test_title_parser_should_set_main_cast(imdb_id, n, cast):
             "tt1000252",
             1,
             [  # Blink
-                ("nm0531751", "Hettie Macdonald", []),
+                ("nm0531751", "Hettie Macdonald", None, []),
             ],
         ),
         (
             "tt0133093",
             2,
             [  # The Matrix
-                ("nm0905154", "Lana Wachowski", []),
-                ("nm0905152", "Lilly Wachowski", []),
+                ("nm0905154", "Lana Wachowski", None, []),
+                ("nm0905152", "Lilly Wachowski", None, []),
             ],
         ),
         (
             "tt0092580",
             3,
             [  # Aria
-                ("nm0000265", "Robert Altman", []),
-                ("nm0000915", "Bruce Beresford", []),
-                ("nm0117317", "Bill Bryden", []),
+                ("nm0000265", "Robert Altman", None, []),
+                ("nm0000915", "Bruce Beresford", None, []),
+                ("nm0117317", "Bill Bryden", None, []),
             ],
         ),
         ("tt3629794", 0, []),  # Aslan
@@ -360,7 +360,7 @@ def test_title_main_parser_should_set_main_directors(imdb_id, n, directors):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert len(parsed.directors) == n
     if len(directors) > 0:
-        assert [(credit.imdb_id, credit.name, credit.notes) for credit in parsed.directors] == directors
+        assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.directors] == directors
 
 
 @pytest.mark.parametrize(
@@ -370,24 +370,24 @@ def test_title_main_parser_should_set_main_directors(imdb_id, n, directors):
             "tt7045440",
             1,
             [  # David Bowie: Ziggy Stardust
-                ("nm0000309", "David Bowie", [])
+                ("nm0000309", "David Bowie", None, [])
             ],
         ),
         (
             "tt0133093",
             2,
             [  # The Matrix
-                ("nm0905152", "Lilly Wachowski", []),
-                ("nm0905154", "Lana Wachowski", []),
+                ("nm0905152", "Lilly Wachowski", None, []),
+                ("nm0905154", "Lana Wachowski", None, []),
             ],
         ),
         (
             "tt0076786",
             3,
             [  # Suspiria
-                ("nm0000783", "Dario Argento", []),
-                ("nm0630453", "Daria Nicolodi", []),
-                ("nm0211063", "Thomas De Quincey", []),
+                ("nm0000783", "Dario Argento", None, []),
+                ("nm0630453", "Daria Nicolodi", None, []),
+                ("nm0211063", "Thomas De Quincey", None, []),
             ],
         ),
         ("tt0092580", 3, []),  # Aria
@@ -398,7 +398,7 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert len(parsed.writers) == n
     if len(writers) > 0:
-        assert [(credit.imdb_id, credit.name, credit.notes) for credit in parsed.writers] == writers
+        assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.writers] == writers
 
 
 @pytest.mark.parametrize(
@@ -408,15 +408,15 @@ def test_title_main_parser_should_set_main_writers(imdb_id, n, writers):
             "tt0436992",
             1,
             [  # Doctor Who
-                ("nm0628285", "Sydney Newman", [])
+                ("nm0628285", "Sydney Newman", None, [])
             ],
         ),
         (
             "tt0445114",
             2,
             [  # Extras
-                ("nm0315041", "Ricky Gervais", []),
-                ("nm0580351", "Stephen Merchant", []),
+                ("nm0315041", "Ricky Gervais", None, []),
+                ("nm0580351", "Stephen Merchant", None, []),
             ],
         ),
         ("tt0185906", 0, []),  # Band of Brothers (Mini-Series)
@@ -426,7 +426,7 @@ def test_title_main_parser_should_set_main_creators_for_series(imdb_id, n, creat
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert len(parsed.creators) == n
     if len(creators) > 0:
-        assert [(credit.imdb_id, credit.name, credit.notes) for credit in parsed.creators] == creators
+        assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.creators] == creators
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])
@@ -450,7 +450,7 @@ def test_title_parser_should_set_series_for_episode(page, imdb_id, type_, series
         ("tt1247466", 2001),  # Band of Brothers: Points
     ],
 )
-def test_title_parser_should_set_series_year_for_episode(imdb_id, year):
+def test_title_main_parser_should_set_series_year_for_episode(imdb_id, year):
     parsed = web.get_title(imdb_id=imdb_id, page="main")
     assert parsed.series.year == year
 

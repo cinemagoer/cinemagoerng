@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng.model import Credit, Movie
+from cinemagoerng.model import CrewCredit, Movie
 
 
 @pytest.mark.parametrize(
@@ -53,7 +53,7 @@ def test_title_sort_title_property_should_strip_article(imdb_id, title, language
     ],
 )
 def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, notes, as_name):
-    credit = Credit(imdb_id=imdb_id, name=name, notes=notes)
+    credit = CrewCredit(imdb_id=imdb_id, name=name, notes=notes)
     assert credit.as_name == as_name
 
 
@@ -65,5 +65,5 @@ def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, no
     ],
 )
 def test_title_uncredited_property_should_return_boolean(imdb_id, name, notes, uncredited):
-    credit = Credit(imdb_id=imdb_id, name=name, notes=notes)
+    credit = CrewCredit(imdb_id=imdb_id, name=name, notes=notes)
     assert credit.uncredited == uncredited
