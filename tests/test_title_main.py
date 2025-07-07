@@ -443,16 +443,17 @@ def test_title_parser_should_set_series_for_episode(page, imdb_id, type_, series
     assert (parsed.series.imdb_id, parsed.series.title) == series_data
 
 
+@pytest.mark.parametrize(("page",), [("main",), ("reference",)])
 @pytest.mark.parametrize(
-    ("imdb_id", "year"),
+    ("imdb_id", "year", "end_year"),
     [
-        ("tt1000252", 2005),  # Doctor Who: Blink
-        ("tt1247466", 2001),  # Band of Brothers: Points
+        ("tt1000252", 2005, 2022),  # Doctor Who: Blink
+        ("tt1247466", 2001, 2001),  # Band of Brothers: Points
     ],
 )
-def test_title_main_parser_should_set_series_year_for_episode(imdb_id, year):
-    parsed = web.get_title(imdb_id=imdb_id, page="main")
-    assert parsed.series.year == year
+def test_title_parser_should_set_series_years_for_episode(page, imdb_id, year, end_year):
+    parsed = web.get_title(imdb_id=imdb_id, page=page)
+    assert (parsed.series.year, parsed.series.end_year) == (year, end_year)
 
 
 @pytest.mark.parametrize(("page",), [("main",), ("reference",)])

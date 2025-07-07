@@ -1,5 +1,5 @@
 {
-  "version": "20250705",
+  "version": "20250707",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -185,6 +185,101 @@
             }
           }
         ]
+      }
+    },
+    {
+      "key": "series",
+      "extractor": {
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.series.series.id"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.series.series.titleType.id"
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.series.series.originalTitleText.text"
+            }
+          },
+          {
+            "key": "year",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.series.series.releaseYear.year"
+            }
+          },
+          {
+            "key": "end_year",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.series.series.releaseYear.endYear"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "season",
+      "extractor": {
+        "path": "props.pageProps.mainColumnData.series.episodeNumber.seasonNumber",
+        "transforms": [
+          "str"
+        ]
+      }
+    },
+    {
+      "key": "episode",
+      "extractor": {
+        "path": "props.pageProps.mainColumnData.series.episodeNumber.episodeNumber",
+        "transforms": [
+          "str"
+        ]
+      }
+    },
+    {
+      "key": "release_date",
+      "extractor": {
+        "rules": [
+          {
+            "key": "year",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.releaseDate.year"
+            }
+          },
+          {
+            "key": "month",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.releaseDate.month"
+            }
+          },
+          {
+            "key": "day",
+            "extractor": {
+              "path": "props.pageProps.mainColumnData.releaseDate.day"
+            }
+          }
+        ],
+        "transforms": [
+          "date"
+        ]
+      }
+    },
+    {
+      "key": "previous_episode",
+      "extractor": {
+        "path": "props.pageProps.mainColumnData.series.previousEpisode.id"
+      }
+    },
+    {
+      "key": "next_episode",
+      "extractor": {
+        "path": "props.pageProps.mainColumnData.series.nextEpisode.id"
       }
     }
   ],

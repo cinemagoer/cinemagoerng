@@ -1,5 +1,5 @@
 {
-  "version": "20250704",
+  "version": "20250707",
   "url": "https://www.imdb.com/title/%(imdb_id)s/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -239,6 +239,12 @@
             "key": "year",
             "extractor": {
               "path": "props.pageProps.aboveTheFoldData.series.series.releaseYear.year"
+            }
+          },
+          {
+            "key": "end_year",
+            "extractor": {
+              "path": "props.pageProps.aboveTheFoldData.series.series.releaseYear.endYear"
             }
           }
         ]

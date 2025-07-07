@@ -136,32 +136,6 @@ def make_date(x: DateDict) -> str | None:
     return f"{year}-{month:02}-{day:02}"
 
 
-_month_names = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-]
-_month_nums = {m: (i + 1) for i, m in enumerate(_month_names)}
-
-
-def parse_text_date(x: str) -> str | None:
-    tokens = x.split("(")[0].split()
-    if len(tokens) != 3:
-        return None
-    day, month_name, year = tokens
-    month = _month_nums[month_name]
-    return f"{year}-{month:02}-{day}"
-
-
 _CREDIT_CATEGORIES = {
     "director": "directors",
     "writer": "writers",
@@ -200,20 +174,6 @@ def parse_credit_attributes(value: str) -> CreditAttributes:
     job = value[:parenthesis].strip()
     notes = _re_parenthesized.findall(value)
     return {"job": job if len(job) > 0 else None, "notes": notes}
-
-
-def parse_episode_series_title(value: str) -> str | None:
-    if value[0] != '"':
-        return None
-    return value.split('"')[1]
-
-
-def parse_season_number(value: str) -> str:
-    return value.strip().split("Season ")[1]
-
-
-def parse_episode_number(value: str) -> str:
-    return value.strip().split("Episode ")[1]
 
 
 def exists(value: str) -> bool:
@@ -269,14 +229,10 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
         {
             "make_dict": make_dict,
             "date": make_date,
-            "text_date": parse_text_date,
             "unescape": html.unescape,
             "div60": lambda x: x // 60,
             "credit_category": parse_credit_category,
             "credit_attributes": parse_credit_attributes,
-            "episode_series_title": parse_episode_series_title,
-            "season_number": parse_season_number,
-            "episode_number": parse_episode_number,
             "exists": exists,
             "extract_value": extract_value,
             "flatten_list_of_dicts": flatten_list_of_dicts,
