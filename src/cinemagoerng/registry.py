@@ -81,7 +81,7 @@ def set_plot_langs(data: CollectedData) -> CollectedData:
     default_lang = data.get("_page_lang", "en-US")
 
     if not episodes:
-        return {}
+        return data
 
     # Flatten episodes if it's a dictionary of seasons
     if not isinstance(episodes, list):
