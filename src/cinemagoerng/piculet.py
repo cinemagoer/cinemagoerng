@@ -24,11 +24,10 @@ from types import MappingProxyType
 from typing import Any, Literal, Mapping, MutableMapping, TypeAlias
 
 import lxml.etree
+import lxml.html
 import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
-from lxml.etree import fromstring as parse_xml
-from lxml.html import fromstring as parse_html
 
 
 XMLNode: TypeAlias = lxml.etree._Element
@@ -36,8 +35,16 @@ JSONNode: TypeAlias = Mapping[str, Any]
 MutableMapNode: TypeAlias = MutableMapping[str, Any]
 
 
-CollectedData: TypeAlias = Mapping[str, Any]
+DocType: TypeAlias = Literal["html", "xml", "json"]
 
+_PARSERS: dict[DocType, Callable[[str], XMLNode | JSONNode]] = {
+    "html": lxml.html.fromstring,
+    "xml": lxml.etree.fromstring,
+    "json": json.loads,
+}
+
+
+CollectedData: TypeAlias = Mapping[str, Any]
 
 _EMPTY: CollectedData = MappingProxyType({})
 
@@ -237,9 +244,6 @@ def collect(
     return data if len(data) > 0 else _EMPTY
 
 
-DocType: TypeAlias = Literal["html", "xml", "json"]
-
-
 @dataclass(kw_only=True)
 class Spec:
     version: str
@@ -272,13 +276,7 @@ def scrape(
     pre: list[Preprocess] | None = None,
     post: list[Postprocess] | None = None,
 ) -> CollectedData:
-    match doctype:
-        case "html":
-            root = parse_html(document)
-        case "xml":
-            root = parse_xml(document)
-        case "json":
-            root = json.loads(document)
+    root = _PARSERS[doctype](document)
     if pre is not None:
         for preprocess in pre:
             root = preprocess.apply(root)
