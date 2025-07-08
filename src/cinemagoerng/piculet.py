@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from types import MappingProxyType
-from typing import Any, Literal, Mapping, MutableMapping, TypeAlias
+from typing import Any, Literal, Mapping, TypeAlias
 
 import lxml.etree
 import lxml.html
@@ -32,7 +32,6 @@ from lxml.etree import XPath as compile_xpath
 
 XMLNode: TypeAlias = lxml.etree._Element
 JSONNode: TypeAlias = Mapping[str, Any]
-MutableMapNode: TypeAlias = MutableMapping[str, Any]
 
 
 DocType: TypeAlias = Literal["html", "xml", "json"]
@@ -63,7 +62,7 @@ class Preprocess:
         return self.name
 
 
-Postprocessor: TypeAlias = Callable[[MutableMapNode], None]
+Postprocessor: TypeAlias = Callable[[CollectedData], CollectedData]
 
 postprocessors: dict[str, Postprocessor] = {}
 
@@ -283,7 +282,7 @@ def scrape(
     data = collect(root, rules)
     if post is not None:
         for postprocess in post:
-            postprocess.apply(data)
+            data = postprocess.apply(data)
     return data
 
 
