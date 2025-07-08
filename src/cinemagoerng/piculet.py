@@ -129,15 +129,11 @@ class JSONPath:
 
 
 @dataclass(kw_only=True)
-class Extractor:
-    transforms: list[Transform] = field(default_factory=list)
-
-
-@dataclass(kw_only=True)
-class XMLPicker(Extractor):
+class XMLPicker:
     path: XMLPath
     sep: str = ""
     foreach: XMLPath | None = None
+    transforms: list[Transform] = field(default_factory=list)
 
     def extract(self, root: XMLNode) -> str | None:
         selected = self.path.apply(root)
@@ -145,27 +141,30 @@ class XMLPicker(Extractor):
 
 
 @dataclass(kw_only=True)
-class JSONPicker(Extractor):
+class JSONPicker:
     path: JSONPath
     foreach: JSONPath | None = None
+    transforms: list[Transform] = field(default_factory=list)
 
     def extract(self, root: JSONNode) -> Any:
         return self.path.apply(root)
 
 
 @dataclass(kw_only=True)
-class XMLCollector(Extractor):
+class XMLCollector:
     rules: list[XMLRule] = field(default_factory=list)
     foreach: XMLPath | None = None
+    transforms: list[Transform] = field(default_factory=list)
 
     def extract(self, root: XMLNode) -> CollectedData:
         return collect(root, self.rules)
 
 
 @dataclass(kw_only=True)
-class JSONCollector(Extractor):
+class JSONCollector:
     rules: list[JSONRule] = field(default_factory=list)
     foreach: JSONPath | None = None
+    transforms: list[Transform] = field(default_factory=list)
 
     def extract(self, root: JSONNode) -> CollectedData:
         return collect(root, self.rules)
