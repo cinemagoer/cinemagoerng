@@ -116,7 +116,7 @@ commands =
 
 [testenv:style]
 commands =
-    ruff check src tests
+    ruff check --preview src tests
 """
 
 [build-system]

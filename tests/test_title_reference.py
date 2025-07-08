@@ -232,4 +232,4 @@ def test_title_reference_parser_should_set_all_crew_members(imdb_id, n, crew):
     parsed_crew = parsed.costume_department
     assert len(parsed_crew) == n
     if len(crew) > 0:
-        assert [(credit.imdb_id, credit.name, credit.job,credit.notes) for credit in parsed_crew] == crew
+        assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed_crew] == crew
