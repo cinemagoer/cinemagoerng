@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2024 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2014-2025 H. Turgut Uyar <uyar@tekir.org>
 #
 # Piculet is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -28,22 +28,23 @@ from typing import (
     TypeAlias,
 )
 
+import lxml.etree
 import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
-from lxml.etree import _Element as TreeNode
 from lxml.etree import fromstring as parse_xml
 from lxml.html import fromstring as parse_html
 
 
-MapNode: TypeAlias = Mapping[str, Any]
+XMLNode: TypeAlias = lxml.etree._Element
+JSONNode: TypeAlias = Mapping[str, Any]
 MutableMapNode: TypeAlias = MutableMapping[str, Any]
 
 
-_EMPTY: MapNode = MappingProxyType({})
+_EMPTY: JSONNode = MappingProxyType({})
 
 
-Preprocessor: TypeAlias = Callable[[TreeNode | MapNode], TreeNode | MapNode]
+Preprocessor: TypeAlias = Callable[[XMLNode | JSONNode], XMLNode | JSONNode]
 
 preprocessors: dict[str, Preprocessor] = {}
 
@@ -92,7 +93,7 @@ class Transform:
         return self.name
 
 
-class TreePath:
+class XMLPath:
     def __init__(self, path: str) -> None:
         self.path: str = path
         self._compiled = compile_xpath(path)
@@ -100,14 +101,14 @@ class TreePath:
     def __str__(self) -> str:
         return self.path
 
-    def apply(self, root: TreeNode) -> list[str]:
+    def apply(self, root: XMLNode) -> list[str]:
         return self._compiled(root)  # type: ignore
 
-    def select(self, root: TreeNode) -> list[TreeNode]:
+    def select(self, root: XMLNode) -> list[XMLNode]:
         return self._compiled(root)  # type: ignore
 
 
-class MapPath:
+class JSONPath:
     def __init__(self, path: str) -> None:
         self.path: str = path
         self._compiled = compile_jmespath(path).search
@@ -115,10 +116,10 @@ class MapPath:
     def __str__(self) -> str:
         return self.path
 
-    def apply(self, root: MapNode) -> Any:
+    def apply(self, root: JSONNode) -> Any:
         return self._compiled(root)  # type: ignore
 
-    def select(self, root: MapNode) -> list[MapNode]:
+    def select(self, root: JSONNode) -> list[JSONNode]:
         selected = self._compiled(root)
         return selected if selected is not None else []  # type: ignore
 
@@ -129,60 +130,60 @@ class Extractor:
 
 
 @dataclass(kw_only=True)
-class TreePicker(Extractor):
-    path: TreePath
+class XMLPicker(Extractor):
+    path: XMLPath
     sep: str = ""
-    foreach: TreePath | None = None
+    foreach: XMLPath | None = None
 
-    def extract(self, root: TreeNode) -> str | None:
+    def extract(self, root: XMLNode) -> str | None:
         selected = self.path.apply(root)
         return self.sep.join(selected) if len(selected) > 0 else None
 
 
 @dataclass(kw_only=True)
-class MapPicker(Extractor):
-    path: MapPath
-    foreach: MapPath | None = None
+class JSONPicker(Extractor):
+    path: JSONPath
+    foreach: JSONPath | None = None
 
-    def extract(self, root: MapNode) -> Any:
+    def extract(self, root: JSONNode) -> Any:
         return self.path.apply(root)
 
 
 @dataclass(kw_only=True)
-class TreeCollector(Extractor):
-    rules: List["TreeRule"] = field(default_factory=list)
-    foreach: TreePath | None = None
+class XMLCollector(Extractor):
+    rules: List["XMLRule"] = field(default_factory=list)
+    foreach: XMLPath | None = None
 
-    def extract(self, root: TreeNode) -> MapNode:
+    def extract(self, root: XMLNode) -> JSONNode:
         return collect(root, self.rules)
 
 
 @dataclass(kw_only=True)
-class MapCollector(Extractor):
-    rules: List["MapRule"] = field(default_factory=list)
-    foreach: MapPath | None = None
+class JSONCollector(Extractor):
+    rules: List["JSONRule"] = field(default_factory=list)
+    foreach: JSONPath | None = None
 
-    def extract(self, root: MapNode) -> MapNode:
+    def extract(self, root: JSONNode) -> JSONNode:
         return collect(root, self.rules)
 
 
 @dataclass(kw_only=True)
-class TreeRule:
-    key: str | TreePicker
-    extractor: TreePicker | TreeCollector
-    foreach: TreePath | None = None
+class XMLRule:
+    key: str | XMLPicker
+    extractor: XMLPicker | XMLCollector
+    foreach: XMLPath | None = None
     transforms: list[Transform] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
-class MapRule:
-    key: str | MapPicker
-    extractor: MapPicker | MapCollector
-    foreach: MapPath | None = None
+class JSONRule:
+    key: str | JSONPicker
+    extractor: JSONPicker | JSONCollector
+    foreach: JSONPath | None = None
     transforms: list[Transform] = field(default_factory=list)
 
 
-def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
+def extract(root: XMLNode | JSONNode, rule: XMLRule | JSONRule) -> JSONNode:
     data: dict[str, Any] = {}
 
     if rule.foreach is None:
@@ -216,7 +217,7 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
         match rule.key:
             case str():
                 key = rule.key
-            case TreePicker() | MapPicker():
+            case XMLPicker() | JSONPicker():
                 key = rule.key.extract(subroot)
                 for key_transform in rule.key.transforms:
                     key = key_transform.apply(key)
@@ -226,8 +227,8 @@ def extract(root: TreeNode | MapNode, rule: TreeRule | MapRule) -> MapNode:
 
 
 def collect(
-    root: TreeNode | MapNode, rules: list[TreeRule] | list[MapRule]
-) -> MapNode:
+    root: XMLNode | JSONNode, rules: list[XMLRule] | list[JSONRule]
+) -> JSONNode:
     data: dict[str, Any] = {}
     for rule in rules:
         subdata = extract(root, rule)
@@ -248,29 +249,29 @@ class Spec:
     doctype: DocType
     pre: list[Preprocess] = field(default_factory=list)
     post: list[Postprocess] = field(default_factory=list)
-    rules: list[TreeRule] | list[MapRule]
+    rules: list[XMLRule] | list[JSONRule]
 
 
 @dataclass(kw_only=True)
-class TreeSpec(Spec):
+class XMLSpec(Spec):
     path_type: Literal["xpath"] = "xpath"
-    rules: list[TreeRule]
+    rules: list[XMLRule]
 
 
 @dataclass(kw_only=True)
-class MapSpec(Spec):
+class JSONSpec(Spec):
     path_type: Literal["jmespath"] = "jmespath"
-    rules: list[MapRule]
+    rules: list[JSONRule]
 
 
 def scrape(
     document: str,
     *,
     doctype: DocType,
-    rules: list[TreeRule] | list[MapRule],
+    rules: list[XMLRule] | list[JSONRule],
     pre: list[Preprocess] | None = None,
     post: list[Postprocess] | None = None,
-) -> MapNode:
+) -> JSONNode:
     match doctype:
         case "html":
             root = parse_html(document)
@@ -288,11 +289,11 @@ def scrape(
     return data
 
 
-_spec_classes = {Preprocess, Postprocess, Transform, TreePath, MapPath}
+_spec_classes = {Preprocess, Postprocess, Transform, XMLPath, JSONPath}
 
 load_spec = partial(
     typedload.load,
-    type_=TreeSpec | MapSpec,
+    type_=XMLSpec | JSONSpec,
     strconstructed=_spec_classes,
     pep563=True,
     failonextra=True,

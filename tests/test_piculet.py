@@ -55,7 +55,7 @@ def test_load_spec_should_raise_error_for_unknown_transform(movie_spec):
 def test_load_spec_should_load_tree_path_from_str(movie_spec):
     rule = {"key": "k", "extractor": {"path": "/"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.path, piculet.TreePath)
+    assert isinstance(spec.rules[0].extractor.path, piculet.XMLPath)
 
 
 def test_dump_spec_should_dump_tree_path_as_str(movie_spec):
@@ -67,7 +67,7 @@ def test_dump_spec_should_dump_tree_path_as_str(movie_spec):
 def test_load_spec_should_load_map_path_from_str(movie_spec):
     rule = {"key": "k", "extractor": {"path": "p"}}
     spec = piculet.load_spec(movie_spec | {"path_type": "jmespath", "rules": [rule]})
-    assert isinstance(spec.rules[0].extractor.path, piculet.MapPath)
+    assert isinstance(spec.rules[0].extractor.path, piculet.JSONPath)
 
 
 def test_dump_spec_should_dump_map_path_as_str(movie_spec):
