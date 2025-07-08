@@ -13,20 +13,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
+
 import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from types import MappingProxyType
-from typing import (
-    Any,
-    List,
-    Literal,
-    Mapping,
-    MutableMapping,
-    TypeAlias,
-)
+from typing import Any, Literal, Mapping, MutableMapping, TypeAlias
 
 import lxml.etree
 import typedload
@@ -151,7 +146,7 @@ class JSONPicker(Extractor):
 
 @dataclass(kw_only=True)
 class XMLCollector(Extractor):
-    rules: List["XMLRule"] = field(default_factory=list)
+    rules: list[XMLRule] = field(default_factory=list)
     foreach: XMLPath | None = None
 
     def extract(self, root: XMLNode) -> JSONNode:
@@ -160,7 +155,7 @@ class XMLCollector(Extractor):
 
 @dataclass(kw_only=True)
 class JSONCollector(Extractor):
-    rules: List["JSONRule"] = field(default_factory=list)
+    rules: list[JSONRule] = field(default_factory=list)
     foreach: JSONPath | None = None
 
     def extract(self, root: JSONNode) -> JSONNode:
