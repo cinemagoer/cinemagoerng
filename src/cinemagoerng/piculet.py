@@ -36,7 +36,10 @@ JSONNode: TypeAlias = Mapping[str, Any]
 MutableMapNode: TypeAlias = MutableMapping[str, Any]
 
 
-_EMPTY: JSONNode = MappingProxyType({})
+CollectedData: TypeAlias = Mapping[str, Any]
+
+
+_EMPTY: CollectedData = MappingProxyType({})
 
 
 Preprocessor: TypeAlias = Callable[[XMLNode | JSONNode], XMLNode | JSONNode]
@@ -149,7 +152,7 @@ class XMLCollector(Extractor):
     rules: list[XMLRule] = field(default_factory=list)
     foreach: XMLPath | None = None
 
-    def extract(self, root: XMLNode) -> JSONNode:
+    def extract(self, root: XMLNode) -> CollectedData:
         return collect(root, self.rules)
 
 
@@ -158,7 +161,7 @@ class JSONCollector(Extractor):
     rules: list[JSONRule] = field(default_factory=list)
     foreach: JSONPath | None = None
 
-    def extract(self, root: JSONNode) -> JSONNode:
+    def extract(self, root: JSONNode) -> CollectedData:
         return collect(root, self.rules)
 
 
@@ -178,8 +181,10 @@ class JSONRule:
     transforms: list[Transform] = field(default_factory=list)
 
 
-def extract(root: XMLNode | JSONNode, rule: XMLRule | JSONRule) -> JSONNode:
-    data: dict[str, Any] = {}
+def extract(
+    root: XMLNode | JSONNode, rule: XMLRule | JSONRule
+) -> CollectedData:
+    data: CollectedData = {}
 
     if rule.foreach is None:
         subroots = [root]
@@ -223,7 +228,7 @@ def extract(root: XMLNode | JSONNode, rule: XMLRule | JSONRule) -> JSONNode:
 
 def collect(
     root: XMLNode | JSONNode, rules: list[XMLRule] | list[JSONRule]
-) -> JSONNode:
+) -> CollectedData:
     data: dict[str, Any] = {}
     for rule in rules:
         subdata = extract(root, rule)
@@ -266,7 +271,7 @@ def scrape(
     rules: list[XMLRule] | list[JSONRule],
     pre: list[Preprocess] | None = None,
     post: list[Postprocess] | None = None,
-) -> JSONNode:
+) -> CollectedData:
     match doctype:
         case "html":
             root = parse_html(document)
