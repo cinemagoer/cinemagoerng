@@ -286,22 +286,21 @@ def scrape(
     return data
 
 
-_spec_classes = {Preprocess, Postprocess, Transform, XMLPath, JSONPath}
-
-load_spec = partial(
+_data_classes = {Decimal}
+deserialize = partial(
     typedload.load,
-    type_=XMLSpec | JSONSpec,
-    strconstructed=_spec_classes,
+    strconstructed=_data_classes,
     pep563=True,
-    failonextra=True,
     basiccast=False,
 )
-dump_spec = partial(typedload.dump, strconstructed=_spec_classes)
-
-
-_data_classes = {Decimal}
-
-deserialize = partial(
-    typedload.load, strconstructed=_data_classes, pep563=True, basiccast=False
-)
 serialize = partial(typedload.dump, strconstructed=_data_classes)
+
+
+_spec_classes = {Preprocess, Postprocess, Transform, XMLPath, JSONPath}
+load_spec = partial(
+    deserialize,
+    type_=XMLSpec | JSONSpec,
+    strconstructed=_spec_classes,
+    failonextra=True,
+)
+dump_spec = partial(serialize, strconstructed=_spec_classes)
