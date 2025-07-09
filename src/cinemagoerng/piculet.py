@@ -189,7 +189,7 @@ class JSONRule:
 def extract(
     root: XMLNode | JSONNode, rule: XMLRule | JSONRule
 ) -> CollectedData:
-    data: CollectedData = {}
+    data: dict[str, Any] = {}
 
     if rule.foreach is None:
         subroots = [root]
@@ -256,13 +256,13 @@ class _Spec:
 @dataclass(kw_only=True)
 class XMLSpec(_Spec):
     path_type: Literal["xpath"] = "xpath"
-    rules: list[XMLRule]
+    rules: list[XMLRule] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
 class JSONSpec(_Spec):
     path_type: Literal["jmespath"] = "jmespath"
-    rules: list[JSONRule]
+    rules: list[JSONRule] = field(default_factory=list)
 
 
 def scrape(document: str, spec: XMLSpec | JSONSpec) -> CollectedData:
