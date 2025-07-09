@@ -78,35 +78,35 @@ def test_dump_spec_should_dump_map_path_as_str(movie_spec):
 
 def test_scrape_should_produce_empty_result_for_empty_rules(movie, movie_spec):
     spec = piculet.load_spec(movie_spec)
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {}
 
 
 def test_scrape_should_produce_scalar_text(movie, movie_spec):
     rule = {"key": "title", "extractor": {"path": "//title/text()"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, rules=spec.rules, doctype="html")
+    data = piculet.scrape(movie, spec)
     assert data == {"title": "The Shining"}
 
 
 def test_scrape_should_produce_concatenated_text(movie, movie_spec):
     rule = {"key": "full_title", "extractor": {"path": "//h1//text()"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {"full_title": "The Shining (1980)"}
 
 
 def test_scrape_should_produce_concatenated_text_using_given_separator(movie, movie_spec):
     rule = {"key": "cast_names", "extractor": {"path": '//table[@class="cast"]/tr/td[1]/a/text()', "sep": ", "}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {"cast_names": "Jack Nicholson, Shelley Duvall"}
 
 
 def test_scrape_should_transform_text(movie, movie_spec):
     rule = {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transforms": ["int"]}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {"year": 1980}
 
 
@@ -116,7 +116,7 @@ def test_scrape_should_produce_multiple_items_for_multiple_rules(movie, movie_sp
         {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transforms": ["int"]}},
     ]
     spec = piculet.load_spec(movie_spec | {"rules": rules})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {"title": "The Shining", "year": 1980}
 
 
@@ -126,14 +126,14 @@ def test_scrape_should_exclude_data_for_rules_with_no_result(movie, movie_spec):
         {"key": "foo", "extractor": {"path": "//foo/text()"}},
     ]
     spec = piculet.load_spec(movie_spec | {"rules": rules})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {"title": "The Shining"}
 
 
 def test_scrape_should_produce_list_for_multivalued_rule(movie, movie_spec):
     rule = {"key": "genres", "extractor": {"foreach": '//ul[@class="genres"]/li', "path": "./text()"}}
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {"genres": ["Horror", "Drama"]}
 
 
@@ -147,7 +147,7 @@ def test_scrape_should_transform_each_item_in_multivalued_result(movie, movie_sp
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {"genres": ["horror", "drama"]}
 
 
@@ -160,7 +160,7 @@ def test_scrape_should_exclude_empty_items_in_multivalued_rule_results(movie, mo
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {}
 
 
@@ -175,7 +175,7 @@ def test_scrape_should_produce_subitems_for_subrules(movie, movie_spec):
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {"director": {"link": "/people/1", "name": "Stanley Kubrick"}}
 
 
@@ -191,7 +191,7 @@ def test_scrape_should_produce_subitem_lists_for_multivalued_subrules(movie, mov
         },
     }
     spec = piculet.load_spec(movie_spec | {"rules": [rule]})
-    data = piculet.scrape(movie, doctype=spec.doctype, rules=spec.rules)
+    data = piculet.scrape(movie, spec)
     assert data == {
         "cast": [
             {"character": "Jack Torrance", "name": "Jack Nicholson"},

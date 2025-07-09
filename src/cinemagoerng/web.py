@@ -48,7 +48,7 @@ SPECS_DIR = Path(__file__).parent / "specs"
 
 
 @lru_cache(maxsize=None)
-def _spec(page: str, /) -> piculet.Spec:
+def _spec(page: str, /) -> piculet.XMLSpec | piculet.JSONSpec:
     path = SPECS_DIR / f"{page}.json"
     content = path.read_text(encoding="utf-8")
     return piculet.load_spec(json.loads(content))
@@ -88,13 +88,7 @@ def get_title(
         if e.status == HTTPStatus.NOT_FOUND:
             return None
         raise e  # pragma: no cover
-    data = piculet.scrape(
-        document,
-        doctype=spec.doctype,
-        rules=spec.rules,
-        pre=spec.pre,
-        post=spec.post,
-    )
+    data = piculet.scrape(document, spec)
     return piculet.deserialize(data, model.Title)
 
 
@@ -119,13 +113,7 @@ def update_title(
     document = fetch(
         url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs
     )
-    data = piculet.scrape(
-        document,
-        doctype=spec.doctype,
-        rules=spec.rules,
-        pre=spec.pre,
-        post=spec.post,
-    )
+    data = piculet.scrape(document, spec)
     for key in keys:
         value = data.get(key)
         if value is None:

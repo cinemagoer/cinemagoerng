@@ -132,8 +132,8 @@ class JSONPath:
 class XMLPicker:
     path: XMLPath
     sep: str = ""
-    foreach: XMLPath | None = None
     transforms: list[Transform] = field(default_factory=list)
+    foreach: XMLPath | None = None
 
     def extract(self, root: XMLNode) -> str | None:
         selected = self.path.apply(root)
@@ -143,8 +143,8 @@ class XMLPicker:
 @dataclass(kw_only=True)
 class JSONPicker:
     path: JSONPath
-    foreach: JSONPath | None = None
     transforms: list[Transform] = field(default_factory=list)
+    foreach: JSONPath | None = None
 
     def extract(self, root: JSONNode) -> Any:
         return self.path.apply(root)
@@ -153,8 +153,8 @@ class JSONPicker:
 @dataclass(kw_only=True)
 class XMLCollector:
     rules: list[XMLRule] = field(default_factory=list)
-    foreach: XMLPath | None = None
     transforms: list[Transform] = field(default_factory=list)
+    foreach: XMLPath | None = None
 
     def extract(self, root: XMLNode) -> CollectedData:
         return collect(root, self.rules)
@@ -163,8 +163,8 @@ class XMLCollector:
 @dataclass(kw_only=True)
 class JSONCollector:
     rules: list[JSONRule] = field(default_factory=list)
-    foreach: JSONPath | None = None
     transforms: list[Transform] = field(default_factory=list)
+    foreach: JSONPath | None = None
 
     def extract(self, root: JSONNode) -> CollectedData:
         return collect(root, self.rules)
@@ -174,16 +174,16 @@ class JSONCollector:
 class XMLRule:
     key: str | XMLPicker
     extractor: XMLPicker | XMLCollector
-    foreach: XMLPath | None = None
     transforms: list[Transform] = field(default_factory=list)
+    foreach: XMLPath | None = None
 
 
 @dataclass(kw_only=True)
 class JSONRule:
     key: str | JSONPicker
     extractor: JSONPicker | JSONCollector
-    foreach: JSONPath | None = None
     transforms: list[Transform] = field(default_factory=list)
+    foreach: JSONPath | None = None
 
 
 def extract(
@@ -243,7 +243,7 @@ def collect(
 
 
 @dataclass(kw_only=True)
-class Spec:
+class _Spec:
     version: str
     url: str
     url_default_params: dict[str, Any] = field(default_factory=dict)
@@ -251,37 +251,27 @@ class Spec:
     doctype: DocType
     pre: list[Preprocess] = field(default_factory=list)
     post: list[Postprocess] = field(default_factory=list)
-    rules: list[XMLRule] | list[JSONRule]
 
 
 @dataclass(kw_only=True)
-class XMLSpec(Spec):
+class XMLSpec(_Spec):
     path_type: Literal["xpath"] = "xpath"
     rules: list[XMLRule]
 
 
 @dataclass(kw_only=True)
-class JSONSpec(Spec):
+class JSONSpec(_Spec):
     path_type: Literal["jmespath"] = "jmespath"
     rules: list[JSONRule]
 
 
-def scrape(
-    document: str,
-    *,
-    doctype: DocType,
-    rules: list[XMLRule] | list[JSONRule],
-    pre: list[Preprocess] | None = None,
-    post: list[Postprocess] | None = None,
-) -> CollectedData:
-    root = _PARSERS[doctype](document)
-    if pre is not None:
-        for preprocess in pre:
-            root = preprocess.apply(root)
-    data = collect(root, rules)
-    if post is not None:
-        for postprocess in post:
-            data = postprocess.apply(data)
+def scrape(document: str, spec: XMLSpec | JSONSpec) -> CollectedData:
+    root = _PARSERS[spec.doctype](document)
+    for preprocess in spec.pre:
+        root = preprocess.apply(root)
+    data = collect(root, spec.rules)
+    for postprocess in spec.post:
+        data = postprocess.apply(data)
     return data
 
 
