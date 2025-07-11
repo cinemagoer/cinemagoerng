@@ -284,7 +284,6 @@ deserialize = partial(
 )
 serialize = partial(typedload.dump, strconstructed=_data_classes)
 
-
 _spec_classes = {Preprocess, Postprocess, Transform, XMLPath, JSONPath}
 load_spec = partial(
     deserialize,
