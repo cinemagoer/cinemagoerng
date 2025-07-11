@@ -31,7 +31,7 @@ from lxml.etree import XPath as compile_xpath
 
 
 XMLNode: TypeAlias = lxml.etree._Element
-JSONNode: TypeAlias = Mapping[str, Any]
+JSONNode: TypeAlias = dict
 
 
 DocType: TypeAlias = Literal["html", "xml", "json"]
@@ -269,7 +269,13 @@ def scrape(document: str, spec: XMLSpec | JSONSpec) -> CollectedData:
     root = _PARSERS[spec.doctype](document)
     for preprocess in spec.pre:
         root = preprocess.apply(root)
-    data = collect(root, spec.rules)
+    match (root, spec):
+        case (XMLNode(), XMLSpec()):
+            data = collect(root, spec.rules)
+        case (JSONNode(), JSONSpec()):
+            data = collect(root, spec.rules)
+        case _:
+            raise TypeError("Node and spec types don't match")
     for postprocess in spec.post:
         data = postprocess.apply(data)
     return data

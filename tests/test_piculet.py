@@ -16,7 +16,6 @@ MOVIE_XML_SPEC = {
 MOVIE_XML = """
 <html>
 <head>
-  <meta charset="utf-8"/>
   <title>The Shining</title>
 </head>
 <body>
@@ -83,16 +82,21 @@ MOVIE_JSON = """
       "character": "Wendy Torrance"
     }
   ],
-  "info": [
-    {
-      "name": "Country",
-      "value": "United States"
-    },
-    {
-      "name": "Language",
-      "value": "English"
+  "info": {
+    "production": [
+      {
+        "name": "Country",
+        "value": "United States"
+      },
+      {
+        "name": "Language",
+        "value": "English"
+      }
+    ],
+    "info": {
+      "runtime": 144
     }
-  ]
+  }
 }
 """
 
@@ -100,15 +104,17 @@ MOVIE_JSON = """
 piculet.preprocessors.update(
     {
         "nothing": lambda x: x,
-        "x2x": lambda x: x.xpath('//h1')[0],
-        "j2j": lambda x: x["director"],
+        "first_subtree": lambda x: x.xpath('./*[1]')[0],
+        "first_submap": lambda x: x.get("info", {}),
+        "empty_tree": lambda _: piculet._PARSERS["xml"]("<root/>"),
+        "empty_map": lambda _: {},
     }
 )
 
 piculet.postprocessors.update(
     {
         "nothing": lambda x: x,
-        "shorten": lambda x: {k[0]: v[0] for k, v in x.items()},
+        "shorten": lambda x: {k[:-1]: v[:-1] for k, v in x.items()},
     }
 )
 
@@ -138,6 +144,11 @@ def test_dump_spec_should_dump_preprocess_as_str():
     assert piculet.dump_spec(spec)["pre"][0] == "nothing"
 
 
+def test_load_spec_should_raise_error_for_unknown_preprocess():
+    with pytest.raises(ValueError):
+        _ = piculet.load_spec(MOVIE_XML_SPEC | {"pre": ["UNKNOWN"], "rules": []})
+
+
 def test_load_spec_should_load_postprocess_from_str():
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"post": ["nothing"], "rules": []})
     assert isinstance(spec.post[0], piculet.Postprocess)
@@ -146,6 +157,11 @@ def test_load_spec_should_load_postprocess_from_str():
 def test_dump_spec_should_dump_postprocess_as_str():
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"post": ["nothing"], "rules": []})
     assert piculet.dump_spec(spec)["post"][0] == "nothing"
+
+
+def test_load_spec_should_raise_error_for_unknown_postprocess():
+    with pytest.raises(ValueError):
+        _ = piculet.load_spec(MOVIE_XML_SPEC | {"post": ["UNKNOWN"], "rules": []})
 
 
 def test_load_spec_should_load_transform_from_str():
@@ -444,7 +460,7 @@ def test_scrape_xml_should_produce_multiple_data_for_multiple_sections():
 
 def test_scrape_json_should_produce_multiple_data_for_multiple_sections():
     rule = {
-        "foreach": 'info[*]',
+        "foreach": 'info.production[*]',
         "key": {
             "path": "name"
         },
@@ -481,7 +497,7 @@ def test_scrape_xml_should_transform_key_for_section():
 
 def test_scrape_json_should_transform_key_for_section():
     rule = {
-        "foreach": 'info[*]',
+        "foreach": 'info.production[*]',
         "key": {
             "path": "name",
             "transforms": ["lower"]
@@ -499,28 +515,68 @@ def test_scrape_json_should_transform_key_for_section():
 
 
 def test_scrape_xml_should_apply_preprocess():
-    rule = {"key": "year", "extractor": {"path": "./span/text()", "transforms": ["int"]}}
-    spec = piculet.load_spec(MOVIE_XML_SPEC | {"pre": ["x2x"], "rules": [rule]})
+    rule = {"key": "title", "extractor": {"path": "./title/text()"}}
+    spec = piculet.load_spec(MOVIE_XML_SPEC | {"pre": ["first_subtree"], "rules": [rule]})
     data = piculet.scrape(MOVIE_XML, spec)
-    assert data == {"year": 1980}
+    assert data == {"title": "The Shining"}
 
 
 def test_scrape_json_should_apply_preprocess():
-    rule = {"key": "director_name", "extractor": {"path": "name"}}
-    spec = piculet.load_spec(MOVIE_JSON_SPEC | {"pre": ["j2j"], "rules": [rule]})
+    rule = {"key": "country", "extractor": {"path": "production[0].value"}}
+    spec = piculet.load_spec(MOVIE_JSON_SPEC | {"pre": ["first_submap"], "rules": [rule]})
     data = piculet.scrape(MOVIE_JSON, spec)
-    assert data == {"director_name": "Stanley Kubrick"}
+    assert data == {"country": "United States"}
+
+
+def test_scrape_xml_should_apply_multiple_preprocesses():
+    rule = {"key": "title", "extractor": {"path": "./text()"}}
+    spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule], "pre": ["first_subtree", "first_subtree"]})
+    data = piculet.scrape(MOVIE_XML, spec)
+    assert data == {"title": "The Shining"}
+
+
+def test_scrape_json_should_apply_multiple_preprocesses():
+    rule = {"key": "runtime", "extractor": {"path": "runtime"}}
+    spec = piculet.load_spec(MOVIE_JSON_SPEC | {"pre": ["first_submap", "first_submap"], "rules": [rule]})
+    data = piculet.scrape(MOVIE_JSON, spec)
+    assert data == {"runtime": 144}
 
 
 def test_scrape_xml_should_apply_postprocess():
     rule = {"key": "title", "extractor": {"path": "//title/text()"}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule], "post": ["shorten"]})
     data = piculet.scrape(MOVIE_XML, spec)
-    assert data == {"t": "T"}
+    assert data == {"titl": "The Shinin"}
 
 
 def test_scrape_json_should_apply_postprocess():
     rule = {"key": "title", "extractor": {"path": "title"}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule], "post": ["shorten"]})
     data = piculet.scrape(MOVIE_JSON, spec)
-    assert data == {"t": "T"}
+    assert data == {"titl": "The Shinin"}
+
+
+def test_scrape_xml_should_apply_multiple_postprocesses():
+    rule = {"key": "title", "extractor": {"path": "//title/text()"}}
+    spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule], "post": ["shorten", "shorten"]})
+    data = piculet.scrape(MOVIE_XML, spec)
+    assert data == {"tit": "The Shini"}
+
+
+def test_scrape_json_should_apply_multiple_postprocesses():
+    rule = {"key": "title", "extractor": {"path": "title"}}
+    spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule], "post": ["shorten", "shorten"]})
+    data = piculet.scrape(MOVIE_JSON, spec)
+    assert data == {"tit": "The Shini"}
+
+
+def test_preprocess_should_produce_compatible_node_for_xml_spec():
+    spec = piculet.load_spec(MOVIE_XML_SPEC | {"pre": ["empty_map"], "rules": []})
+    with pytest.raises(TypeError):
+        _ = piculet.scrape(MOVIE_XML, spec)
+
+
+def test_preprocess_should_produce_compatible_node_for_json_spec():
+    spec = piculet.load_spec(MOVIE_JSON_SPEC | {"pre": ["empty_tree"], "rules": []})
+    with pytest.raises(TypeError):
+        _ = piculet.scrape(MOVIE_JSON, spec)
