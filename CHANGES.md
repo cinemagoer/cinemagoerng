@@ -1,9 +1,9 @@
 # CHANGES
 
-## 0.4 (unreleased)
+## 0.4 (2025-07-25)
 
 - Change license to GPL v3 or later.
-- Add parser for new title reference pages
+- Add parser for new title reference pages.
 - Add support for parsing parental guide pages (@mhdzumair).
 - Switch to uv for project management.
 
