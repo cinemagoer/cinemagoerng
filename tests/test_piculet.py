@@ -165,43 +165,43 @@ def test_load_spec_should_raise_error_for_unknown_postprocess():
 
 
 def test_load_spec_should_load_transform_from_str():
-    rule = {"key": "k", "extractor": {"path": "/", "transforms": ["strip"]}}
+    rule = {"key": "k", "extractor": {"path": '/', "transforms": ["strip"]}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     assert isinstance(spec.rules[0].extractor.transforms[0], piculet.Transform)
 
 
 def test_dump_spec_should_dump_transform_as_str():
-    rule = {"key": "k", "extractor": {"path": "/", "transforms": ["strip"]}}
+    rule = {"key": "k", "extractor": {"path": '/', "transforms": ["strip"]}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     assert piculet.dump_spec(spec)["rules"][0]["extractor"]["transforms"][0] == "strip"
 
 
 def test_load_spec_should_raise_error_for_unknown_transform():
-    rule = {"key": "k", "extractor": {"path": "/", "transforms": ["UNKNOWN"]}}
+    rule = {"key": "k", "extractor": {"path": '/', "transforms": ["UNKNOWN"]}}
     with pytest.raises(ValueError):
         _ = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
 
 
 def test_load_spec_should_load_xml_path_from_str():
-    rule = {"key": "k", "extractor": {"path": "/"}}
+    rule = {"key": "k", "extractor": {"path": '/'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     assert isinstance(spec.rules[0].extractor.path, piculet.XMLPath)
 
 
 def test_dump_spec_should_dump_xml_path_as_str():
-    rule = {"key": "k", "extractor": {"path": "/"}}
+    rule = {"key": "k", "extractor": {"path": '/'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     assert piculet.dump_spec(spec)["rules"][0]["extractor"]["path"] == "/"
 
 
 def test_load_spec_should_load_json_path_from_str():
-    rule = {"key": "k", "extractor": {"path": "p"}}
+    rule = {"key": "k", "extractor": {"path": 'p'}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule]})
     assert isinstance(spec.rules[0].extractor.path, piculet.JSONPath)
 
 
 def test_dump_spec_should_dump_json_path_as_str():
-    rule = {"key": "k", "extractor": {"path": "p"}}
+    rule = {"key": "k", "extractor": {"path": 'p'}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule]})
     assert piculet.dump_spec(spec)["rules"][0]["extractor"]["path"] == "p"
 
@@ -219,14 +219,14 @@ def test_scrape_json_should_produce_empty_result_for_empty_rules():
 
 
 def test_scrape_xml_should_produce_scalar_text():
-    rule = {"key": "title", "extractor": {"path": "//title/text()"}}
+    rule = {"key": "title", "extractor": {"path": '//title/text()'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"title": "The Shining"}
 
 
 def test_scrape_xml_should_produce_concatenated_text():
-    rule = {"key": "full_title", "extractor": {"path": "//h1//text()"}}
+    rule = {"key": "full_title", "extractor": {"path": '//h1//text()'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"full_title": "The Shining (1980)"}
@@ -240,21 +240,21 @@ def test_scrape_xml_should_produce_concatenated_text_using_given_separator():
 
 
 def test_scrape_json_should_produce_scalar_text():
-    rule = {"key": "title", "extractor": {"path": "title"}}
+    rule = {"key": "title", "extractor": {"path": 'title'}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_JSON, spec)
     assert data == {"title": "The Shining"}
 
 
 def test_scrape_xml_should_transform_text():
-    rule = {"key": "title", "extractor": {"path": "//title/text()"}, "transforms": ["lower"]}
+    rule = {"key": "title", "extractor": {"path": '//title/text()'}, "transforms": ["lower"]}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"title": "the shining"}
 
 
 def test_scrape_json_should_transform_text():
-    rule = {"key": "title", "extractor": {"path": "title"}, "transforms": ["lower"]}
+    rule = {"key": "title", "extractor": {"path": 'title'}, "transforms": ["lower"]}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_JSON, spec)
     assert data == {"title": "the shining"}
@@ -262,7 +262,7 @@ def test_scrape_json_should_transform_text():
 
 def test_scrape_xml_should_produce_multiple_items_for_multiple_rules():
     rules = [
-        {"key": "title", "extractor": {"path": "//title/text()"}},
+        {"key": "title", "extractor": {"path": '//title/text()'}},
         {"key": "year", "extractor": {"path": '//span[@class="year"]/text()', "transforms": ["int"]}},
     ]
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": rules})
@@ -272,8 +272,8 @@ def test_scrape_xml_should_produce_multiple_items_for_multiple_rules():
 
 def test_scrape_json_should_produce_multiple_items_for_multiple_rules():
     rules = [
-        {"key": "title", "extractor": {"path": "title"}},
-        {"key": "year", "extractor": {"path": "year"}},
+        {"key": "title", "extractor": {"path": 'title'}},
+        {"key": "year", "extractor": {"path": 'year'}},
     ]
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": rules})
     data = piculet.scrape(MOVIE_JSON, spec)
@@ -282,8 +282,8 @@ def test_scrape_json_should_produce_multiple_items_for_multiple_rules():
 
 def test_scrape_xml_should_exclude_data_for_rules_with_no_result():
     rules = [
-        {"key": "title", "extractor": {"path": "//title/text()"}},
-        {"key": "foo", "extractor": {"path": "//foo/text()"}},
+        {"key": "title", "extractor": {"path": '//title/text()'}},
+        {"key": "foo", "extractor": {"path": '//foo/text()'}},
     ]
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": rules})
     data = piculet.scrape(MOVIE_XML, spec)
@@ -292,8 +292,8 @@ def test_scrape_xml_should_exclude_data_for_rules_with_no_result():
 
 def test_scrape_json_should_exclude_data_for_rules_with_no_result():
     rules = [
-        {"key": "title", "extractor": {"path": "title"}},
-        {"key": "foo", "extractor": {"path": "foo"}},
+        {"key": "title", "extractor": {"path": 'title'}},
+        {"key": "foo", "extractor": {"path": 'foo'}},
     ]
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": rules})
     data = piculet.scrape(MOVIE_JSON, spec)
@@ -301,14 +301,14 @@ def test_scrape_json_should_exclude_data_for_rules_with_no_result():
 
 
 def test_scrape_xml_should_produce_list_for_multivalued_rule():
-    rule = {"key": "genres", "extractor": {"foreach": '//ul[@class="genres"]/li', "path": "./text()"}}
+    rule = {"key": "genres", "extractor": {"foreach": '//ul[@class="genres"]/li', "path": './text()'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"genres": ["Horror", "Drama"]}
 
 
 def test_scrape_json_should_produce_list_for_multivalued_rule():
-    rule = {"key": "genres", "extractor": {"foreach": 'genres[*]', "path": "name"}}
+    rule = {"key": "genres", "extractor": {"foreach": 'genres[*]', "path": 'name'}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_JSON, spec)
     assert data == {"genres": ["Horror", "Drama"]}
@@ -319,7 +319,7 @@ def test_scrape_xml_should_transform_each_item_in_multivalued_result():
         "key": "genres",
         "extractor": {
             "foreach": '//ul[@class="genres"]/li',
-            "path": "./text()",
+            "path": './text()',
             "transforms": ["lower"],
         },
     }
@@ -333,7 +333,7 @@ def test_scrape_json_should_transform_each_item_in_multivalued_result():
         "key": "genres",
         "extractor": {
             "foreach": 'genres[*]',
-            "path": "name",
+            "path": 'name',
             "transforms": ["lower"],
         },
     }
@@ -347,7 +347,7 @@ def test_scrape_xml_should_exclude_empty_items_in_multivalued_rule_results():
         "key": "foos",
         "extractor": {
             "foreach": '//ul[@class="foos"]/li',
-            "path": "./text()",
+            "path": './text()',
         },
     }
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
@@ -360,7 +360,7 @@ def test_scrape_json_should_exclude_empty_items_in_multivalued_rule_results():
         "key": "foos",
         "extractor": {
             "foreach": 'foos[*]',
-            "path": "text",
+            "path": 'text',
         },
     }
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule]})
@@ -404,8 +404,8 @@ def test_scrape_xml_should_produce_subitem_lists_for_multivalued_subrules():
         "extractor": {
             "foreach": '//table[@class="cast"]/tr',
             "rules": [
-                {"key": "name", "extractor": {"path": "./td[1]/a/text()"}},
-                {"key": "character", "extractor": {"path": "./td[2]/text()"}},
+                {"key": "name", "extractor": {"path": './td[1]/a/text()'}},
+                {"key": "character", "extractor": {"path": './td[2]/text()'}},
             ],
         },
     }
@@ -444,10 +444,10 @@ def test_scrape_xml_should_produce_multiple_data_for_multiple_sections():
     rule = {
         "foreach": '//div[@class="info"]',
         "key": {
-            "path": "./h3/text()"
+            "path": './h3/text()'
         },
         "extractor": {
-            "path": "./p/text()"
+            "path": './p/text()'
         },
     }
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
@@ -462,10 +462,10 @@ def test_scrape_json_should_produce_multiple_data_for_multiple_sections():
     rule = {
         "foreach": 'info.production[*]',
         "key": {
-            "path": "name"
+            "path": 'name'
         },
         "extractor": {
-            "path": "value"
+            "path": 'value'
         },
     }
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule]})
@@ -480,11 +480,11 @@ def test_scrape_xml_should_transform_key_for_section():
     rule = {
         "foreach": '//div[@class="info"]',
         "key": {
-            "path": "./h3/text()",
+            "path": './h3/text()',
             "transforms": ["lower"]
         },
         "extractor": {
-            "path": "./p/text()"
+            "path": './p/text()'
         },
     }
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
@@ -499,11 +499,11 @@ def test_scrape_json_should_transform_key_for_section():
     rule = {
         "foreach": 'info.production[*]',
         "key": {
-            "path": "name",
+            "path": 'name',
             "transforms": ["lower"]
         },
         "extractor": {
-            "path": "value"
+            "path": 'value'
         },
     }
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule]})
@@ -515,56 +515,56 @@ def test_scrape_json_should_transform_key_for_section():
 
 
 def test_scrape_xml_should_apply_preprocess():
-    rule = {"key": "title", "extractor": {"path": "./title/text()"}}
+    rule = {"key": "title", "extractor": {"path": './title/text()'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"pre": ["first_subtree"], "rules": [rule]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"title": "The Shining"}
 
 
 def test_scrape_json_should_apply_preprocess():
-    rule = {"key": "country", "extractor": {"path": "production[0].value"}}
+    rule = {"key": "country", "extractor": {"path": 'production[0].value'}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"pre": ["first_submap"], "rules": [rule]})
     data = piculet.scrape(MOVIE_JSON, spec)
     assert data == {"country": "United States"}
 
 
 def test_scrape_xml_should_apply_multiple_preprocesses():
-    rule = {"key": "title", "extractor": {"path": "./text()"}}
+    rule = {"key": "title", "extractor": {"path": './text()'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule], "pre": ["first_subtree", "first_subtree"]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"title": "The Shining"}
 
 
 def test_scrape_json_should_apply_multiple_preprocesses():
-    rule = {"key": "runtime", "extractor": {"path": "runtime"}}
+    rule = {"key": "runtime", "extractor": {"path": 'runtime'}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"pre": ["first_submap", "first_submap"], "rules": [rule]})
     data = piculet.scrape(MOVIE_JSON, spec)
     assert data == {"runtime": 144}
 
 
 def test_scrape_xml_should_apply_postprocess():
-    rule = {"key": "title", "extractor": {"path": "//title/text()"}}
+    rule = {"key": "title", "extractor": {"path": '//title/text()'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule], "post": ["shorten"]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"titl": "The Shinin"}
 
 
 def test_scrape_json_should_apply_postprocess():
-    rule = {"key": "title", "extractor": {"path": "title"}}
+    rule = {"key": "title", "extractor": {"path": 'title'}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule], "post": ["shorten"]})
     data = piculet.scrape(MOVIE_JSON, spec)
     assert data == {"titl": "The Shinin"}
 
 
 def test_scrape_xml_should_apply_multiple_postprocesses():
-    rule = {"key": "title", "extractor": {"path": "//title/text()"}}
+    rule = {"key": "title", "extractor": {"path": '//title/text()'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule], "post": ["shorten", "shorten"]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"tit": "The Shini"}
 
 
 def test_scrape_json_should_apply_multiple_postprocesses():
-    rule = {"key": "title", "extractor": {"path": "title"}}
+    rule = {"key": "title", "extractor": {"path": 'title'}}
     spec = piculet.load_spec(MOVIE_JSON_SPEC | {"rules": [rule], "post": ["shorten", "shorten"]})
     data = piculet.scrape(MOVIE_JSON, spec)
     assert data == {"tit": "The Shini"}
