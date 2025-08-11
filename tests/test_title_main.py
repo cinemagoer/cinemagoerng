@@ -231,7 +231,7 @@ def test_title_parser_should_set_genres(page, imdb_id, genres):
     ("imdb_id", "plot", "lang"),
     [
         ("tt0133093", "When a beautiful stranger", "en-US"),  # The Matrix
-        ("tt0436992", "The further adventures in time and space", "en-US"),  # Doctor Who
+        ("tt0436992", "Continuing on from Doctor Who (1963)", "en-US"),  # Doctor Who
         ("tt3629794", "Plot undisclosed.", "en-US"),  # Aslan
     ],
 )
