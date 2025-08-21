@@ -15,7 +15,7 @@ from cinemagoerng import web
         (
             "tt0468569",  # The Dark Knight
             "None",
-            "16+",
+            "13+",
             "Rated PG-13 for intense sequences of violence and some menace",
         ),
     ],
