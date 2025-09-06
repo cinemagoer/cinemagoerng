@@ -225,15 +225,15 @@ def test_scrape_xml_should_produce_scalar_text():
     assert data == {"title": "The Shining"}
 
 
-def test_scrape_xml_should_produce_concatenated_text():
-    rule = {"key": "full_title", "extractor": {"path": '//h1//text()'}}
+def test_scrape_xml_should_support_string_join():
+    rule = {"key": "full_title", "extractor": {"path": 'string-join(//h1//text(), "")'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"full_title": "The Shining (1980)"}
 
 
-def test_scrape_xml_should_produce_concatenated_text_using_given_separator():
-    rule = {"key": "cast_names", "extractor": {"path": '//table[@class="cast"]/tr/td[1]/a/text()', "sep": ", "}}
+def test_scrape_xml_should_support_string_join_using_given_separator():
+    rule = {"key": "cast_names", "extractor": {"path": 'string-join(//table[@class="cast"]/tr/td[1]/a/text(), ", ")'}}
     spec = piculet.load_spec(MOVIE_XML_SPEC | {"rules": [rule]})
     data = piculet.scrape(MOVIE_XML, spec)
     assert data == {"cast_names": "Jack Nicholson, Shelley Duvall"}

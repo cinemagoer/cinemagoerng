@@ -38,7 +38,7 @@ from .piculet import (
 
 def parse_next_data(root: XMLNode) -> JSONNode:
     path = XMLPath("//script[@id='__NEXT_DATA__']/text()")
-    next_data = path.apply(root)[0]
+    next_data = path.apply(root)
     return json.loads(next_data)
 
 

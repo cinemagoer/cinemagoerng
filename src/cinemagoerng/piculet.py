@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -32,6 +33,10 @@ from lxml.etree import XPath as compile_xpath
 
 XMLNode: TypeAlias = lxml.etree._Element
 JSONNode: TypeAlias = dict
+
+
+__lxml_ns = lxml.etree.FunctionNamespace(None)
+__lxml_ns["string-join"] = lambda _, texts, sep: sep.join(texts)
 
 
 DocType: TypeAlias = Literal["html", "xml", "json"]
@@ -98,15 +103,20 @@ class Transform:
 
 
 class XMLPath:
+    _re_text_path = re.compile(r""".*\/(text\(\)|(@\w+))$""")
+
     def __init__(self, path: str) -> None:
         self.path: str = path
+        if XMLPath._re_text_path.match(path):
+            path = f"string({path})"
         self._compiled = compile_xpath(path)
 
     def __str__(self) -> str:
         return self.path
 
-    def apply(self, root: XMLNode) -> list[str]:
-        return self._compiled(root)  # type: ignore
+    def apply(self, root: XMLNode) -> Any:
+        value = self._compiled(root)
+        return value if value != "" else None
 
     def select(self, root: XMLNode) -> list[XMLNode]:
         return self._compiled(root)  # type: ignore
@@ -121,7 +131,7 @@ class JSONPath:
         return self.path
 
     def apply(self, root: JSONNode) -> Any:
-        return self._compiled(root)  # type: ignore
+        return self._compiled(root)
 
     def select(self, root: JSONNode) -> list[JSONNode]:
         selected = self._compiled(root)
@@ -131,13 +141,11 @@ class JSONPath:
 @dataclass(kw_only=True)
 class XMLPicker:
     path: XMLPath
-    sep: str = ""
     transforms: list[Transform] = field(default_factory=list)
     foreach: XMLPath | None = None
 
-    def extract(self, root: XMLNode) -> str | None:
-        selected = self.path.apply(root)
-        return self.sep.join(selected) if len(selected) > 0 else None
+    def extract(self, root: XMLNode) -> Any:
+        return self.path.apply(root)
 
 
 @dataclass(kw_only=True)
@@ -237,7 +245,7 @@ def collect(
     data: dict[str, Any] = {}
     for rule in rules:
         subdata = extract(root, rule)
-        if len(subdata) > 0:
+        if subdata is not _EMPTY:
             data.update(subdata)
     return data if len(data) > 0 else _EMPTY
 
