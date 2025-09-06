@@ -195,34 +195,28 @@ class JSONRule:
 
 
 def extract(
-    root: XMLNode | JSONNode, rule: XMLRule | JSONRule
+        root: XMLNode | JSONNode, rule: XMLRule | JSONRule
 ) -> CollectedData:
     data: dict[str, Any] = {}
 
-    if rule.foreach is None:
-        subroots = [root]
-    else:
-        subroots = rule.foreach.select(root)
-
+    subroots = [root] if rule.foreach is None else rule.foreach.select(root)
     for subroot in subroots:
         if rule.extractor.foreach is None:
-            nodes = [subroot]
+            value = rule.extractor.extract(subroot)
+            if (value is None) or (value is _EMPTY):
+                continue
+            for transform in rule.extractor.transforms:
+                value = transform.apply(value)
         else:
-            nodes = rule.extractor.foreach.select(subroot)
-
-        raws = [rule.extractor.extract(n) for n in nodes]
-        raws = [v for v in raws if (v is not _EMPTY) and (v is not None)]
-        if len(raws) == 0:
-            continue
-        if len(rule.extractor.transforms) == 0:
-            values = raws
-        else:
-            values = []
-            for value in raws:
-                for transform in rule.extractor.transforms:
-                    value = transform.apply(value)
-                values.append(value)
-        value = values[0] if rule.extractor.foreach is None else values
+            raws = [rule.extractor.extract(n)
+                    for n in rule.extractor.foreach.select(subroot)]
+            value = [v for v in raws if (v is not None) and (v is not _EMPTY)]
+            if len(value) == 0:
+                continue
+            if len(rule.extractor.transforms) > 0:
+                for i in range(len(value)):
+                    for transform in rule.extractor.transforms:
+                        value[i] = transform.apply(value[i])
 
         for transform in rule.transforms:
             value = transform.apply(value)
@@ -240,13 +234,12 @@ def extract(
 
 
 def collect(
-    root: XMLNode | JSONNode, rules: list[XMLRule] | list[JSONRule]
+        root: XMLNode | JSONNode, rules: list[XMLRule] | list[JSONRule]
 ) -> CollectedData:
     data: dict[str, Any] = {}
     for rule in rules:
         subdata = extract(root, rule)
-        if subdata is not _EMPTY:
-            data.update(subdata)
+        data.update(subdata)
     return data if len(data) > 0 else _EMPTY
 
 
