@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from types import MappingProxyType
-from typing import Any, Literal, Mapping, TypeAlias
+from typing import Any, Literal, Mapping, TypeAlias, TypeVar
 
 import lxml.etree
 import lxml.html
@@ -33,6 +33,8 @@ from lxml.etree import XPath as compile_xpath
 
 XMLNode: TypeAlias = lxml.etree._Element
 JSONNode: TypeAlias = dict
+
+Node = TypeVar("Node", XMLNode, JSONNode)
 
 
 __lxml_ns = lxml.etree.FunctionNamespace(None)
@@ -53,7 +55,7 @@ CollectedData: TypeAlias = Mapping[str, Any]
 _EMPTY: CollectedData = MappingProxyType({})
 
 
-Preprocessor: TypeAlias = Callable[[XMLNode | JSONNode], XMLNode | JSONNode]
+Preprocessor: TypeAlias = Callable[[Node], XMLNode | JSONNode]
 
 preprocessors: dict[str, Preprocessor] = {}
 
@@ -165,7 +167,7 @@ class XMLCollector:
     foreach: XMLPath | None = None
 
     def extract(self, root: XMLNode) -> CollectedData:
-        return collect(root, self.rules)
+        return collect_xml(root, self.rules)
 
 
 @dataclass(kw_only=True)
@@ -175,7 +177,7 @@ class JSONCollector:
     foreach: JSONPath | None = None
 
     def extract(self, root: JSONNode) -> CollectedData:
-        return collect(root, self.rules)
+        return collect_json(root, self.rules)
 
 
 @dataclass(kw_only=True)
@@ -194,9 +196,7 @@ class JSONRule:
     foreach: JSONPath | None = None
 
 
-def extract(
-        root: XMLNode | JSONNode, rule: XMLRule | JSONRule
-) -> CollectedData:
+def extract_xml(root: XMLNode, rule: XMLRule) -> CollectedData:
     data: dict[str, Any] = {}
 
     subroots = [root] if rule.foreach is None else rule.foreach.select(root)
@@ -224,7 +224,7 @@ def extract(
         match rule.key:
             case str():
                 key = rule.key
-            case XMLPicker() | JSONPicker():
+            case XMLPicker():
                 key = rule.key.extract(subroot)
                 for key_transform in rule.key.transforms:
                     key = key_transform.apply(key)
@@ -233,12 +233,55 @@ def extract(
     return data if len(data) > 0 else _EMPTY
 
 
-def collect(
-        root: XMLNode | JSONNode, rules: list[XMLRule] | list[JSONRule]
-) -> CollectedData:
+def extract_json(root: JSONNode, rule: JSONRule) -> CollectedData:
+    data: dict[str, Any] = {}
+
+    subroots = [root] if rule.foreach is None else rule.foreach.select(root)
+    for subroot in subroots:
+        if rule.extractor.foreach is None:
+            value = rule.extractor.extract(subroot)
+            if (value is None) or (value is _EMPTY):
+                continue
+            for transform in rule.extractor.transforms:
+                value = transform.apply(value)
+        else:
+            raws = [rule.extractor.extract(n)
+                    for n in rule.extractor.foreach.select(subroot)]
+            value = [v for v in raws if (v is not None) and (v is not _EMPTY)]
+            if len(value) == 0:
+                continue
+            if len(rule.extractor.transforms) > 0:
+                for i in range(len(value)):
+                    for transform in rule.extractor.transforms:
+                        value[i] = transform.apply(value[i])
+
+        for transform in rule.transforms:
+            value = transform.apply(value)
+
+        match rule.key:
+            case str():
+                key = rule.key
+            case JSONPicker():
+                key = rule.key.extract(subroot)
+                for key_transform in rule.key.transforms:
+                    key = key_transform.apply(key)
+        data[key] = value
+
+    return data if len(data) > 0 else _EMPTY
+
+
+def collect_xml(root: XMLNode, rules: list[XMLRule]) -> CollectedData:
     data: dict[str, Any] = {}
     for rule in rules:
-        subdata = extract(root, rule)
+        subdata = extract_xml(root, rule)
+        data.update(subdata)
+    return data if len(data) > 0 else _EMPTY
+
+
+def collect_json(root: JSONNode, rules: list[JSONRule]) -> CollectedData:
+    data: dict[str, Any] = {}
+    for rule in rules:
+        subdata = extract_json(root, rule)
         data.update(subdata)
     return data if len(data) > 0 else _EMPTY
 
@@ -272,9 +315,9 @@ def scrape(document: str, spec: XMLSpec | JSONSpec) -> CollectedData:
         root = preprocess.apply(root)
     match (root, spec):
         case (XMLNode(), XMLSpec()):
-            data = collect(root, spec.rules)
+            data = collect_xml(root, spec.rules)
         case (JSONNode(), JSONSpec()):
-            data = collect(root, spec.rules)
+            data = collect_json(root, spec.rules)
         case _:
             raise TypeError("Node and spec types don't match")
     for postprocess in spec.post:
