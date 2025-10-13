@@ -1,5 +1,5 @@
 {
-  "version": "20250707",
+  "version": "20251013",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -149,7 +149,7 @@
     {
       "foreach": "props.pageProps.mainColumnData.categories[*]",
       "key": {
-        "path": "id",
+        "path": "name",
         "transforms": [
           "credit_category"
         ]

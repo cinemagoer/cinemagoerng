@@ -18,7 +18,7 @@
 import html
 import json
 import re
-from typing import Any, TypedDict
+from typing import Any, NotRequired, TypedDict
 
 from .piculet import (
     CollectedData,
@@ -143,41 +143,45 @@ def make_date(x: DateDict) -> str | None:
 _CREDIT_CATEGORIES = {
     "director": "directors",
     "writer": "writers",
-    "producer": "producers",
     "composer": "composers",
     "cinematographer": "cinematographers",
     "editor": "editors",
-    "casting_director": "casting_directors",
-    "production_designer": "production_designers",
-    "art_director": "art_directors",
-    "set_decorator": "set_decorators",
-    "costume_designer": "costume_designers",
-    "production_manager": "production_managers",
-    "assistant_director": "assistant_directors",
+    "casting director": "casting_directors",
+    "production designer": "production_designers",
+    "art director": "art_directors",
+    "set decorator": "set_decorators",
+    "costume designer": "costume_designers",
+    "second unit directors or assistant directors": "assistant_directors",
     "choreographer": "choreographers",
+    "camera and electrical department": "camera_department",
+    "costume and wardrobe department": "costume_department",
+    "script and continuity department": "script_department",
     "miscellaneous": "additional_crew",
 }
 
 
 def parse_credit_category(value: str) -> str:
-    return _CREDIT_CATEGORIES.get(value, value)
+    value = value.lower()
+    return _CREDIT_CATEGORIES.get(value, value.replace(" ", "_"))
 
 
 _re_parenthesized = re.compile(r"""\(([^)]*)\)*""")
 
 
 class CreditAttributes(TypedDict):
-    job: str | None
+    job: NotRequired[str]
     notes: list[str]
 
 
 def parse_credit_attributes(value: str) -> CreditAttributes:
+    if value == "":
+        return {"notes": []}
     parenthesis = value.find("(")
     if parenthesis < 0:
         return {"job": value, "notes": []}
     job = value[:parenthesis].strip()
     notes = _re_parenthesized.findall(value)
-    return {"job": job if len(job) > 0 else None, "notes": notes}
+    return {"job": job, "notes": notes} if len(job) > 0 else {"notes": notes}
 
 
 def exists(value: str) -> bool:

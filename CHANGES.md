@@ -1,5 +1,9 @@
 # CHANGES
 
+## 0.5 (unreleased)
+
+- Adjust reference page for changes in credit categories.
+
 ## 0.4 (2025-07-25)
 
 - Change license to GPL v3 or later.

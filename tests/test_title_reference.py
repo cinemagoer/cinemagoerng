@@ -115,24 +115,24 @@ def test_title_reference_parser_should_set_all_cast(imdb_id, n, cast):
             "tt0133093",
             2,
             [  # The Matrix
-                ("nm0905154", "Lana Wachowski", "director", ["as The Wachowski Brothers"]),
-                ("nm0905152", "Lilly Wachowski", "director", ["as The Wachowski Brothers"]),
+                ("nm0905154", "Lana Wachowski", None, ["as The Wachowski Brothers"]),
+                ("nm0905152", "Lilly Wachowski", None, ["as The Wachowski Brothers"]),
             ],
         ),
         (
             "tt0092580",
             10,
             [  # Aria
-                ("nm0000265", "Robert Altman", "director", ['segment "Les Boréades"']),
-                ("nm0000915", "Bruce Beresford", "director", ['segment "Die tote Stadt"']),
-                ("nm0117317", "Bill Bryden", "director", ['segment "I pagliacci"']),
-                ("nm0000419", "Jean-Luc Godard", "director", ['segment "Armide"']),
-                ("nm0418746", "Derek Jarman", "director", ['segment "Depuis le jour"']),
-                ("nm0734466", "Franc Roddam", "director", ['segment "Liebestod"']),
-                ("nm0001676", "Nicolas Roeg", "director", ['segment "Un ballo in maschera"']),
-                ("nm0001692", "Ken Russell", "director", ['segment "Nessun dorma"']),
-                ("nm0836430", "Charles Sturridge", "director", ['segment "La virgine degli angeli"']),
-                ("nm0854697", "Julien Temple", "director", ['segment "Rigoletto"']),
+                ("nm0000265", "Robert Altman", None, ['segment "Les Boréades"']),
+                ("nm0000915", "Bruce Beresford", None, ['segment "Die tote Stadt"']),
+                ("nm0117317", "Bill Bryden", None, ['segment "I pagliacci"']),
+                ("nm0000419", "Jean-Luc Godard", None, ['segment "Armide"']),
+                ("nm0418746", "Derek Jarman", None, ['segment "Depuis le jour"']),
+                ("nm0734466", "Franc Roddam", None, ['segment "Liebestod"']),
+                ("nm0001676", "Nicolas Roeg", None, ['segment "Un ballo in maschera"']),
+                ("nm0001692", "Ken Russell", None, ['segment "Nessun dorma"']),
+                ("nm0836430", "Charles Sturridge", None, ['segment "La virgine degli angeli"']),
+                ("nm0854697", "Julien Temple", None, ['segment "Rigoletto"']),
             ],
         ),
         ("tt3629794", 0, []),  # Aslan
@@ -152,7 +152,7 @@ def test_title_reference_parser_should_set_all_directors(imdb_id, n, directors):
             "tt7045440",
             1,
             [  # David Bowie: Ziggy Stardust
-                ("nm0000309", "David Bowie", "writer", [])
+                ("nm0000309", "David Bowie", None, [])
             ],
         ),
         (
