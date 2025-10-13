@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with CinemagoerNG.  If not, see <http://www.gnu.org/licenses/>.
 
+import importlib
 import sys
 import textwrap
 from argparse import ArgumentParser
 
-from cinemagoerng import __version__, web
+from cinemagoerng import web
 
 _INDENT = "  "
 _LINE_WIDTH = 72
@@ -87,7 +88,9 @@ def get_title(imdb_num: int, taglines: bool = False) -> None:
 
 def main(argv: list[str] | None = None) -> None:
     parser = ArgumentParser(description="Retrieve data from the IMDb.")
-    parser.add_argument("--version", action="version", version=__version__)
+
+    version = importlib.metadata.version("cinemagoerng")
+    parser.add_argument("--version", action="version", version=version)
 
     command = parser.add_subparsers(metavar="command")
     command.required = True

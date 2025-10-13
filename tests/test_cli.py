@@ -1,15 +1,16 @@
 import pytest
 
+import importlib
 import re
 
-from cinemagoerng import __version__, cli
+from cinemagoerng import cli
 
 
 def test_cli_should_report_correct_version(capsys):
     with pytest.raises(SystemExit):
         cli.main(["--version"])
     std = capsys.readouterr()
-    assert std.out.strip() == __version__
+    assert std.out.strip() == importlib.metadata.version("cinemagoerng")
 
 
 def test_cli_get_title_should_report_error_for_nonexisting_imdb_num(cov, capsys):
