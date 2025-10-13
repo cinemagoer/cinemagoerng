@@ -25,7 +25,6 @@ from urllib.request import Request, urlopen
 
 from . import model, piculet, registry
 
-
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 

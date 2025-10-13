@@ -5,7 +5,6 @@ from decimal import Decimal
 
 from cinemagoerng import piculet
 
-
 MOVIE_XML_SPEC = {
     "version": "1",
     "url": "",
@@ -49,7 +48,6 @@ MOVIE_XML = """
 </body>
 </html>
 """
-
 
 MOVIE_JSON_SPEC = {
     "version": "1",
@@ -99,7 +97,6 @@ MOVIE_JSON = """
   }
 }
 """
-
 
 piculet.preprocessors.update(
     {

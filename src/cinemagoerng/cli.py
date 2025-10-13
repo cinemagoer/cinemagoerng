@@ -21,7 +21,6 @@ from argparse import ArgumentParser
 
 from cinemagoerng import __version__, web
 
-
 _INDENT = "  "
 _LINE_WIDTH = 72
 

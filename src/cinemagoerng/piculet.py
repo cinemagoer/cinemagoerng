@@ -30,16 +30,13 @@ import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
 
-
 XMLNode: TypeAlias = lxml.etree._Element
 JSONNode: TypeAlias = dict
 
 Node = TypeVar("Node", XMLNode, JSONNode)
 
-
 __lxml_ns = lxml.etree.FunctionNamespace(None)
 __lxml_ns["string-join"] = lambda _, texts, sep: sep.join(texts)
-
 
 DocType: TypeAlias = Literal["html", "xml", "json"]
 
@@ -48,7 +45,6 @@ _PARSERS: dict[DocType, Callable[[str], XMLNode | JSONNode]] = {
     "xml": lxml.etree.fromstring,
     "json": json.loads,
 }
-
 
 CollectedData: TypeAlias = Mapping[str, Any]
 

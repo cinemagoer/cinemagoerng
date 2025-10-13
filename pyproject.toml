@@ -91,9 +91,6 @@ ignore = ["E731"]
 [tool.ruff.lint.per-file-ignores]
 "cli.py" = ["T201"]
 
-[tool.ruff.lint.isort]
-lines-after-imports = 2
-
 [tool.tox]
 legacy_tox_ini = """
 [tox]

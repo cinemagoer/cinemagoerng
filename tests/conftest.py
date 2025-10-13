@@ -2,11 +2,9 @@ from pathlib import Path
 
 import cinemagoerng.web
 
-
 cache_dir = Path(__file__).parent / "imdb-cache"
 if not cache_dir.exists():
     cache_dir.mkdir(parents=True, exist_ok=True)
-
 
 fetch_orig = cinemagoerng.web.fetch
 
