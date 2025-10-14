@@ -28,7 +28,6 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -38,31 +37,31 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-requires-python = "~=3.10"
+requires-python = "~=3.11"
 dependencies = [
-    "typedload~=2.37",
+    "typedload~=2.38",
     "lxml~=5.4.0",
     "jmespath~=1.0.1",
 ]
 
 [dependency-groups]
 test = [
-    "pytest>=8.4.0",
-    "pytest-cov>=6.2.1",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
 ]
 typing = [
-    "mypy>=1.17.0",
+    "mypy>=1.18.2",
     "lxml-stubs>=0.5.1",
-    "types-jmespath>=1.0.2.20250711",
+    "types-jmespath>=1.0.2.20250809",
 ]
 style = [
-    "ruff>=0.12.5",
+    "ruff>=0.14.0",
 ]
 dev = [
     {include-group = "test"},
     {include-group = "typing"},
     {include-group = "style"},
-    "tox-uv>=1.26.2",
+    "tox-uv>=1.29.0",
 ]
 
 [project.urls]
@@ -94,7 +93,7 @@ ignore = ["E731"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py3{10,11,12,13}, pypy3{10,11}, types, style
+envlist = py3{11,12,13}, pypy3{11}, types, style
 isolated_build = True
 
 [testenv]

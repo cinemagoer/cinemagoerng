@@ -2,6 +2,7 @@
 
 ## 0.5 (unreleased)
 
+- Drop support for Python 3.10.
 - Adjust reference page for changes in credit categories.
 
 ## 0.4 (2025-07-25)
