@@ -54,10 +54,9 @@ def _spec(page: str, /) -> piculet.XMLSpec | piculet.JSONSpec:
 
 
 TitlePage: TypeAlias = Literal[
-    "main", "reference", "taglines", "episodes", "parental_guide"
+    "reference", "taglines", "episodes", "parental_guide"
 ]
 TitleUpdatePage: TypeAlias = Literal[
-    "main",
     "reference",
     "taglines",
     "episodes",

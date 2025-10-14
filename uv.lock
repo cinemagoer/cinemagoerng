@@ -22,7 +22,7 @@ wheels = [
 
 [[package]]
 name = "cinemagoerng"
-version = "0.5b1"
+version = "0.5"
 source = { editable = "." }
 dependencies = [
     { name = "jmespath" },
