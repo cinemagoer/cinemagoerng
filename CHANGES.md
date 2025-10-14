@@ -1,5 +1,9 @@
 # CHANGES
 
+## 0.5.1 (2025-10-14)
+
+- Fix imports for cli and tests.
+
 ## 0.5 (2025-10-14)
 
 - Drop support for Python 3.10.
