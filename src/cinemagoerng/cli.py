@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with CinemagoerNG.  If not, see <http://www.gnu.org/licenses/>.
 
-import importlib
+import importlib.metadata
 import sys
 import textwrap
 from argparse import ArgumentParser

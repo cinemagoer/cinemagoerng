@@ -1,6 +1,6 @@
 import pytest
 
-import importlib
+import importlib.metadata
 import re
 
 from cinemagoerng import cli

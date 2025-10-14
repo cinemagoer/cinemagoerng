@@ -1,6 +1,6 @@
 # CHANGES
 
-## 0.5 (unreleased)
+## 0.5 (2025-10-14)
 
 - Drop support for Python 3.10.
 - Remove the title main page parser.
