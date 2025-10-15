@@ -53,7 +53,7 @@ SPECS_DIR = Path(__file__).parent / "specs"
 def _spec(page: str, /) -> piculet.XMLSpec | piculet.JSONSpec:
     path = SPECS_DIR / f"{page}.json"
     content = path.read_text(encoding="utf-8")
-    return piculet.load_spec(json.loads(content))
+    return piculet.load_spec(json.loads(content))  # type: ignore
 
 
 TitlePage: TypeAlias = Literal[
@@ -84,12 +84,15 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
     else:
         url = spec.url % url_params
 
-    key = f"title_{imdb_id}_{page}"
-    extra_args = [f"{k}={v}" for k, v in kwargs.items()]
-    key += "_" + "_".join(extra_args) if extra_args else ""
-    key += f".{spec.doctype}"
+    if fetch.__name__ == "fetch_cached":
+        cache_key = f"title_{imdb_id}_{page}"
+        extra_args = [f"{k}={v}" for k, v in kwargs.items()]
+        cache_key += "_" + "_".join(extra_args) if extra_args else ""
+        cache_key += f".{spec.doctype}"
+        kwargs["cache_key"] = cache_key
+
     try:
-        document = fetch(url, key=key, **kwargs)
+        document = fetch(url, **kwargs)
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
@@ -110,11 +113,14 @@ def update_title(title: model.Title, /, *, page: TitleUpdatePage,
     else:
         url = spec.url % url_params
 
-    key = f"title_{title.imdb_id}_{page}"
-    extra_args = [f"{k}={v}" for k, v in kwargs.items()]
-    key += "_" + "_".join(extra_args) if extra_args else ""
-    key += f".{spec.doctype}"
-    document = fetch(url, key=key, **kwargs)
+    if fetch.__name__ == "fetch_cached":
+        cache_key = f"title_{title.imdb_id}_{page}"
+        extra_args = [f"{k}={v}" for k, v in kwargs.items()]
+        cache_key += "_" + "_".join(extra_args) if extra_args else ""
+        cache_key += f".{spec.doctype}"
+        kwargs["cache_key"] = cache_key
+
+    document = fetch(url, **kwargs)
     data = piculet.scrape(document, spec)
     for key in keys:
         value = data.get(key)

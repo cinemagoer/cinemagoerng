@@ -9,11 +9,12 @@ if not cache_dir.exists():
 fetch_orig = cinemagoerng.web.fetch
 
 
-def fetch_cached(url: str, key: str = "", **kwargs):
-    if key == "":
+def fetch_cached(url: str, **kwargs):
+    cache_key = kwargs.get("cache_key")
+    if cache_key is None:
         raise ValueError("Tests require a caching key")
-    cache_path = cache_dir / key
-    if key == "tt0000001_reference.html":
+    cache_path = cache_dir / cache_key
+    if cache_key == "tt0000001_reference.html":
         cache_path.unlink(missing_ok=True)
     if cache_path.exists():
         return cache_path.read_text(encoding="utf-8")
