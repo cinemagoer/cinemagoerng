@@ -1,6 +1,6 @@
 # CinemagoerNG
 
-CinemagoerNG (Next Generation) is a Python library and command-line utility
+CinemagoerNG is a Python library and command-line utility
 for retrieving data from IMDb.
 It provides a clean, modern API for accessing movie, TV show,
 and celebrity information from IMDb.
@@ -25,11 +25,7 @@ and celebrity information from IMDb.
 You can install CinemagoerNG using pip:
 
 ```bash
-# Basic installation
 pip install cinemagoerng
-
-# For development
-pip install cinemagoerng[dev]
 ```
 
 ## Basic Usage
@@ -92,6 +88,7 @@ CinemagoerNG can retrieve various types of information:
 - Cast members
 - Producers
 - Composers
+- Crew members
 
 ### Additional Details
 
@@ -99,54 +96,52 @@ CinemagoerNG can retrieve various types of information:
 - Alternative titles (AKAs)
 - Episode information (for TV series)
 - Parental guide
-- Reference information
 
 ## Development
 
-To set up for development:
+It is recommended to use `uv` for development:
 
 ```bash
 # Clone the repository
 git clone https://github.com/cinemagoer/cinemagoerng.git
 cd cinemagoerng
 
-# Install development dependencies
-pip install -e .[dev]
+# Set up environment
+uv sync
 
 # Run tests
-pytest
+uv run pytest
 
 # Run type checks
-mypy cinemagoerng
+uv run mypy src tests
 
 # Check code style
-ruff check --preview cinemagoerng tests
+uv run ruff check --preview src tests
 
-# Format code
-ruff format cinemagoerng tests
+# Test under all supported Python versions
+uv run tox
 ```
 
 ## Python Version Support
 
-CinemagoerNG supports Python 3.10 and later versions, including:
+CinemagoerNG supports Python 3.11 and later versions:
 
-- Python 3.10
 - Python 3.11
 - Python 3.12
 - Python 3.13
-- PyPy 3.10
+- PyPy 3.11
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-For major changes, please open an issue first to discuss what you would like
-to change.
+Contributions are welcome!
+Feel free to submit a Pull Request.
+For major changes, please open an issue first to discuss
+what you would like to change.
 
 ## License
 
 This project is licensed under the
-GNU General Public License v3 or later (GPLv3+) - see the
-[LICENSE.txt](LICENSE.txt) file for details.
+GNU General Public License v3 or later (GPLv3+) - see the [LICENSE.txt](LICENSE.txt) file for details.
 
 ## Acknowledgments
 
@@ -155,4 +150,3 @@ Special thanks to:
 
 - All contributors to the original Cinemagoer (IMDbPY) project.
 - The IMDb website for providing the data.
-- The Python community for their invaluable feedback and contributions.
