@@ -68,7 +68,11 @@ TitleUpdatePage: TypeAlias = Literal[
 
 
 def get_title(
-    imdb_id: str, *, page: TitlePage = "reference", accept_language: str="en", **kwargs
+    imdb_id: str,
+    *,
+    page: TitlePage = "reference",
+    accept_language: str = "en",
+    **kwargs,
 ) -> model.Title | None:
     spec = _spec(f"title_{page}")
     url_params = {"imdb_id": imdb_id} | spec.url_default_params | kwargs
