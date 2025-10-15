@@ -28,9 +28,10 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def fetch(url: str, **kwargs) -> str:
+def fetch(url: str, accept_language: str = "en", **kwargs) -> str:
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
+    request.add_header("Accept-Language", accept_language)
     if "graphql" in url:
         request.add_header("Content-Type", "application/json")
     with urlopen(request) as response:
@@ -67,7 +68,7 @@ TitleUpdatePage: TypeAlias = Literal[
 
 
 def get_title(
-    imdb_id: str, *, page: TitlePage = "reference", **kwargs
+    imdb_id: str, *, page: TitlePage = "reference", accept_language: str="en", **kwargs
 ) -> model.Title | None:
     spec = _spec(f"title_{page}")
     url_params = {"imdb_id": imdb_id} | spec.url_default_params | kwargs
@@ -80,7 +81,7 @@ def get_title(
 
     try:
         document = fetch(
-            url, imdb_id=imdb_id, page=page, doc_type=spec.doctype, **kwargs
+            url, imdb_id=imdb_id, accept_language=accept_language, **kwargs
         )
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
