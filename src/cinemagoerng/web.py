@@ -1,4 +1,4 @@
-# Copyright 2024 H. Turgut Uyar <uyar@tekir.org>
+# Copyright 2024-2025 H. Turgut Uyar <uyar@tekir.org>
 #
 # This file is part of CinemagoerNG.
 #
@@ -28,12 +28,14 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def fetch(url: str, accept_language: str = "en", **kwargs) -> str:
+def fetch(url: str, **kwargs) -> str:
     request = Request(url)
     request.add_header("User-Agent", _USER_AGENT)
-    request.add_header("Accept-Language", accept_language)
     if "graphql" in url:
         request.add_header("Content-Type", "application/json")
+    accept_language = kwargs.get("accept_language")
+    if accept_language is not None:
+        request.add_header("Accept-Language", accept_language)
     with urlopen(request) as response:
         content: bytes = response.read()
     return content.decode("utf-8")
@@ -55,21 +57,24 @@ def _spec(page: str, /) -> piculet.XMLSpec | piculet.JSONSpec:
 
 
 TitlePage: TypeAlias = Literal[
-    "reference", "taglines", "episodes", "parental_guide"
-]
-TitleUpdatePage: TypeAlias = Literal[
+    "episodes",
+    "parental_guide",
     "reference",
     "taglines",
+]
+
+TitleUpdatePage: TypeAlias = Literal[
+    "akas",
     "episodes",
     "episodes_with_pagination",
-    "akas",
     "parental_guide",
+    "reference",
+    "taglines",
 ]
 
 
-def get_title(
-    imdb_id: str, *, page: TitlePage = "reference", accept_language: str="en", **kwargs
-) -> model.Title | None:
+def get_title(imdb_id: str, *, page: TitlePage = "reference",
+              **kwargs) -> model.Title | None:
     spec = _spec(f"title_{page}")
     url_params = {"imdb_id": imdb_id} | spec.url_default_params | kwargs
 
@@ -79,10 +84,12 @@ def get_title(
     else:
         url = spec.url % url_params
 
+    key = f"title_{imdb_id}_{page}"
+    extra_args = [f"{k}={v}" for k, v in kwargs.items()]
+    key += "_" + "_".join(extra_args) if extra_args else ""
+    key += f".{spec.doctype}"
     try:
-        document = fetch(
-            url, imdb_id=imdb_id, accept_language=accept_language, **kwargs
-        )
+        document = fetch(url, key=key, **kwargs)
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
@@ -91,15 +98,9 @@ def get_title(
     return piculet.deserialize(data, model.Title)
 
 
-def update_title(
-    title: model.Title,
-    /,
-    *,
-    page: TitleUpdatePage,
-    keys: list[str],
-    paginate: bool = False,
-    **kwargs,
-) -> None:
+def update_title(title: model.Title, /, *, page: TitleUpdatePage,
+                 keys: list[str], paginate: bool = False,
+                 **kwargs) -> None:
     spec = _spec(f"title_{page}")
     url_params = {"imdb_id": title.imdb_id} | spec.url_default_params | kwargs
 
@@ -109,9 +110,11 @@ def update_title(
     else:
         url = spec.url % url_params
 
-    document = fetch(
-        url, imdb_id=title.imdb_id, page=page, doc_type=spec.doctype, **kwargs
-    )
+    key = f"title_{title.imdb_id}_{page}"
+    extra_args = [f"{k}={v}" for k, v in kwargs.items()]
+    key += "_" + "_".join(extra_args) if extra_args else ""
+    key += f".{spec.doctype}"
+    document = fetch(url, key=key, **kwargs)
     data = piculet.scrape(document, spec)
     for key in keys:
         value = data.get(key)
@@ -138,10 +141,4 @@ def update_title(
 
     if paginate and data.get("has_next_page", False):
         kwargs["after"] = f'"{data["end_cursor"]}"'
-        update_title(
-            title,
-            page=page,
-            keys=keys,
-            paginate=paginate,
-            **kwargs,
-        )
+        update_title(title, page=page, keys=keys, paginate=paginate, **kwargs)

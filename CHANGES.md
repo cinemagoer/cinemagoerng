@@ -1,5 +1,9 @@
 # CHANGES
 
+## 0.6 (unreleased)
+
+- Add Accept-Language header to HTTP requests (@tykling).
+
 ## 0.5.1 (2025-10-14)
 
 - Fix imports for cli and tests.
