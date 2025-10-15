@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with CinemagoerNG.  If not, see <http://www.gnu.org/licenses/>.
 
-COUNTRY_CODES = {
+from types import MappingProxyType
+from typing import Mapping
+
+COUNTRY_CODES: Mapping[str, str] = MappingProxyType({
     "AD": "Andorra",
     "AE": "United Arab Emirates",
     "AF": "Afghanistan",
@@ -279,9 +282,9 @@ COUNTRY_CODES = {
     "ZM": "Zambia",
     "ZRCD": "Zaire",
     "ZW": "Zimbabwe",
-}
+})
 
-LANGUAGE_CODES = {
+LANGUAGE_CODES: Mapping[str, str] = MappingProxyType({
     "AB": "Abkhazian",
     "AF": "Afrikaans",
     "AII": "Assyrian Neo-Aramaic",
@@ -616,4 +619,4 @@ LANGUAGE_CODES = {
     "ZH": "Chinese",
     "ZU": "Zulu",
     "ZXX": "None",
-}
+})

@@ -18,14 +18,12 @@
 from types import MappingProxyType
 from typing import Mapping
 
-ARTICLES: Mapping[str, frozenset[str]] = MappingProxyType(
-    {
-        "DE": frozenset({"das", "der", "die"}),
-        "EN": frozenset({"a", "an", "the"}),
-        "ES": frozenset({"el", "la", "las", "los"}),
-        "FR": frozenset({"l'", "la", "le", "les"}),
-        "IT": frozenset({"gli", "i", "il", "l'", "la", "le", "lo"}),
-        "PT": frozenset({"a", "as", "o", "os"}),
-        "SV": frozenset({"de", "den", "det"}),
-    }
-)
+ARTICLES: Mapping[str, frozenset[str]] = MappingProxyType({
+    "DE": frozenset({"das", "der", "die"}),
+    "EN": frozenset({"a", "an", "the"}),
+    "ES": frozenset({"el", "la", "las", "los"}),
+    "FR": frozenset({"l'", "la", "le", "les"}),
+    "IT": frozenset({"gli", "i", "il", "l'", "la", "le", "lo"}),
+    "PT": frozenset({"a", "as", "o", "os"}),
+    "SV": frozenset({"de", "den", "det"}),
+})
