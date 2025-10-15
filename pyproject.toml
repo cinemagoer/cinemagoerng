@@ -8,7 +8,7 @@ authors = [
     {name = "H. Turgut Uyar", email = "uyar@tekir.org"},
     {name = "Davide Alberani", email = "da@mimante.net"},
 ]
-license = "GPL-3.0-or-later"
+license = "LGPL-3.0-or-later"
 license-files = ["LICENSE.txt"]
 
 keywords = [

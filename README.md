@@ -8,7 +8,7 @@ and celebrity information from IMDb.
 > [!Note]
 > This project and its authors are not affiliated
 | with the Internet Movie Database Inc.
-> See the [`DISCLAIMER.txt`](https://raw.githubusercontent.com/cinemagoer/cinemagoerng/main/DISCLAIMER.txt)
+> See the [`DISCLAIMER.txt`](DISCLAIMER.txt)
 > file for details about terms of use.
 
 ## Features
@@ -141,7 +141,8 @@ what you would like to change.
 ## License
 
 This project is licensed under the
-GNU General Public License v3 or later (GPLv3+) - see the [LICENSE.txt](LICENSE.txt) file for details.
+GNU Lesser General Public License v3 or later (LGPLv3+) - see the
+[LICENSE.txt](LICENSE.txt) file for details.
 
 ## Acknowledgments
 
