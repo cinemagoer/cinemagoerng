@@ -25,13 +25,13 @@ from typing import Literal, TypeAlias
 from . import linguistics, lookup
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Person:
     imdb_id: str
     name: str
 
 
-@dataclass
+@dataclass(kw_only=True)
 class _Credit(Person):
     notes: list[str] = field(default_factory=list)
 
@@ -45,17 +45,17 @@ class _Credit(Person):
         return "uncredited" in self.notes
 
 
-@dataclass
+@dataclass(kw_only=True)
 class CrewCredit(_Credit):
     job: str | None = None
 
 
-@dataclass
+@dataclass(kw_only=True)
 class CastCredit(_Credit):
     characters: list[str] = field(default_factory=list)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class AKA:
     title: str
     country_code: str | None = None
@@ -79,20 +79,20 @@ class AKA:
         return len(self.notes) > 0
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Certificate:
     country: str
     ratings: list[str]
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Certification:
     mpa_rating: str | None = "Not Rated"
     mpa_rating_reason: str | None = None
     certificates: list[Certificate] = field(default_factory=list)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class AdvisoryVotes:
     none: int = 0
     mild: int = 0
@@ -100,25 +100,25 @@ class AdvisoryVotes:
     severe: int = 0
 
 
-@dataclass
+@dataclass(kw_only=True)
 class AdvisoryDetail:
     text: str
     is_spoiler: bool
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Advisory:
     details: list[AdvisoryDetail] = field(default_factory=list)
     status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = "Unknown"  # noqa: E501
     votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class SpoilerAdvisory:
     details: list[str] = field(default_factory=list)
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Advisories:
     nudity: Advisory = field(default_factory=Advisory)
     violence: Advisory = field(default_factory=Advisory)
@@ -247,7 +247,7 @@ class VideoGame(_Title):
     type_id: Literal["videoGame"] = "videoGame"
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TVEpisode(_TimedTitle):
     type_id: Literal["tvEpisode"] = "tvEpisode"
     series: TVSeries | TVMiniSeries | None = None
@@ -293,7 +293,7 @@ class TVMiniSeries(_TVSeries):
     type_id: Literal["tvMiniSeries"] = "tvMiniSeries"
 
 
-@dataclass
+@dataclass(kw_only=True)
 class TVSpecial(_TimedTitle):
     type_id: Literal["tvSpecial"] = "tvSpecial"
 
