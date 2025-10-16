@@ -1,5 +1,5 @@
 {
-  "version": "20240526",
+  "version": "20251016",
   "url": "https://www.imdb.com/title/%(imdb_id)s/taglines/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -41,6 +41,24 @@
       "key": "end_year",
       "extractor": {
         "path": "props.pageProps.contentData.entityMetadata.releaseYear.endYear"
+      }
+    },
+    {
+      "key": "season",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.series.episodeNumber.seasonNumber",
+        "transforms": [
+          "str"
+        ]
+      }
+    },
+    {
+      "key": "episode",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.series.episodeNumber.episodeNumber",
+        "transforms": [
+          "str"
+        ]
       }
     },
     {
