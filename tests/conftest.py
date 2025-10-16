@@ -1,6 +1,8 @@
 from pathlib import Path
+from typing import Unpack
 
 import cinemagoerng.web
+from cinemagoerng.web import RequestParams
 
 cache_dir = Path(__file__).parent / "imdb-cache"
 if not cache_dir.exists():
@@ -9,8 +11,8 @@ if not cache_dir.exists():
 fetch_orig = cinemagoerng.web.fetch
 
 
-def fetch_cached(url: str, **kwargs):
-    cache_key = kwargs.get("cache_key")
+def fetch_cached(url: str, **request_params: Unpack[RequestParams]) -> str:
+    cache_key = request_params.pop("cache_key")
     if cache_key is None:
         raise ValueError("Tests require a caching key")
     cache_path = cache_dir / cache_key
@@ -18,7 +20,7 @@ def fetch_cached(url: str, **kwargs):
         cache_path.unlink(missing_ok=True)
     if cache_path.exists():
         return cache_path.read_text(encoding="utf-8")
-    content = fetch_orig(url)
+    content = fetch_orig(url, **request_params)
     cache_path.write_text(content, encoding="utf-8")
     return content
 
