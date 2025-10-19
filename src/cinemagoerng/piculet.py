@@ -286,8 +286,7 @@ def collect_json(root: JSONNode, rules: list[JSONRule]) -> CollectedData:
 class _Spec:
     version: str
     url: str
-    url_default_params: dict[str, Any] = field(default_factory=dict)
-    url_transform: Transform | None = None
+    graphql: dict[str, Any] | None = None
     doctype: DocType
     pre: list[Preprocess] = field(default_factory=list)
     post: list[Postprocess] = field(default_factory=list)
@@ -322,19 +321,23 @@ def scrape(document: str, spec: XMLSpec | JSONSpec) -> CollectedData:
 
 
 _data_classes = {Decimal}
+
 deserialize = partial(
     typedload.load,
     strconstructed=_data_classes,
     pep563=True,
     basiccast=False,
 )
+
 serialize = partial(typedload.dump, strconstructed=_data_classes)
 
 _spec_classes = {Preprocess, Postprocess, Transform, XMLPath, JSONPath}
+
 load_spec = partial(
     deserialize,
     type_=XMLSpec | JSONSpec,
     strconstructed=_spec_classes,
     failonextra=True,
 )
+
 dump_spec = partial(serialize, strconstructed=_spec_classes)

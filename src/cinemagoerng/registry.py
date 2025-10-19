@@ -196,39 +196,14 @@ def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
     return {k: v for d in value for k, v in d.items()}
 
 
-def build_episode_graphql_url(url_data: dict[str, Any]) -> str:
-    url = url_data["url"]
-    params = url_data["params"]
-    variables: dict[str, Any] = {
-        "after": params["after"].replace('"', ""),
-        "const": params["imdb_id"],
-        "first": 50,
-        "locale": "en-US",
-        "originalTitleText": False,
-        "returnUrl": "https://www.imdb.com/close_me",
-        "sort": {"by": "EPISODE_THEN_RELEASE", "order": "ASC"},
-    }
-
-    if params["filter_type"] == "year":
-        variables["filter"] = {
-            "releasedOnOrAfter": {"year": params["start_year"]},
-            "releasedOnOrBefore": {"year": params["end_year"]},
-        }
-    elif params["filter_type"] == "season":
-        variables["filter"] = {"includeSeasons": [params["season"]]}
-
-    extensions = {
-        "persistedQuery": {
-            "sha256Hash": "e5b755e1254e3bc3a36b34aff729b1d107a63263dec628a8f59935c9e778c70e",  # noqa: E501
-            "version": 1,
-        }
-    }
-
-    # Properly escape the JSON for GraphQL
-    variables_json = json.dumps(variables, separators=(",", ":"))
-    extensions_json = json.dumps(extensions, separators=(",", ":"))
-
-    return url % {"variables": variables_json, "extensions": extensions_json}
+# def build_episode_graphql_url(url_data: dict[str, Any]) -> str:
+#     if params["filter_type"] == "year":
+#         variables["filter"] = {
+#             "releasedOnOrAfter": {"year": params["start_year"]},
+#             "releasedOnOrBefore": {"year": params["end_year"]},
+#         }
+#     elif params["filter_type"] == "season":
+#         variables["filter"] = {"includeSeasons": [params["season"]]}
 
 
 def update_transformers(registry: dict[str, Transformer]) -> None:
@@ -243,6 +218,5 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
             "exists": exists,
             "extract_value": extract_value,
             "flatten_list_of_dicts": flatten_list_of_dicts,
-            "build_episode_graphql_url": build_episode_graphql_url,
         }
     )

@@ -15,13 +15,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with CinemagoerNG.  If not, see <http://www.gnu.org/licenses/>.
 
-import base64
 import json
-import zlib
 from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
-from typing import Literal, NotRequired, TypeAlias, TypedDict, Unpack
+from typing import Any, Literal, Mapping, NotRequired, TypeAlias, TypedDict
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -30,20 +28,13 @@ from . import model, piculet, registry
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-class RequestParams(TypedDict):
-    after: NotRequired[str]
-    accept_language: NotRequired[str]
-    cache_key: NotRequired[str]
-
-
-def fetch(url: str, **request_params: Unpack[RequestParams]) -> str:
+def fetch(url: str, /, *, headers: dict[str, str] | None = None) -> str:
     request = Request(url)
-    request.add_header("User-Agent", _USER_AGENT)
-    if "graphql" in url:
-        request.add_header("Content-Type", "application/json")
-    accept_language = request_params.get("accept_language")
-    if accept_language is not None:
-        request.add_header("Accept-Language", accept_language)
+    request_headers = headers if headers is not None else {}
+    user_agent = request_headers.pop("User-Agent", _USER_AGENT)
+    request.add_header("User-Agent", user_agent)
+    for header, value in request_headers.items():
+        request.add_header(header, value)
     with urlopen(request) as response:
         content: bytes = response.read()
     return content.decode("utf-8")
@@ -52,6 +43,21 @@ def fetch(url: str, **request_params: Unpack[RequestParams]) -> str:
 registry.update_preprocessors(piculet.preprocessors)
 registry.update_postprocessors(piculet.postprocessors)
 registry.update_transformers(piculet.transformers)
+
+
+class GraphQLVariables(TypedDict):
+    after: NotRequired[str]
+    const: NotRequired[str]
+    first: NotRequired[int]
+    isAutoTranslationEnabled: NotRequired[bool]
+    locale: NotRequired[str]
+    originalTitleText: NotRequired[bool]
+
+
+class GraphQLParams(TypedDict):
+    operationName: str
+    variables: GraphQLVariables
+    extensions: dict[str, Any]
 
 
 SPECS_DIR = Path(__file__).parent / "specs"
@@ -81,66 +87,103 @@ TitleUpdatePage: TypeAlias = Literal[
 ]
 
 
-def _get_cache_key(imdb_id: str, page: str, doctype: str,
-                   **request_params: Unpack[RequestParams]) -> str:
-    if len(request_params) == 0:
-        return f"title_{imdb_id}_{page}.{doctype}"
-    suffix = "_".join(f"{k}={v}" for k, v in request_params.items())
-    compressed = zlib.compress(suffix.encode("us-ascii"))
-    extras = base64.b64encode(compressed).decode("us-ascii")
-    return f"title_{imdb_id}_{page}_{extras}.{doctype}"
+def _get_url(spec: piculet.XMLSpec | piculet.JSONSpec,
+             context: Mapping[str, Any]) -> str:
+    url_template = spec.url
+    if spec.graphql is not None:
+        g_params = []
+        for g_key, g_value in spec.graphql.items():
+            match g_value:
+                case dict():
+                    g_dump = json.dumps(g_value, separators=(",", ":"))
+                    g_params.append(f"{g_key}={g_dump}")
+                case _:
+                    g_params.append(f"{g_key}={g_value}")
+        url_template += "?" + "&".join(g_params)
+    return url_template % context
 
 
 def get_title(imdb_id: str, *, page: TitlePage = "reference",
-              **request_params: Unpack[RequestParams]) -> model.Title | None:
+              headers: dict[str, str] | None = None) -> model.Title | None:
     spec = _spec(f"title_{page}")
-    url_params = {"imdb_id": imdb_id} | spec.url_default_params | request_params
-
-    # apply URL transform if specified
-    if spec.url_transform:
-        url = spec.url_transform.apply({"url": spec.url, "params": url_params})
-    else:
-        url = spec.url % url_params
-
-    if fetch.__name__ == "fetch_cached":
-        request_params["cache_key"] = _get_cache_key(
-            imdb_id=imdb_id,
-            page=page,
-            doctype=spec.doctype,
-            **request_params,
-        )
-
+    url = _get_url(spec, {"imdb_id": imdb_id})
+    request_headers = headers if headers is not None else {}
+    if spec.graphql is not None:
+        request_headers["Content-Type"] = "application/json"
     try:
-        document = fetch(url, **request_params)
+        document = fetch(url, headers=request_headers)
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
             return None
         raise e  # pragma: no cover
     data = piculet.scrape(document, spec)
-    return piculet.deserialize(data, model.Title)
+    return piculet.deserialize(data, model.Title)  # type: ignore
 
 
-def update_title(title: model.Title, /, *, page: TitleUpdatePage,
-                 keys: list[str], paginate: bool = False,
-                 **request_params: Unpack[RequestParams]) -> None:
-    spec = _spec(f"title_{page}")
-    url_params = {"imdb_id": title.imdb_id} | spec.url_default_params | request_params
+def set_taglines(title: model.Title, *,
+                 headers: dict[str, str] | None = None) -> None:
+    spec = _spec("title_taglines")
+    url = _get_url(spec, {"imdb_id": title.imdb_id})
+    request_headers = headers if headers is not None else {}
+    if spec.graphql is not None:
+        request_headers["Content-Type"] = "application/json"
+    document = fetch(url, headers=request_headers)
+    data = piculet.scrape(document, spec)
+    title.taglines = data["taglines"]
 
-    # apply URL transform if specified
-    if spec.url_transform:
-        url = spec.url_transform.apply({"url": spec.url, "params": url_params})
+
+def set_akas(title: model.Title, *,
+             headers: dict[str, str] | None = None,
+             spec: piculet.XMLSpec | piculet.JSONSpec | None = None) -> None:
+    context: dict[str, Any] = {"imdb_id": title.imdb_id}
+    if spec is None:
+        spec = _spec("title_akas")
+        g_vars: GraphQLVariables = {"after": "null"}
     else:
-        url = spec.url % url_params
+        g_params: GraphQLParams = spec.graphql  # type: ignore
+        g_vars = g_params["variables"]
+    context.update(g_vars)
+    url = _get_url(spec, context=context)
+    request_headers = headers if headers is not None else {}
+    if spec.graphql is not None:
+        request_headers["Content-Type"] = "application/json"
+    document = fetch(url, headers=request_headers)
+    data = piculet.scrape(document, spec)
+    akas = [piculet.deserialize(aka, model.AKA)
+            for aka in data.get("akas", [])]
+    title.akas.extend(akas)
+    if data.get("has_next_page", False):
+        g_vars["after"] = f'"{data["end_cursor"]}"'
+        set_akas(title, headers=headers, spec=spec)
 
-    if fetch.__name__ == "fetch_cached":
-        request_params["cache_key"] = _get_cache_key(
-            imdb_id=title.imdb_id,
-            page=page,
-            doctype=spec.doctype,
-            **request_params,
-        )
 
-    document = fetch(url, **request_params)
+def update_title(
+        title: model.Title,
+        /,
+        *,
+        page: TitleUpdatePage,
+        keys: list[str], paginate: bool = False,
+        headers: dict[str, str] | None = None,
+) -> None:
+    spec = _spec(f"title_{page}")
+    url_template = spec.url
+    if spec.graphql is not None:
+        g_params = []
+        for g_key, g_value in spec.graphql.items():
+            match g_value:
+                case dict():
+                    g_dump = json.dumps(g_value, separators=(",", ":"))
+                    g_params.append(f"{g_key}={g_dump}")
+                case _:
+                    g_params.append(f"{g_key}={g_value}")
+        url_template += "?" + "&".join(g_params)
+
+        if headers is None:
+            headers = {}
+        headers["Content-Type"] = "application/json"
+    url = url_template % {"imdb_id": title.imdb_id}
+
+    document = fetch(url, headers=headers)
     data = piculet.scrape(document, spec)
     for key in keys:
         value = data.get(key)
@@ -164,7 +207,3 @@ def update_title(title: model.Title, /, *, page: TitleUpdatePage,
             setattr(title, key, value)
         else:
             setattr(title, key, value)
-
-    if paginate and data.get("has_next_page", False):
-        request_params["after"] = f'"{data["end_cursor"]}"'
-        update_title(title, page=page, keys=keys, paginate=paginate, **request_params)

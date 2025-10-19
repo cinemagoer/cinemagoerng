@@ -57,12 +57,12 @@ You can fetch additional details using the `update_title` method:
 
 ```python
 # Get all taglines
-web.update_title(movie, page="taglines", keys=["taglines"])
+web.set_taglines(movie)
 for tagline in movie.taglines:
     print(tagline)
 
 # Get alternate titles (AKAs)
-web.update_title(movie, page="akas", keys=["akas"])
+web.set_akas(movie)
 for aka in movie.akas:
     print(f"{aka.title} ({aka.country})")
 ```

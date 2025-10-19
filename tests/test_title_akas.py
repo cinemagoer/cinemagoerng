@@ -4,10 +4,11 @@ from cinemagoerng import web
 
 
 @pytest.mark.parametrize(
-    ("imdb_id", "n", "akas"),
+    ("imdb_id", "n_before", "n_after", "akas"),
     [
         (
             "tt0429489",
+            0,
             3,
             [  # A Ay
                 ("Луна", "SUHH", "Soviet Union", "ru", "Russian", False, []),
@@ -15,28 +16,17 @@ from cinemagoerng import web
                 ("Oh, Moon!", "XWW", "World-wide", "en", "English", True, ["complete title"]),
             ],
         ),
-        ("tt3629794", 0, []),  # Aslan
-        ("tt0133093", 50, []),  # The Matrix
+        ("tt3629794", 0, 0, []),  # Aslan
+        ("tt0133093", 0, 118, []),  # The Matrix
     ],
 )
-def test_title_akas_parser_should_set_akas(imdb_id, n, akas):
-    parsed = web.get_title(imdb_id=imdb_id)
-    web.update_title(parsed, page="akas", keys=["akas"])
-    assert len(parsed.akas) == n
+def test_title_akas_parser_should_set_all_paginated_akas(imdb_id, n_before, n_after, akas):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    assert len(parsed.akas) == n_before
+    web.set_akas(parsed)
+    assert len(parsed.akas) == n_after
     if len(akas) > 0:
         assert [
             (aka.title, aka.country_code, aka.country, aka.language_code, aka.language, aka.is_alternative, aka.notes)
             for aka in parsed.akas
         ] == akas
-
-
-@pytest.mark.parametrize(
-    ("imdb_id", "akas_count"),
-    [
-        ("tt0133093", 68),  # The Matrix
-    ],
-)
-def test_title_akas_parser_pagination(imdb_id, akas_count):
-    parsed = web.get_title(imdb_id=imdb_id)
-    web.update_title(parsed, page="akas", keys=["akas"], paginate=True)
-    assert len(parsed.akas) == akas_count
