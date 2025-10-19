@@ -20,9 +20,8 @@ from cinemagoerng import web
         ),
     ],
 )
-def test_title_parser_should_set_parentalguide(imdb_id, nudity_status, mpa_rating, mpa_rating_reason):
+def test_parental_guide_parser_should_set_certifications(imdb_id, nudity_status, mpa_rating, mpa_rating_reason):
     parsed = web.get_title(imdb_id=imdb_id, page="parental_guide")
-
     assert parsed.advisories.nudity.status == nudity_status
     assert parsed.certification.mpa_rating == mpa_rating
     assert parsed.certification.mpa_rating_reason == mpa_rating_reason
@@ -45,13 +44,11 @@ def test_title_parser_should_set_parentalguide(imdb_id, nudity_status, mpa_ratin
         ),
     ],
 )
-def test_title_update_certificate(imdb_id, nudity_status, country, rating):
-    parsed = web.get_title(imdb_id=imdb_id)
-    web.update_title(parsed, page="parental_guide", keys=["certification", "advisories"])
-
+def test_parental_guide_parser_title_should_update_certifications(imdb_id, nudity_status, country, rating):
+    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    web.set_parental_guide(parsed)
     assert parsed.advisories.nudity.status == nudity_status
-    country_certificates = [
-        certificate for certificate in parsed.certification.certificates if certificate.country == country
-    ]
+    country_certificates = [certificate for certificate in parsed.certification.certificates
+                            if certificate.country == country]
     assert country_certificates
     assert rating in country_certificates[0].ratings

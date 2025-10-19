@@ -28,7 +28,7 @@ You can install CinemagoerNG using pip:
 pip install cinemagoerng
 ```
 
-## Basic Usage
+## Basic usage
 
 Here's a simple example of retrieving movie information:
 
@@ -51,12 +51,12 @@ for credit in movie.directors:
     print(credit.name)   # "Lana Wachowski", "Lilly Wachowski"
 ```
 
-### Retrieving Additional Information
+### Retrieving additional information
 
-You can fetch additional details using the `update_title` method:
+You can fetch additional details using the relevant `set_` functions:
 
 ```python
-# Get all taglines
+# Set all taglines
 web.set_taglines(movie)
 for tagline in movie.taglines:
     print(tagline)
@@ -67,11 +67,11 @@ for aka in movie.akas:
     print(f"{aka.title} ({aka.country})")
 ```
 
-## Available Data
+## Available data
 
 CinemagoerNG can retrieve various types of information:
 
-### Basic Information
+### Basic information
 
 - Title
 - Year
@@ -90,7 +90,7 @@ CinemagoerNG can retrieve various types of information:
 - Composers
 - Crew members
 
-### Additional Details
+### Additional details
 
 - Taglines
 - Alternative titles (AKAs)

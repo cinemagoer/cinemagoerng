@@ -31,8 +31,8 @@ _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 def fetch(url: str, /, *, headers: dict[str, str] | None = None) -> str:
     request = Request(url)
     request_headers = headers if headers is not None else {}
-    user_agent = request_headers.pop("User-Agent", _USER_AGENT)
-    request.add_header("User-Agent", user_agent)
+    if "User-Agent" not in request_headers:
+        request_headers["User-Agent"] = _USER_AGENT
     for header, value in request_headers.items():
         request.add_header(header, value)
     with urlopen(request) as response:
@@ -103,10 +103,10 @@ def _get_url(spec: piculet.XMLSpec | piculet.JSONSpec,
     return url_template % context
 
 
-def get_title(imdb_id: str, *, page: TitlePage = "reference",
-              headers: dict[str, str] | None = None) -> model.Title | None:
-    spec = _spec(f"title_{page}")
-    url = _get_url(spec, {"imdb_id": imdb_id})
+def _scrape(spec: piculet.XMLSpec | piculet.JSONSpec, *,
+            context: Mapping[str, Any],
+            headers: dict[str, str] | None = None) -> piculet.CollectedData:
+    url = _get_url(spec, context=context)
     request_headers = headers if headers is not None else {}
     if spec.graphql is not None:
         request_headers["Content-Type"] = "application/json"
@@ -114,96 +114,74 @@ def get_title(imdb_id: str, *, page: TitlePage = "reference",
         document = fetch(url, headers=request_headers)
     except HTTPError as e:
         if e.status == HTTPStatus.NOT_FOUND:
-            return None
+            return piculet._EMPTY
         raise e  # pragma: no cover
-    data = piculet.scrape(document, spec)
+    return piculet.scrape(document, spec)
+
+
+def get_title(imdb_id: str, *, page: TitlePage = "reference",
+              headers: dict[str, str] | None = None) -> model.Title:
+    spec = _spec(f"title_{page}")
+    context = {"imdb_id": imdb_id}
+    data = _scrape(spec=spec, context=context, headers=headers)
     return piculet.deserialize(data, model.Title)  # type: ignore
 
 
 def set_taglines(title: model.Title, *,
                  headers: dict[str, str] | None = None) -> None:
     spec = _spec("title_taglines")
-    url = _get_url(spec, {"imdb_id": title.imdb_id})
-    request_headers = headers if headers is not None else {}
-    if spec.graphql is not None:
-        request_headers["Content-Type"] = "application/json"
-    document = fetch(url, headers=request_headers)
-    data = piculet.scrape(document, spec)
+    context = {"imdb_id": title.imdb_id}
+    data = _scrape(spec=spec, context=context, headers=headers)
     title.taglines = data["taglines"]
 
 
 def set_akas(title: model.Title, *,
              headers: dict[str, str] | None = None,
              spec: piculet.XMLSpec | piculet.JSONSpec | None = None) -> None:
-    context: dict[str, Any] = {"imdb_id": title.imdb_id}
     if spec is None:
         spec = _spec("title_akas")
         g_vars: GraphQLVariables = {"after": "null"}
     else:
         g_params: GraphQLParams = spec.graphql  # type: ignore
         g_vars = g_params["variables"]
-    context.update(g_vars)
-    url = _get_url(spec, context=context)
-    request_headers = headers if headers is not None else {}
-    if spec.graphql is not None:
-        request_headers["Content-Type"] = "application/json"
-    document = fetch(url, headers=request_headers)
-    data = piculet.scrape(document, spec)
+    context: dict[str, Any] = {"imdb_id": title.imdb_id} | g_vars
+    data = _scrape(spec, context=context, headers=headers)
     akas = [piculet.deserialize(aka, model.AKA)
             for aka in data.get("akas", [])]
     title.akas.extend(akas)
     if data.get("has_next_page", False):
-        g_vars["after"] = f'"{data["end_cursor"]}"'
+        g_vars["after"] = data["end_cursor"]
         set_akas(title, headers=headers, spec=spec)
 
 
-def update_title(
-        title: model.Title,
-        /,
-        *,
-        page: TitleUpdatePage,
-        keys: list[str], paginate: bool = False,
-        headers: dict[str, str] | None = None,
-) -> None:
-    spec = _spec(f"title_{page}")
-    url_template = spec.url
-    if spec.graphql is not None:
-        g_params = []
-        for g_key, g_value in spec.graphql.items():
-            match g_value:
-                case dict():
-                    g_dump = json.dumps(g_value, separators=(",", ":"))
-                    g_params.append(f"{g_key}={g_dump}")
-                case _:
-                    g_params.append(f"{g_key}={g_value}")
-        url_template += "?" + "&".join(g_params)
+def set_parental_guide(title: model.Title, *,
+                       headers: dict[str, str] | None = None) -> None:
+    spec = _spec("title_parental_guide")
+    context = {"imdb_id": title.imdb_id}
+    data = _scrape(spec=spec, context=context, headers=headers)
+    title.certification = piculet.deserialize(data["certification"],
+                                              model.Certification)
+    title.advisories = piculet.deserialize(data["advisories"],
+                                           model.Advisories)
 
-        if headers is None:
-            headers = {}
-        headers["Content-Type"] = "application/json"
-    url = url_template % {"imdb_id": title.imdb_id}
 
-    document = fetch(url, headers=headers)
-    data = piculet.scrape(document, spec)
-    for key in keys:
-        value = data.get(key)
-        if value is None:
-            continue
-        if key == "episodes":
-            if isinstance(value, dict):
-                value = piculet.deserialize(value, model.EpisodeMap)
-                title.episodes.update(value)
-            else:
-                value = piculet.deserialize(value, list[model.TVEpisode])
-                title.add_episodes(value)
-        elif key == "akas":
-            value = [piculet.deserialize(aka, model.AKA) for aka in value]
-            title.akas.extend(value)
-        elif key == "certification":
-            value = piculet.deserialize(value, model.Certification)
-            setattr(title, key, value)
-        elif key == "advisories":
-            value = piculet.deserialize(value, model.Advisories)
-            setattr(title, key, value)
-        else:
-            setattr(title, key, value)
+# def update_title(
+#         title: model.Title,
+#         /,
+#         *,
+#         page: TitleUpdatePage,
+#         keys: list[str], paginate: bool = False,
+#         headers: dict[str, str] | None = None,
+# ) -> None:
+#     data = piculet.scrape(document, spec)
+#     for key in keys:
+#         value = data.get(key)
+#         if value is None:
+#             continue
+#         if key == "episodes":
+#             if isinstance(value, dict):
+#                 value = piculet.deserialize(value, model.EpisodeMap)
+#                 title.episodes.update(value)
+#             else:
+#                 value = piculet.deserialize(value, list[model.TVEpisode])
+#                 title.add_episodes(value)
