@@ -251,8 +251,8 @@ class VideoGame(_Title):
 class TVEpisode(_TimedTitle):
     type_id: Literal["tvEpisode"] = "tvEpisode"
     series: TVSeries | TVMiniSeries | None = None
-    season: str
-    episode: str
+    season: str | None = None
+    episode: str | None = None
     release_date: date | None = None
     previous_episode: str | None = None
     next_episode: str | None = None

@@ -3,7 +3,7 @@ import pytest
 from cinemagoerng import model, web
 
 
-@pytest.mark.parametrize(("page",), [("reference",), ("taglines",)])
+@pytest.mark.parametrize(("page",), [("reference",), ("taglines",), ("parental_guide",)])
 @pytest.mark.parametrize(
     ("imdb_id",),
     [
@@ -15,7 +15,7 @@ def test_title_parser_should_set_imdb_id(page, imdb_id):
     assert parsed.imdb_id == imdb_id
 
 
-@pytest.mark.parametrize(("page",), [("reference",), ("taglines",)])
+@pytest.mark.parametrize(("page",), [("reference",), ("taglines",), ("parental_guide",)])
 @pytest.mark.parametrize(
     ("imdb_id", "type_"),
     [
@@ -37,7 +37,7 @@ def test_title_parser_should_instantiate_correct_type(page, imdb_id, type_):
     assert isinstance(parsed, type_)
 
 
-@pytest.mark.parametrize(("page",), [("reference",), ("taglines",)])
+@pytest.mark.parametrize(("page",), [("reference",), ("taglines",), ("parental_guide",)])
 @pytest.mark.parametrize(
     ("imdb_id", "title"),
     [
@@ -60,7 +60,7 @@ def test_title_parser_should_set_title_from_original_title(page, imdb_id, title)
     assert parsed.title == title
 
 
-@pytest.mark.parametrize(("page",), [("reference",), ("taglines",)])
+@pytest.mark.parametrize(("page",), [("reference",), ("taglines",), ("parental_guide",)])
 @pytest.mark.parametrize(
     ("imdb_id", "primary_image"),
     [
@@ -76,7 +76,7 @@ def test_title_parser_should_set_primary_image(page, imdb_id, primary_image):
     assert parsed.primary_image == primary_image
 
 
-@pytest.mark.parametrize(("page",), [("reference",), ("taglines",)])
+@pytest.mark.parametrize(("page",), [("reference",), ("taglines",), ("parental_guide",)])
 @pytest.mark.parametrize(
     ("imdb_id", "year"),
     [
@@ -92,7 +92,7 @@ def test_title_parser_should_set_year(page, imdb_id, year):
     assert parsed.year == year
 
 
-@pytest.mark.parametrize(("page",), [("reference",), ("taglines",)])
+@pytest.mark.parametrize(("page",), [("reference",), ("taglines",), ("parental_guide",)])
 @pytest.mark.parametrize(
     ("imdb_id", "end_year"),
     [
@@ -106,7 +106,7 @@ def test_title_parser_should_set_end_year(page, imdb_id, end_year):
     assert parsed.end_year == end_year
 
 
-@pytest.mark.parametrize(("page",), [("reference",), ("taglines",)])
+@pytest.mark.parametrize(("page",), [("reference",), ("taglines",), ("parental_guide",)])
 @pytest.mark.parametrize(
     ("imdb_id",),
     [
