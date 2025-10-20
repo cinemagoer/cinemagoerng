@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng.model import CrewCredit, Movie
+from cinemagoerng.model import CrewCredit, Movie, Person
 
 
 @pytest.mark.parametrize(
@@ -46,14 +46,38 @@ def test_title_sort_title_property_should_strip_article(imdb_id, title, language
 
 
 @pytest.mark.parametrize(
+    ("imdb_id", "name"),
+    [
+        ("nm0905152", "Lilly Wachowski"),
+        ("nm0000309", "David Bowie"),
+    ],
+)
+def test_title_credit_imdb_id_should_return_person_imdb_id(imdb_id, name):
+    credit = CrewCredit(Person(imdb_id=imdb_id, name=name))
+    assert credit.imdb_id == imdb_id
+
+
+@pytest.mark.parametrize(
+    ("imdb_id", "name"),
+    [
+        ("nm0905152", "Lilly Wachowski"),
+        ("nm0000309", "David Bowie"),
+    ],
+)
+def test_title_credit_name_should_return_person_name(imdb_id, name):
+    credit = CrewCredit(Person(imdb_id=imdb_id, name=name))
+    assert credit.name == name
+
+
+@pytest.mark.parametrize(
     ("imdb_id", "name", "notes", "as_name"),
     [
         ("nm0905152", "Lilly Wachowski", ["written by", "as The Wachowski Brothers"], "The Wachowski Brothers"),
         ("nm0000309", "David Bowie", [], None),
     ],
 )
-def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, notes, as_name):
-    credit = CrewCredit(imdb_id=imdb_id, name=name, notes=notes)
+def test_title_credit_as_name_should_return_just_name(imdb_id, name, notes, as_name):
+    credit = CrewCredit(Person(imdb_id=imdb_id, name=name), notes=notes)
     assert credit.as_name == as_name
 
 
@@ -65,5 +89,5 @@ def test_title_credit_as_name_property_should_return_bare_name(imdb_id, name, no
     ],
 )
 def test_title_uncredited_property_should_return_boolean(imdb_id, name, notes, uncredited):
-    credit = CrewCredit(imdb_id=imdb_id, name=name, notes=notes)
+    credit = CrewCredit(Person(imdb_id=imdb_id, name=name), notes=notes)
     assert credit.uncredited == uncredited

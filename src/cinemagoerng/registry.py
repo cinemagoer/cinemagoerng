@@ -54,21 +54,6 @@ def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
 ########################################################################
 
 
-def unpack_dicts(data: CollectedData) -> CollectedData:
-    for child in data.values():
-        if isinstance(child, dict):
-            unpack_dicts(child)
-        if isinstance(child, list):
-            for subchild in child:
-                if isinstance(subchild, dict):
-                    unpack_dicts(subchild)
-    collected = data.get("__dict__")
-    if collected is not None:
-        data.update(collected)
-        del data["__dict__"]
-    return data
-
-
 def generate_episode_map(data: CollectedData) -> CollectedData:
     for season, episodes in data["episodes"].items():
         data["episodes"][season] = {ep["episode"]: ep for ep in episodes}
@@ -100,7 +85,6 @@ def set_plot_langs(data: CollectedData) -> CollectedData:
 def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
     registry.update(
         {
-            "unpack_dicts": unpack_dicts,
             "generate_episode_map": generate_episode_map,
             "set_plot_langs": set_plot_langs,
         }
@@ -172,15 +156,18 @@ class CreditAttributes(TypedDict):
     notes: list[str]
 
 
-def parse_credit_attributes(value: str) -> CreditAttributes:
-    if value == "":
-        return {"notes": []}
+def parse_credit_job(value: str) -> str | None:
+    if len(value) == 0:
+        return None
     parenthesis = value.find("(")
-    if parenthesis < 0:
-        return {"job": value, "notes": []}
-    job = value[:parenthesis].strip()
-    notes = _re_parenthesized.findall(value)
-    return {"job": job, "notes": notes} if len(job) > 0 else {"notes": notes}
+    job = value if parenthesis < 0 else value[:parenthesis].strip()
+    return job if len(job) > 0 else None
+
+
+def parse_credit_notes(value: str) -> list[str]:
+    # if len(value) == 0:
+    #     return []
+    return _re_parenthesized.findall(value)
 
 
 def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
@@ -206,7 +193,8 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
             "unescape": html.unescape,
             "div60": lambda x: x // 60,
             "credit_category": parse_credit_category,
-            "credit_attributes": parse_credit_attributes,
+            "credit_job": parse_credit_job,
+            "credit_notes": parse_credit_notes,
             "flatten_list_of_dicts": flatten_list_of_dicts,
         }
     )

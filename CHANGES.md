@@ -3,6 +3,7 @@
 ## 0.6 (unreleased)
 
 - Improve GraphQL handling.
+- Credits now contain person objects instead of subclassing.
 - Add Accept-Language header to HTTP requests (@tykling).
 
 ## 0.5.1 (2025-10-14)

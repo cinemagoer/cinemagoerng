@@ -1,5 +1,5 @@
 {
-  "version": "20251013",
+  "version": "20251020",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -158,23 +158,39 @@
         "foreach": "section.items[*]",
         "rules": [
           {
-            "key": "imdb_id",
+            "key": "person",
             "extractor": {
-              "path": "id"
+              "rules": [
+                {
+                  "key": "imdb_id",
+                  "extractor": {
+                    "path": "id"
+                  }
+                },
+                {
+                  "key": "name",
+                  "extractor": {
+                    "path": "rowTitle"
+                  }
+                }
+              ]
             }
           },
           {
-            "key": "name",
-            "extractor": {
-              "path": "rowTitle"
-            }
-          },
-          {
-            "key": "__dict__",
+            "key": "job",
             "extractor": {
               "path": "attributes",
               "transforms": [
-                "credit_attributes"
+                "credit_job"
+              ]
+            }
+          },
+          {
+            "key": "notes",
+            "extractor": {
+              "path": "attributes",
+              "transforms": [
+                "credit_notes"
               ]
             }
           },
@@ -282,8 +298,5 @@
         "path": "props.pageProps.mainColumnData.series.nextEpisode.id"
       }
     }
-  ],
-  "post": [
-    "unpack_dicts"
   ]
 }

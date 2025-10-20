@@ -31,9 +31,18 @@ class Person:
     name: str
 
 
-@dataclass(kw_only=True)
-class _Credit(Person):
+@dataclass()
+class _Credit:
+    person: Person
     notes: list[str] = field(default_factory=list)
+
+    @property
+    def imdb_id(self) -> str:
+        return self.person.imdb_id
+
+    @property
+    def name(self) -> str:
+        return self.person.name
 
     @property
     def as_name(self) -> str | None:
@@ -55,7 +64,7 @@ class CastCredit(_Credit):
     characters: list[str] = field(default_factory=list)
 
 
-@dataclass(kw_only=True)
+@dataclass
 class AKA:
     title: str
     country_code: str | None = None
