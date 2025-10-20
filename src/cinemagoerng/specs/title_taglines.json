@@ -44,6 +44,22 @@
       }
     },
     {
+      "key": "runtime",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.runtime.seconds",
+        "transforms": [
+          "div60"
+        ]
+      }
+    },
+    {
+      "key": "genres",
+      "extractor": {
+        "foreach": "props.pageProps.contentData.entityMetadata.titleGenres.genres[*].genre",
+        "path": "text"
+      }
+    },
+    {
       "key": "series",
       "extractor": {
         "rules": [
