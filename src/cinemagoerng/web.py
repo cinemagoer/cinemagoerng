@@ -140,10 +140,10 @@ def set_akas(title: model.Title, *,
              spec: piculet.XMLSpec | piculet.JSONSpec | None = None) -> None:
     if spec is None:
         spec = _spec("title_akas")
-        g_vars: GraphQLVariables = {"after": "null"}
-    else:
-        g_params: GraphQLParams = spec.graphql  # type: ignore
-        g_vars = g_params["variables"]
+    g_params: GraphQLParams = spec.graphql  # type: ignore
+    g_vars = g_params["variables"]
+    if spec is None:
+        g_vars["after"] = "null"
     context: dict[str, Any] = {"imdb_id": title.imdb_id} | g_vars
     data = _scrape(spec, context=context, headers=headers)
     akas = [piculet.deserialize(aka, model.AKA)
