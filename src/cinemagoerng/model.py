@@ -277,12 +277,10 @@ class _TVSeries(_TimedTitle):
     creators: list[CrewCredit] = field(default_factory=list)
 
     def get_episodes_by_year(self, year: int) -> list[TVEpisode]:
-        return [
-            ep
-            for season in self.episodes.values()
-            for ep in season.values()
-            if ep.year == year
-        ]
+        return [ep
+                for season in self.episodes.values()
+                for ep in season.values()
+                if ep.year == year]
 
     def add_episodes(self, new_episodes: list[TVEpisode]) -> None:
         for ep in new_episodes:

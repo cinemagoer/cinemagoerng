@@ -88,6 +88,6 @@ def test_title_credit_as_name_should_return_just_name(imdb_id, name, notes, as_n
         ("nm0905152", "Lilly Wachowski", ["written by", "as The Wachowski Brothers"], False),
     ],
 )
-def test_title_uncredited_property_should_return_boolean(imdb_id, name, notes, uncredited):
+def test_title_uncredited_should_return_boolean(imdb_id, name, notes, uncredited):
     credit = CrewCredit(Person(imdb_id=imdb_id, name=name), notes=notes)
     assert credit.uncredited == uncredited

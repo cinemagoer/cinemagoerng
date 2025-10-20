@@ -41,12 +41,10 @@ def parse_next_data(root: XMLNode) -> JSONNode:
     return json.loads(next_data)
 
 
-def update_preprocessors(registry: dict[str, Preprocessor]) -> None:
-    registry.update(
-        {
-            "parse_next_data": parse_next_data,
-        }
-    )
+def update_preprocessors(preprocessors: dict[str, Preprocessor]) -> None:
+    preprocessors.update({
+        "parse_next_data": parse_next_data,
+    })
 
 
 ########################################################################
@@ -69,11 +67,9 @@ def set_plot_langs(data: CollectedData) -> CollectedData:
 
     # Flatten episodes if it's a dictionary of seasons
     if not isinstance(episodes, list):
-        episodes = [
-            episode
-            for season in episodes.values()
-            for episode in season.values()
-        ]
+        episodes = [episode
+                    for season in episodes.values()
+                    for episode in season.values()]
 
     # Update plot language for each episode
     for episode in episodes:
@@ -82,13 +78,11 @@ def set_plot_langs(data: CollectedData) -> CollectedData:
     return data
 
 
-def update_postprocessors(registry: dict[str, Postprocessor]) -> None:
-    registry.update(
-        {
-            "generate_episode_map": generate_episode_map,
-            "set_plot_langs": set_plot_langs,
-        }
-    )
+def update_postprocessors(postprocessors: dict[str, Postprocessor]) -> None:
+    postprocessors.update({
+        "generate_episode_map": generate_episode_map,
+        "set_plot_langs": set_plot_langs,
+    })
 
 
 ########################################################################
@@ -179,27 +173,15 @@ def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
     return {k: v for d in value for k, v in d.items()}
 
 
-# def build_episode_graphql_url(url_data: dict[str, Any]) -> str:
-#     if params["filter_type"] == "year":
-#         variables["filter"] = {
-#             "releasedOnOrAfter": {"year": params["start_year"]},
-#             "releasedOnOrBefore": {"year": params["end_year"]},
-#         }
-#     elif params["filter_type"] == "season":
-#         variables["filter"] = {"includeSeasons": [params["season"]]}
-
-
-def update_transformers(registry: dict[str, Transformer]) -> None:
-    registry.update(
-        {
-            "make_dict": make_dict,
-            "date": make_date,
-            "unescape": html.unescape,
-            "div60": lambda x: x // 60,
-            "assume_tv_series": assume_tv_series,
-            "credit_category": parse_credit_category,
-            "credit_job": parse_credit_job,
-            "credit_notes": parse_credit_notes,
-            "flatten_list_of_dicts": flatten_list_of_dicts,
-        }
-    )
+def update_transformers(transformers: dict[str, Transformer]) -> None:
+    transformers.update({
+        "make_dict": make_dict,
+        "date": make_date,
+        "unescape": html.unescape,
+        "div60": lambda x: x // 60,
+        "assume_tv_series": assume_tv_series,
+        "credit_category": parse_credit_category,
+        "credit_job": parse_credit_job,
+        "credit_notes": parse_credit_notes,
+        "flatten_list_of_dicts": flatten_list_of_dicts,
+    })
