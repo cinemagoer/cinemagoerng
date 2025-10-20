@@ -259,9 +259,9 @@ class VideoGame(_Title):
 @dataclass(kw_only=True)
 class TVEpisode(_TimedTitle):
     type_id: Literal["tvEpisode"] = "tvEpisode"
-    series: TVSeries | TVMiniSeries | None = None
-    season: str | None = None
-    episode: str | None = None
+    series: TVSeries | TVMiniSeries
+    season: str
+    episode: str
     release_date: date | None = None
     previous_episode: str | None = None
     next_episode: str | None = None

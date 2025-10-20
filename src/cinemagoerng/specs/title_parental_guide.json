@@ -1,5 +1,5 @@
 {
-  "version": "20250519",
+  "version": "20250520",
   "url": "https://www.imdb.com/title/%(imdb_id)s/parentalguide/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -56,6 +56,64 @@
         "path": "props.pageProps.contentData.entityMetadata.runtime.seconds",
         "transforms": [
           "div60"
+        ]
+      }
+    },
+    {
+      "key": "series",
+      "extractor": {
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.id"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.titleType",
+              "transforms": [
+                "assume_tv_series"
+              ]
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.originalTitleText.text"
+            }
+          },
+          {
+            "key": "year",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.releaseYear.year"
+            }
+          },
+          {
+            "key": "end_year",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.releaseYear.endYear"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "season",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.series.episodeNumber.seasonNumber",
+        "transforms": [
+          "str"
+        ]
+      }
+    },
+    {
+      "key": "episode",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.series.episodeNumber.episodeNumber",
+        "transforms": [
+          "str"
         ]
       }
     },

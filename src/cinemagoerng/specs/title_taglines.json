@@ -1,5 +1,5 @@
 {
-  "version": "20251016",
+  "version": "20251020",
   "url": "https://www.imdb.com/title/%(imdb_id)s/taglines/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -41,6 +41,46 @@
       "key": "end_year",
       "extractor": {
         "path": "props.pageProps.contentData.entityMetadata.releaseYear.endYear"
+      }
+    },
+    {
+      "key": "series",
+      "extractor": {
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.id"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.titleType",
+              "transforms": [
+                "assume_tv_series"
+              ]
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.originalTitleText.text"
+            }
+          },
+          {
+            "key": "year",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.releaseYear.year"
+            }
+          },
+          {
+            "key": "end_year",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.series.series.releaseYear.endYear"
+            }
+          }
+        ]
       }
     },
     {

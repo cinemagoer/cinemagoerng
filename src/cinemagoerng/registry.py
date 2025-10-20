@@ -18,7 +18,7 @@
 import html
 import json
 import re
-from typing import Any, NotRequired, TypedDict
+from typing import Any, Literal, NotRequired, TypedDict
 
 from .piculet import (
     CollectedData,
@@ -123,6 +123,10 @@ def make_date(x: DateDict) -> str | None:
     return f"{year}-{month:02}-{day:02}"
 
 
+def assume_tv_series(value: Any) -> Literal["tvSeries"]:
+    return "tvSeries"
+
+
 _CREDIT_CATEGORIES = {
     "director": "directors",
     "writer": "writers",
@@ -165,8 +169,8 @@ def parse_credit_job(value: str) -> str | None:
 
 
 def parse_credit_notes(value: str) -> list[str]:
-    # if len(value) == 0:
-    #     return []
+    if len(value) == 0:
+        return []
     return _re_parenthesized.findall(value)
 
 
@@ -192,6 +196,7 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
             "date": make_date,
             "unescape": html.unescape,
             "div60": lambda x: x // 60,
+            "assume_tv_series": assume_tv_series,
             "credit_category": parse_credit_category,
             "credit_job": parse_credit_job,
             "credit_notes": parse_credit_notes,
