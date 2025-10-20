@@ -11,6 +11,11 @@ if not cache_dir.exists():
 fetch_orig = cinemagoerng.web.fetch
 
 
+CACHE_SUFFIXES = {
+    "application/json": ".json",
+    "text/html": ".html",
+}
+
 CACHE_KEY_IGNORED_VARS = {
     "isAutoTranslationEnabled",
     "locale",
@@ -25,6 +30,7 @@ def get_cache_key(url: str, *, headers: dict[str, str] | None = None) -> str:
         path = path[1:]
     if path.endswith("_"):
         path = path[:-1]
+
     if len(parsed.query) > 0:
         query_params = parsed.query.split("&")
         for param in query_params:
@@ -38,9 +44,12 @@ def get_cache_key(url: str, *, headers: dict[str, str] | None = None) -> str:
                               if k not in CACHE_KEY_IGNORED_VARS}
                     imdb_id = g_vars.pop("const")
         if len(g_vars) > 0:
-            path += f"title_{imdb_id}_{g_op}__" + "__".join(f"{k}_{v}" for k, v in g_vars.items())
-    content_type = headers.get("Content-Type") if headers is not None else None
-    suffix = ".json" if content_type == "application/json" else ".html"
+            g_query = "__".join(f"{k}_{v}" for k, v in g_vars.items())
+            path += f"title_{imdb_id}_{g_op}__{g_query}"
+
+    request_headers = headers if headers is not None else {}
+    content_type = request_headers.get("Content-Type", "text/html")
+    suffix = CACHE_SUFFIXES[content_type]
     return f"{path}{suffix}"
 
 

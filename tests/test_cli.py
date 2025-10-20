@@ -33,21 +33,21 @@ def test_cli_get_title_should_fetch_page_in_coverage_mode(cov, capsys):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix (Movie)
-        (389150,),  # The Matrix Defence (TV Movie)
-        (2971344,),  # Matrix: First Dream (Short Movie)
-        (365467,),  # Making 'The Matrix' (TV Short Movie)
-        (109151,),  # Armitage III: Poly-Matrix (Video Movie)
-        (7045440,),  # David Bowie: Ziggy Stardust (Music Video)
-        (390244,),  # The Matrix Online (Video Game)
-        (436992,),  # Doctor Who (TV Series)
-        (185906,),  # Band of Brothers (TV Mini-Series)
-        (1000252,),  # Blink (TV Episode)
-        (261024,),  # Live Aid (TV Special)
+        ("0133093",),  # The Matrix (Movie)
+        ("0389150",),  # The Matrix Defence (TV Movie)
+        ("2971344",),  # Matrix: First Dream (Short Movie)
+        ("0365467",),  # Making 'The Matrix' (TV Short Movie)
+        ("0109151",),  # Armitage III: Poly-Matrix (Video Movie)
+        ("7045440",),  # David Bowie: Ziggy Stardust (Music Video)
+        ("0390244",),  # The Matrix Online (Video Game)
+        ("0436992",),  # Doctor Who (TV Series)
+        ("0185906",),  # Band of Brothers (TV Mini-Series)
+        ("1000252",),  # Blink (TV Episode)
+        ("0261024",),  # Live Aid (TV Special)
     ],
 )
 def test_cli_get_title_should_include_title_and_type(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Title: \w.+ \(\w+\)\n", std.out)
 
@@ -55,11 +55,11 @@ def test_cli_get_title_should_include_title_and_type(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_year(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Year: [12]\d{3}\n", std.out)
 
@@ -67,11 +67,11 @@ def test_cli_get_title_should_include_year(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (3629794,),  # Aslan
+        ("3629794",),  # Aslan
     ],
 )
 def test_cli_get_title_should_exclude_year_if_missing(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert "Year:" not in std.out
 
@@ -79,11 +79,11 @@ def test_cli_get_title_should_exclude_year_if_missing(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_runtime(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Runtime: \d+ min\n", std.out)
 
@@ -91,11 +91,11 @@ def test_cli_get_title_should_include_runtime(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (3629794,),  # Aslan
+        ("3629794",),  # Aslan
     ],
 )
 def test_cli_get_title_should_exclude_runtime_if_missing(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert "Runtime:" not in std.out
 
@@ -103,11 +103,11 @@ def test_cli_get_title_should_exclude_runtime_if_missing(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (389150,),  # The Matrix Defence
+        ("0389150",),  # The Matrix Defence
     ],
 )
 def test_cli_get_title_should_include_genre(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Genre: [\w-]+\n", std.out)
 
@@ -115,11 +115,11 @@ def test_cli_get_title_should_include_genre(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_genres_in_plural_form(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Genres: [\w-]+, [\w-]+(, [\w-]+)*\n", std.out)
 
@@ -127,11 +127,11 @@ def test_cli_get_title_should_include_genres_in_plural_form(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (389150,),  # The Matrix Defence
+        ("0389150",),  # The Matrix Defence
     ],
 )
 def test_cli_get_title_should_include_country(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Country: [\w ]+\n", std.out)
 
@@ -139,11 +139,11 @@ def test_cli_get_title_should_include_country(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_countries_in_plural_form(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Countries: [\w ]+, [\w ]+(, [\w ]+)*\n", std.out)
 
@@ -151,11 +151,11 @@ def test_cli_get_title_should_include_countries_in_plural_form(capsys, imdb_num)
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_language(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Language: \w+\n", std.out)
 
@@ -163,11 +163,11 @@ def test_cli_get_title_should_include_language(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (429489,),  # A Ay
+        ("0429489",),  # A Ay
     ],
 )
 def test_cli_get_title_should_include_languages_in_plural_form(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Languages: \w+, \w+(, \w+)*\n", std.out)
 
@@ -175,11 +175,11 @@ def test_cli_get_title_should_include_languages_in_plural_form(capsys, imdb_num)
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_rating(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Rating: \d+\.\d+ \(\d+ votes\)\n", std.out)
 
@@ -187,11 +187,11 @@ def test_cli_get_title_should_include_rating(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (3629794,),  # Aslan
+        ("3629794",),  # Aslan
     ],
 )
 def test_cli_get_title_should_exclude_rating_if_missing(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert "Rating:" not in std.out
 
@@ -199,11 +199,11 @@ def test_cli_get_title_should_exclude_rating_if_missing(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_plot(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Plot:\n  \w", std.out)
 
@@ -211,11 +211,11 @@ def test_cli_get_title_should_include_plot(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (3629794,),  # Aslan
+        ("3629794",),  # Aslan
     ],
 )
 def test_cli_get_title_should_exclude_plot_if_missing(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert "Plot:" not in std.out
 
@@ -223,11 +223,11 @@ def test_cli_get_title_should_exclude_plot_if_missing(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_taglines_by_default(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert re.search(r"Taglines:\n  - \w.*\n$", std.out)
 
@@ -235,11 +235,11 @@ def test_cli_get_title_should_include_taglines_by_default(capsys, imdb_num):
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (133093,),  # The Matrix
+        ("0133093",),  # The Matrix
     ],
 )
 def test_cli_get_title_should_include_all_taglines_if_requested(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num), "--taglines"])
+    cli.main(["get", "title", imdb_num, "--taglines"])
     std = capsys.readouterr()
     assert re.search(r"Taglines:\n  - \w.*\n  - \w.*\n", std.out)
 
@@ -247,10 +247,10 @@ def test_cli_get_title_should_include_all_taglines_if_requested(capsys, imdb_num
 @pytest.mark.parametrize(
     ("imdb_num",),
     [
-        (3629794,),  # Aslan
+        ("3629794",),  # Aslan
     ],
 )
 def test_cli_get_title_should_exclude_taglines_if_missing(capsys, imdb_num):
-    cli.main(["get", "title", str(imdb_num)])
+    cli.main(["get", "title", imdb_num])
     std = capsys.readouterr()
     assert "Taglines:" not in std.out
