@@ -141,8 +141,8 @@ what you would like to change.
 ## License
 
 This project is licensed under the
-GNU Lesser General Public License v3 or later (LGPLv3+) - see the
-[LICENSE.txt](LICENSE.txt) file for details.
+GNU Lesser General Public License v3 or later - see the
+[`LICENSE.txt`](LICENSE.txt) file for details.
 
 ## Acknowledgments
 

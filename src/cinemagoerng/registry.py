@@ -183,14 +183,6 @@ def parse_credit_attributes(value: str) -> CreditAttributes:
     return {"job": job, "notes": notes} if len(job) > 0 else {"notes": notes}
 
 
-def exists(value: str) -> bool:
-    return value is not None and value != ""
-
-
-def extract_value(value: dict) -> str:
-    return value.get("value")
-
-
 def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
     """Convert a list of dictionaries to a single dictionary."""
     return {k: v for d in value for k, v in d.items()}
@@ -215,8 +207,6 @@ def update_transformers(registry: dict[str, Transformer]) -> None:
             "div60": lambda x: x // 60,
             "credit_category": parse_credit_category,
             "credit_attributes": parse_credit_attributes,
-            "exists": exists,
-            "extract_value": extract_value,
             "flatten_list_of_dicts": flatten_list_of_dicts,
         }
     )
