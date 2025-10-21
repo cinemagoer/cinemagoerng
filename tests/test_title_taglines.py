@@ -18,7 +18,7 @@ def test_title_taglines_parser_should_set_taglines(imdb_id, n, taglines):
 @pytest.mark.parametrize(("imdb_id", "n_before", "n_after"), [
     ("tt0133093", 1, 15),  # The Matrix
 ])
-def test_set_taglines_should_update_taglines(imdb_id, n_before, n_after):
+def test_title_set_taglines_should_set_all_taglines(imdb_id, n_before, n_after):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.taglines) == n_before
     web.set_taglines(parsed)

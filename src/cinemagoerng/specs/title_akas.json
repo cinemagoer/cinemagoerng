@@ -27,6 +27,12 @@
         "foreach": "data.title.akas.edges[*].node",
         "rules": [
           {
+            "key": "title",
+            "extractor": {
+              "path": "displayableProperty.value.plainText"
+            }
+          },
+          {
             "key": "country_code",
             "extractor": {
               "path": "country.id"
@@ -36,12 +42,6 @@
             "key": "language_code",
             "extractor": {
               "path": "language.id"
-            }
-          },
-          {
-            "key": "title",
-            "extractor": {
-              "path": "displayableProperty.value.plainText"
             }
           },
           {

@@ -31,7 +31,7 @@ class Person:
     name: str
 
 
-@dataclass()
+@dataclass
 class _Credit:
     person: Person
     notes: list[str] = field(default_factory=list)
@@ -83,10 +83,6 @@ class AKA:
             return None
         return lookup.LANGUAGE_CODES[self.language_code.upper()]
 
-    @property
-    def is_alternative(self):
-        return len(self.notes) > 0
-
 
 @dataclass(kw_only=True)
 class Certificate:
@@ -123,11 +119,6 @@ class Advisory:
 
 
 @dataclass(kw_only=True)
-class SpoilerAdvisory:
-    details: list[str] = field(default_factory=list)
-
-
-@dataclass(kw_only=True)
 class Advisories:
     nudity: Advisory = field(default_factory=Advisory)
     violence: Advisory = field(default_factory=Advisory)
@@ -151,8 +142,6 @@ class _Title:
     plot_summaries: dict[str, list[str]] = field(default_factory=dict)
     taglines: list[str] = field(default_factory=list)
     akas: list[AKA] = field(default_factory=list)
-    certification: Certification | None = None
-    advisories: Advisories | None = None
 
     rating: Decimal | None = None
     vote_count: int = 0
@@ -192,6 +181,9 @@ class _Title:
     transportation_department: list[CrewCredit] = field(default_factory=list)
     additional_crew: list[CrewCredit] = field(default_factory=list)
     thanks: list[CrewCredit] = field(default_factory=list)
+
+    certification: Certification | None = None
+    advisories: Advisories | None = None
 
     @property
     def countries(self) -> list[str]:

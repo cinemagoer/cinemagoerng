@@ -33,10 +33,10 @@ pip install cinemagoerng
 Here's a simple example of retrieving movie information:
 
 ```python
-from cinemagoerng import web
+from cinemagoerng import web as imdb
 
 # Get basic movie information
-movie = web.get_title("tt0133093")  # The Matrix
+movie = imdb.get_title("tt0133093")  # The Matrix
 print(movie.title)       # "The Matrix"
 print(movie.sort_title)  # "Matrix"
 print(movie.year)        # 1999
@@ -57,12 +57,12 @@ You can fetch additional details using the relevant `set_` functions:
 
 ```python
 # Set all taglines
-web.set_taglines(movie)
+imdb.set_taglines(movie)
 for tagline in movie.taglines:
     print(tagline)
 
 # Get alternate titles (AKAs)
-web.set_akas(movie)
+imdb.set_akas(movie)
 for aka in movie.akas:
     print(f"{aka.title} ({aka.country})")
 ```

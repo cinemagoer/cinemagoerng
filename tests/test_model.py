@@ -1,14 +1,14 @@
 import pytest
 
-from cinemagoerng.model import CrewCredit, Movie, Person
+from cinemagoerng.model import AKA, CrewCredit, Movie, Person
 
 
-@pytest.mark.parametrize(("imdb_id", "country_codes", "countries"), [
-    ("tt0133093", ["US", "AU"], ["United States", "Australia"]),  # The Matrix
-    ("tt0389150", ["GB"], ["United Kingdom"]),  # The Matrix Defence
+@pytest.mark.parametrize(("imdb_id", "title", "country_codes", "countries"), [
+    ("tt0133093", "The Matrix", ["US", "AU"], ["United States", "Australia"]),
+    ("tt0389150", "The Matrix Defence", ["GB"], ["United Kingdom"]),
 ])
-def test_title_countries_property_should_return_country_names(imdb_id, country_codes, countries):
-    movie = Movie(imdb_id=imdb_id, title="The Matrix", country_codes=country_codes)
+def test_title_countries_should_return_country_names(imdb_id, title, country_codes, countries):
+    movie = Movie(imdb_id=imdb_id, title=title, country_codes=country_codes)
     assert movie.countries == countries
 
 
@@ -17,7 +17,7 @@ def test_title_countries_property_should_return_country_names(imdb_id, country_c
     ("tt0043338", "Ace in the Hole", ["en", "es", "la"], ["English", "Spanish", "Latin"]),
     ("tt2971344", "Matrix: First Dream", ["zxx"], ["None"]),
 ])
-def test_title_languages_property_should_return_language_names(imdb_id, title, language_codes, languages):
+def test_title_languages_should_return_language_names(imdb_id, title, language_codes, languages):
     movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.languages == languages
 
@@ -31,9 +31,25 @@ def test_title_languages_property_should_return_language_names(imdb_id, title, l
     ("tt0429489", "A Ay", ["en", "tr", "it"], "Ay"),  # language order not true
     ("tt10277922", "The", ["en"], "The"),
 ])
-def test_title_sort_title_property_should_strip_article(imdb_id, title, language_codes, sort_title):
+def test_title_sort_title_should_strip_article(imdb_id, title, language_codes, sort_title):
     movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.sort_title == sort_title
+
+
+@pytest.mark.parametrize(("title", "country_code", "country"), [
+    ("Луна", "SUHH", "Soviet Union"),
+])
+def test_title_aka_countries_should_return_country_names(title, country_code, country):
+    aka = AKA(title=title, country_code=country_code)
+    assert aka.country == country
+
+
+@pytest.mark.parametrize(("title", "language_code", "language"), [
+    ("Луна", "ru", "Russian"),
+])
+def test_title_aka_languages_should_return_language_names(title, language_code, language):
+    aka = AKA(title=title, language_code=language_code)
+    assert aka.language == language
 
 
 @pytest.mark.parametrize(("imdb_id", "name"), [
