@@ -1,5 +1,5 @@
 {
-  "version": "20251020",
+  "version": "20251021",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -287,13 +287,13 @@
       }
     },
     {
-      "key": "previous_episode",
+      "key": "previous_episode_id",
       "extractor": {
         "path": "props.pageProps.mainColumnData.series.previousEpisode.id"
       }
     },
     {
-      "key": "next_episode",
+      "key": "next_episode_id",
       "extractor": {
         "path": "props.pageProps.mainColumnData.series.nextEpisode.id"
       }

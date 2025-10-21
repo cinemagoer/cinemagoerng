@@ -138,15 +138,13 @@ class _Title:
     country_codes: list[str] = field(default_factory=list)
     language_codes: list[str] = field(default_factory=list)
     genres: list[str] = field(default_factory=list)
+    taglines: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
     plot_summaries: dict[str, list[str]] = field(default_factory=dict)
-    taglines: list[str] = field(default_factory=list)
-    akas: list[AKA] = field(default_factory=list)
 
     rating: Decimal | None = None
     vote_count: int = 0
     top_ranking: int | None = None
-    bottom_ranking: int | None = None
 
     cast: list[CastCredit] = field(default_factory=list)
     directors: list[CrewCredit] = field(default_factory=list)
@@ -181,6 +179,8 @@ class _Title:
     transportation_department: list[CrewCredit] = field(default_factory=list)
     additional_crew: list[CrewCredit] = field(default_factory=list)
     thanks: list[CrewCredit] = field(default_factory=list)
+
+    akas: list[AKA] = field(default_factory=list)
 
     certification: Certification | None = None
     advisories: Advisories | None = None
@@ -255,8 +255,8 @@ class TVEpisode(_TimedTitle):
     season: str
     episode: str
     release_date: date | None = None
-    previous_episode: str | None = None
-    next_episode: str | None = None
+    previous_episode_id: str | None = None
+    next_episode_id: str | None = None
 
 
 EpisodeMap: TypeAlias = dict[str, dict[str, TVEpisode]]

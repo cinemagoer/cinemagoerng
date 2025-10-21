@@ -1,5 +1,5 @@
 {
-  "version": "20251020",
+  "version": "20251021",
   "url": "https://www.imdb.com/title/%(imdb_id)s/taglines/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -60,6 +60,43 @@
       }
     },
     {
+      "key": "plot",
+      "extractor": {
+        "rules": [
+          {
+            "key": "key",
+            "extractor": {
+              "path": "props.pageProps.translationContext.i18n.locale"
+            }
+          },
+          {
+            "key": "value",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.plot.plotText.plainText"
+            }
+          }
+        ],
+        "transforms": [
+          "make_dict"
+        ]
+      }
+    },
+    {
+      "key": "rating",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.ratingsSummary.aggregateRating",
+        "transforms": [
+          "decimal"
+        ]
+      }
+    },
+    {
+      "key": "vote_count",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.ratingsSummary.voteCount"
+      }
+    },
+    {
       "key": "series",
       "extractor": {
         "rules": [
@@ -72,10 +109,7 @@
           {
             "key": "type_id",
             "extractor": {
-              "path": "props.pageProps.contentData.entityMetadata.series.series.titleType",
-              "transforms": [
-                "assume_tv_series"
-              ]
+              "path": "'tvSeries'"
             }
           },
           {
@@ -115,6 +149,18 @@
         "transforms": [
           "str"
         ]
+      }
+    },
+    {
+      "key": "previous_episode_id",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.series.previousEpisode.id"
+      }
+    },
+    {
+      "key": "next_episode_id",
+      "extractor": {
+        "path": "props.pageProps.contentData.entityMetadata.series.nextEpisode.id"
       }
     },
     {
