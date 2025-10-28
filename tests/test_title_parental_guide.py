@@ -28,6 +28,6 @@ def test_parental_guide_parser_should_set_mpa_rating_with_reason(imdb_id, rating
 ])
 def test_parental_guide_parser_title_should_set_country_ratings_on_update(imdb_id, country, ratings):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
-    web.set_parental_guide(parsed)
+    parsed.set_parental_guide()
     country_ratings = [cert.ratings for cert in parsed.certification.certificates if cert.country == country][0]
     assert country_ratings == ratings

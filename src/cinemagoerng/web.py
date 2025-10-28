@@ -64,7 +64,7 @@ SPECS_DIR = Path(__file__).parent / "specs"
 
 
 @lru_cache(maxsize=None)
-def _spec(page: str, /) -> piculet.XMLSpec | piculet.JSONSpec:
+def get_spec(page: str, /) -> piculet.XMLSpec | piculet.JSONSpec:
     path = SPECS_DIR / f"{page}.json"
     content = path.read_text(encoding="utf-8")
     return piculet.load_spec(json.loads(content))  # type: ignore
@@ -103,9 +103,9 @@ def _get_url(spec: piculet.XMLSpec | piculet.JSONSpec,
     return url_template % context
 
 
-def _scrape(spec: piculet.XMLSpec | piculet.JSONSpec, *,
-            context: Mapping[str, Any],
-            headers: dict[str, str] | None = None) -> piculet.CollectedData:
+def scrape(spec: piculet.XMLSpec | piculet.JSONSpec, *,
+           context: Mapping[str, Any],
+           headers: dict[str, str] | None = None) -> piculet.CollectedData:
     url = _get_url(spec, context=context)
     request_headers = headers if headers is not None else {}
     if spec.graphql is not None:
@@ -121,48 +121,10 @@ def _scrape(spec: piculet.XMLSpec | piculet.JSONSpec, *,
 
 def get_title(imdb_id: str, *, page: TitlePage = "reference",
               headers: dict[str, str] | None = None) -> model.Title:
-    spec = _spec(f"title_{page}")
+    spec = get_spec(f"title_{page}")
     context = {"imdb_id": imdb_id}
-    data = _scrape(spec=spec, context=context, headers=headers)
+    data = scrape(spec=spec, context=context, headers=headers)
     return piculet.deserialize(data, model.Title)  # type: ignore
-
-
-def set_taglines(title: model.Title, *,
-                 headers: dict[str, str] | None = None) -> None:
-    spec = _spec("title_taglines")
-    context = {"imdb_id": title.imdb_id}
-    data = _scrape(spec=spec, context=context, headers=headers)
-    title.taglines = data["taglines"]
-
-
-def set_akas(title: model.Title, *,
-             headers: dict[str, str] | None = None,
-             spec: piculet.XMLSpec | piculet.JSONSpec | None = None) -> None:
-    if spec is None:
-        spec = _spec("title_akas")
-    g_params: GraphQLParams = spec.graphql  # type: ignore
-    g_vars = g_params["variables"]
-    if spec is None:
-        g_vars["after"] = "null"
-    context: dict[str, Any] = {"imdb_id": title.imdb_id} | g_vars
-    data = _scrape(spec, context=context, headers=headers)
-    akas = [piculet.deserialize(aka, model.AKA)
-            for aka in data.get("akas", [])]
-    title.akas.extend(akas)
-    if data.get("has_next_page", False):
-        g_vars["after"] = data["end_cursor"]
-        set_akas(title, headers=headers, spec=spec)
-
-
-def set_parental_guide(title: model.Title, *,
-                       headers: dict[str, str] | None = None) -> None:
-    spec = _spec("title_parental_guide")
-    context = {"imdb_id": title.imdb_id}
-    data = _scrape(spec=spec, context=context, headers=headers)
-    title.certification = piculet.deserialize(data["certification"],
-                                              model.Certification)
-    title.advisories = piculet.deserialize(data["advisories"],
-                                           model.Advisories)
 
 
 # def update_title(

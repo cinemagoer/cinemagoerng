@@ -20,5 +20,5 @@ def test_title_taglines_parser_should_set_taglines(imdb_id, n, taglines):
 def test_title_taglines_parser_should_set_all_taglines_on_update(imdb_id, n_before, n_after):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.taglines) == n_before
-    web.set_taglines(parsed)
+    parsed.set_taglines()
     assert len(parsed.taglines) == n_after

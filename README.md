@@ -53,16 +53,16 @@ for credit in movie.directors:
 
 ### Retrieving additional information
 
-You can fetch additional details using the relevant `set_` functions:
+You can fetch additional details using the relevant `set_` methods:
 
 ```python
 # Set all taglines
-imdb.set_taglines(movie)
+movie.set_taglines()
 for tagline in movie.taglines:
     print(tagline)
 
 # Get alternate titles (AKAs)
-imdb.set_akas(movie)
+movie.set_akas()
 for aka in movie.akas:
     print(f"{aka.title} ({aka.country})")
 ```

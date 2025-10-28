@@ -15,7 +15,7 @@ from cinemagoerng import web
 def test_title_akas_parser_should_set_all_akas_on_update(imdb_id, n_before, n_after, akas):
     parsed = web.get_title(imdb_id=imdb_id, page="reference")
     assert len(parsed.akas) == n_before
-    web.set_akas(parsed)
+    parsed.set_akas()
     assert len(parsed.akas) == n_after
     if len(akas) > 0:
         assert [(aka.title, aka.country_code, aka.country, aka.language_code, aka.language, aka.notes)
