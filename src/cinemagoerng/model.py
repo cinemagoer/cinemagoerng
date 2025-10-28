@@ -207,16 +207,22 @@ class _Title:
                     return title
         return self.title
 
-    def set_taglines(self, *,
-                     headers: dict[str, str] | None = None) -> None:
+    def set_taglines(
+            self,
+            *,
+            headers: dict[str, str] | None = None,
+    ) -> None:
         spec = web.get_spec("title_taglines")
         context = {"imdb_id": self.imdb_id}
         data = web.scrape(spec=spec, context=context, headers=headers)
         self.taglines = data["taglines"]
 
-    def set_akas(self, *,
-                 spec: piculet.XMLSpec | piculet.JSONSpec | None = None,
-                 headers: dict[str, str] | None = None) -> None:
+    def set_akas(
+            self,
+            *,
+            spec: piculet.XMLSpec | piculet.JSONSpec | None = None,
+            headers: dict[str, str] | None = None,
+    ) -> None:
         if spec is None:
             spec = web.get_spec("title_akas")
         g_params: web.GraphQLParams = spec.graphql  # type: ignore
@@ -232,8 +238,11 @@ class _Title:
             g_vars["after"] = data["end_cursor"]
             self.set_akas(spec=spec, headers=headers)
 
-    def set_parental_guide(self, *,
-                           headers: dict[str, str] | None = None) -> None:
+    def set_parental_guide(
+            self,
+            *,
+            headers: dict[str, str] | None = None,
+    ) -> None:
         spec = web.get_spec("title_parental_guide")
         context = {"imdb_id": self.imdb_id}
         data = web.scrape(spec=spec, context=context, headers=headers)

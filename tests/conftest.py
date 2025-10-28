@@ -40,8 +40,10 @@ def get_cache_key(url: str, *, headers: dict[str, str] | None = None) -> str:
                 case "operationName":
                     g_op = g_value
                 case "variables":
-                    g_vars = {k: v for k, v in json.loads(g_value).items()
-                              if k not in CACHE_KEY_IGNORED_VARS}
+                    g_vars = {
+                        k: v for k, v in json.loads(g_value).items()
+                        if k not in CACHE_KEY_IGNORED_VARS
+                    }
                     imdb_id = g_vars.pop("const")
         if len(g_vars) > 0:
             g_query = "__".join(f"{k}_{v}" for k, v in g_vars.items())

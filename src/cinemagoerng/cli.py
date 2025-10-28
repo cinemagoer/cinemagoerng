@@ -65,20 +65,24 @@ def get_title(imdb_num: int, taglines: bool = False) -> None:
     plot_en = item.plot.get("en-US", "Plot undisclosed.")
     if plot_en != "Plot undisclosed.":
         print("Plot:")
-        plot_text = textwrap.fill(plot_en,
-                                  width=_LINE_WIDTH,
-                                  initial_indent=_INDENT,
-                                  subsequent_indent=_INDENT)
+        plot_text = textwrap.fill(
+            plot_en,
+            width=_LINE_WIDTH,
+            initial_indent=_INDENT,
+            subsequent_indent=_INDENT,
+        )
         print(plot_text)
 
     if len(item.taglines) > 0:
         print("Taglines:")
         subindent = _INDENT + "  "
         for tagline in item.taglines:
-            tagline_text = textwrap.fill("- " + tagline,
-                                         width=_LINE_WIDTH,
-                                         initial_indent=_INDENT,
-                                         subsequent_indent=subindent)
+            tagline_text = textwrap.fill(
+                "- " + tagline,
+                width=_LINE_WIDTH,
+                initial_indent=_INDENT,
+                subsequent_indent=subindent,
+            )
             print(tagline_text)
 
 

@@ -87,8 +87,10 @@ TitleUpdatePage: TypeAlias = Literal[
 ]
 
 
-def _get_url(spec: piculet.XMLSpec | piculet.JSONSpec,
-             context: Mapping[str, Any]) -> str:
+def _get_url(
+        spec: piculet.XMLSpec | piculet.JSONSpec,
+        context: Mapping[str, Any],
+) -> str:
     url_template = spec.url
     if spec.graphql is not None:
         g_params = []
@@ -103,9 +105,12 @@ def _get_url(spec: piculet.XMLSpec | piculet.JSONSpec,
     return url_template % context
 
 
-def scrape(spec: piculet.XMLSpec | piculet.JSONSpec, *,
-           context: Mapping[str, Any],
-           headers: dict[str, str] | None = None) -> piculet.CollectedData:
+def scrape(
+        spec: piculet.XMLSpec | piculet.JSONSpec,
+        *,
+        context: Mapping[str, Any],
+        headers: dict[str, str] | None = None,
+) -> piculet.CollectedData:
     url = _get_url(spec, context=context)
     request_headers = headers if headers is not None else {}
     if spec.graphql is not None:
@@ -119,8 +124,12 @@ def scrape(spec: piculet.XMLSpec | piculet.JSONSpec, *,
     return piculet.scrape(document, spec)
 
 
-def get_title(imdb_id: str, *, page: TitlePage = "reference",
-              headers: dict[str, str] | None = None) -> model.Title:
+def get_title(
+        imdb_id: str,
+        *,
+        page: TitlePage = "reference",
+        headers: dict[str, str] | None = None,
+) -> model.Title:
     spec = get_spec(f"title_{page}")
     context = {"imdb_id": imdb_id}
     data = scrape(spec=spec, context=context, headers=headers)
