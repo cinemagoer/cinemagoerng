@@ -18,7 +18,7 @@
 import html
 import json
 import re
-from typing import Any, NotRequired, TypedDict
+from typing import Any, NotRequired, TypedDict, TypeVar
 
 from .piculet import (
     CollectedData,
@@ -104,6 +104,13 @@ def make_dict(item: DictItem, /) -> dict[str, Any]:
     return {item["key"]: value}
 
 
+T = TypeVar("T")
+
+
+def dict_keys(value: list[T]) -> dict[T, Any]:
+    return {k: {} for k in value}
+
+
 class DateDict(TypedDict):
     year: int | None
     month: int | None
@@ -174,6 +181,7 @@ def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
 def update_transformers(transformers: dict[str, Transformer]) -> None:
     transformers.update({
         "make_dict": make_dict,
+        "dict_keys": dict_keys,
         "date": make_date,
         "unescape": html.unescape,
         "div60": lambda x: x // 60,

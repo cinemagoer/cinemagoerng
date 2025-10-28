@@ -70,23 +70,6 @@ def get_spec(page: str, /) -> piculet.XMLSpec | piculet.JSONSpec:
     return piculet.load_spec(json.loads(content))  # type: ignore
 
 
-TitlePage: TypeAlias = Literal[
-    "episodes",
-    "parental_guide",
-    "reference",
-    "taglines",
-]
-
-TitleUpdatePage: TypeAlias = Literal[
-    "akas",
-    "episodes",
-    "episodes_with_pagination",
-    "parental_guide",
-    "reference",
-    "taglines",
-]
-
-
 def _get_url(
         spec: piculet.XMLSpec | piculet.JSONSpec,
         context: Mapping[str, Any],
@@ -127,28 +110,14 @@ def scrape(
 def get_title(
         imdb_id: str,
         *,
-        page: TitlePage = "reference",
         headers: dict[str, str] | None = None,
 ) -> model.Title:
-    spec = get_spec(f"title_{page}")
+    spec = get_spec("title_reference")
     context = {"imdb_id": imdb_id}
     data = scrape(spec=spec, context=context, headers=headers)
     return piculet.deserialize(data, model.Title)  # type: ignore
 
 
-# def update_title(
-#         title: model.Title,
-#         /,
-#         *,
-#         page: TitleUpdatePage,
-#         keys: list[str], paginate: bool = False,
-#         headers: dict[str, str] | None = None,
-# ) -> None:
-#     data = piculet.scrape(document, spec)
-#     for key in keys:
-#         value = data.get(key)
-#         if value is None:
-#             continue
 #         if key == "episodes":
 #             if isinstance(value, dict):
 #                 value = piculet.deserialize(value, model.EpisodeMap)

@@ -215,7 +215,9 @@ class _Title:
         spec = web.get_spec("title_taglines")
         context = {"imdb_id": self.imdb_id}
         data = web.scrape(spec=spec, context=context, headers=headers)
-        self.taglines = data["taglines"]
+        taglines = data.get("taglines")
+        if taglines is not None:
+            self.taglines = data["taglines"]
 
     def set_akas(
             self,

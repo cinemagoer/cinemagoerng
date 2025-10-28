@@ -2,7 +2,8 @@
 
 ## 0.6 (unreleased)
 
-- Updating attributes of a movie is now achieved through setters.
+- Getting a title now always uses the reference page.
+- Updating attributes of a title is now achieved through setters.
 - Improve GraphQL handling.
 - Credits now contain person objects instead of subclassing.
 - Add Accept-Language header to HTTP requests (@tykling).

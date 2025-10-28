@@ -1,5 +1,5 @@
 {
-  "version": "20251021",
+  "version": "20251028",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference/",
   "doctype": "html",
   "path_type": "jmespath",
@@ -202,6 +202,16 @@
           }
         ]
       }
+    },
+    {
+      "key": "episodes",
+      "extractor": {
+        "foreach": "props.pageProps.mainColumnData.episodes.displayableSeasons.edges[*]",
+        "path": "node.season"
+      },
+      "transforms": [
+        "dict_keys"
+      ]
     },
     {
       "key": "series",

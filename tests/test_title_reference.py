@@ -1,8 +1,75 @@
 import pytest
 
 from datetime import date
+from decimal import Decimal
 
-from cinemagoerng import web
+from cinemagoerng import model, web
+
+
+@pytest.mark.parametrize(("imdb_id",), [
+    ("tt0133093",),  # The Matrix
+])
+def test_title_reference_parser_should_set_imdb_id(imdb_id):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.imdb_id == imdb_id
+
+
+@pytest.mark.parametrize(("imdb_id", "type_"), [
+    ("tt0133093", model.Movie),  # The Matrix
+    ("tt0389150", model.TVMovie),  # The Matrix Defence
+    ("tt2971344", model.ShortMovie),  # Matrix: First Dream
+    ("tt0365467", model.TVShortMovie),  # Making 'The Matrix'
+    ("tt0109151", model.VideoMovie),  # Armitage III: Poly-Matrix
+    ("tt7045440", model.MusicVideo),  # David Bowie: Ziggy Stardust
+    ("tt0390244", model.VideoGame),  # The Matrix Online
+    ("tt0436992", model.TVSeries),  # Doctor Who
+    ("tt0185906", model.TVMiniSeries),  # Band of Brothers
+    ("tt1000252", model.TVEpisode),  # Blink
+    ("tt0261024", model.TVSpecial),  # Live Aid
+])
+def test_title_reference_parser_should_instantiate_correct_type(imdb_id, type_):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert isinstance(parsed, type_)
+
+
+@pytest.mark.parametrize(("imdb_id", "title"), [
+    ("tt0133093", "The Matrix"),
+])
+def test_title_reference_parser_should_set_title_from_original_title(imdb_id, title):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.title == title
+
+
+@pytest.mark.parametrize(("imdb_id", "primary_image"), [
+    ("tt0133093",  # The Matrix
+     "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_.jpg"),
+    ("tt3629794", None),  # Aslan
+])
+def test_title_reference_parser_should_set_primary_image(imdb_id, primary_image):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.primary_image == primary_image
+
+
+@pytest.mark.parametrize(("imdb_id", "year"), [
+    ("tt0133093", 1999),  # The Matrix
+    ("tt7587890", 2018),  # The Rookie (2018-)
+    ("tt0412142", 2004),  # House M.D. (2004-2012)
+    ("tt0185906", 2001),  # Band of Brothers (2001-2001)
+    ("tt3629794", None),  # Aslan
+])
+def test_title_reference_parser_should_set_year(imdb_id, year):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.year == year
+
+
+@pytest.mark.parametrize(("imdb_id", "end_year"), [
+    ("tt7587890", None),  # The Rookie (2018-)
+    ("tt0412142", 2012),  # House M.D. (2004-2012)
+    ("tt0185906", 2001),  # Band of Brothers (2001-2001) (TV Mini-Series)
+])
+def test_title_reference_parser_should_set_series_end_year(imdb_id, end_year):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.end_year == end_year
 
 
 @pytest.mark.parametrize(("imdb_id", "country_codes"), [
@@ -10,7 +77,7 @@ from cinemagoerng import web
     ("tt0389150", ["GB"]),  # The Matrix Defence
 ])
 def test_title_reference_parser_should_set_country_codes(imdb_id, country_codes):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert parsed.country_codes == country_codes
 
 
@@ -20,11 +87,23 @@ def test_title_reference_parser_should_set_country_codes(imdb_id, country_codes)
     ("tt2971344", ["zxx"]),  # Matrix: First Dream (language: None)
 ])
 def test_title_reference_parser_should_set_language_codes(imdb_id, language_codes):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert parsed.language_codes == language_codes
 
 
-# TODO: find a movie with no genres
+@pytest.mark.parametrize(("imdb_id", "runtime"), [
+    ("tt0133093", 136),  # The Matrix (Movie)
+    ("tt2971344", 28),  # Matrix: First Dream (Short Movie)
+    ("tt7045440", 3),  # David Bowie: Ziggy Stardust (Music Video)
+    ("tt0436992", 45),  # Doctor Who (TV Series)
+    ("tt0185906", 60),  # Band of Brothers (TV Mini-Series)
+    ("tt3629794", None),  # Aslan
+])
+def test_title_reference_parser_should_set_runtime(imdb_id, runtime):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.runtime == runtime
+
+
 @pytest.mark.parametrize(("imdb_id", "genres"), [
     ("tt0133093", ["Action", "Sci-Fi"]),  # The Matrix (Movie)
     ("tt0389150", ["Documentary"]),  # The Matrix Defence (TV Movie)
@@ -38,8 +117,8 @@ def test_title_reference_parser_should_set_language_codes(imdb_id, language_code
     ("tt1000252", ["Adventure", "Drama", "Sci-Fi"]),  # Blink (TV Series Episode)
     ("tt0261024", ["Documentary", "Music"]),  # Live Aid (TV Special)
 ])
-def test_title_reference_parser_should_set_all_genres(imdb_id, genres):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+def test_title_reference_parser_should_set_genres(imdb_id, genres):
+    parsed = web.get_title(imdb_id=imdb_id)
     assert parsed.genres == genres
 
 
@@ -48,8 +127,19 @@ def test_title_reference_parser_should_set_all_genres(imdb_id, genres):
     ("tt3629794", []),  # Aslan
 ])
 def test_title_reference_parser_should_set_first_tagline(imdb_id, taglines):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert parsed.taglines == taglines
+
+
+@pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
+    ("tt0133093", "When a beautiful stranger", "en-US"),  # The Matrix
+    ("tt0436992", "Continuing on from Doctor Who (1963)", "en-US"),  # Doctor Who
+    ("tt0390244", "Set after 'The Matrix Revolutions'", "en-US"),  # The Matrix Online (Video Game)
+    ("tt3629794", "Plot undisclosed.", "en-US"),  # Aslan
+])
+def test_title_reference_parser_should_set_plot(imdb_id, plot, lang):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert parsed.plot[lang].startswith(plot)
 
 
 @pytest.mark.parametrize(("imdb_id", "plot", "lang"), [
@@ -57,11 +147,29 @@ def test_title_reference_parser_should_set_first_tagline(imdb_id, taglines):
     ("tt3629794", None, None),  # Aslan
 ])
 def test_title_reference_parser_should_set_first_plot_summary(imdb_id, plot, lang):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     if plot is None:
         assert parsed.plot_summaries == {}
     else:
         assert parsed.plot_summaries[lang][0].startswith(plot)
+
+
+@pytest.mark.parametrize(("imdb_id", "rating"), [
+    ("tt0133093", Decimal("8.7")),  # The Matrix
+    ("tt3629794", None),  # Aslan
+])
+def test_title_reference_parser_should_set_rating(imdb_id, rating):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert (abs(parsed.rating - rating) < Decimal("0.3")) if rating is not None else (parsed.rating is None)
+
+
+@pytest.mark.parametrize(("imdb_id", "votes"), [
+    ("tt0133093", 2_000_000),  # The Matrix
+    ("tt3629794", 0),  # Aslan
+])
+def test_title_reference_parser_should_set_vote_count(imdb_id, votes):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert (parsed.vote_count >= votes) if votes > 0 else (parsed.vote_count == 0)
 
 
 @pytest.mark.parametrize(("imdb_id", "rank"), [
@@ -69,7 +177,7 @@ def test_title_reference_parser_should_set_first_plot_summary(imdb_id, plot, lan
     ("tt3629794", None),  # Aslan
 ])
 def test_title_reference_parser_should_set_top_ranking(imdb_id, rank):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert (abs(parsed.top_ranking - rank) < 10) if rank is not None else (parsed.top_ranking is None)
 
 
@@ -107,7 +215,7 @@ def test_title_reference_parser_should_set_top_ranking(imdb_id, rank):
     ("tt3629794", 0, []),  # Aslan
 ])
 def test_title_reference_parser_should_set_all_cast(imdb_id, n, cast):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert len(parsed.cast) == n
     if len(cast) > 0:
         assert [(credit.imdb_id, credit.name, credit.characters, credit.notes) for credit in parsed.cast] == cast
@@ -136,7 +244,7 @@ def test_title_reference_parser_should_set_all_cast(imdb_id, n, cast):
     ("tt3629794", 0, []),  # Aslan
 ])
 def test_title_reference_parser_should_set_all_directors(imdb_id, n, directors):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert len(parsed.directors) == n
     if len(directors) > 0:
         assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.directors] == directors
@@ -159,17 +267,69 @@ def test_title_reference_parser_should_set_all_directors(imdb_id, n, directors):
     ("tt0365467", 0, []),  # Making 'The Matrix'
 ])
 def test_title_reference_parser_should_set_all_writers(imdb_id, n, writers):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert len(parsed.writers) == n
     if len(writers) > 0:
         assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.writers] == writers
+
+
+@pytest.mark.parametrize(
+    ("imdb_id", "seasons"),
+    [
+        ("tt0436992", ["13", "12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "unknown"]),  # Doctor Who
+        ("tt0185906", ["1"]),  # Band of Brothers
+    ],
+)
+def test_title_reference_parser_should_set_seasons_for_series(imdb_id, seasons):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert list(parsed.episodes.keys()) == seasons
+
+
+@pytest.mark.parametrize(("imdb_id", "series_type", "series_imdb_id", "series_title"), [
+    ("tt1000252", model.TVSeries, "tt0436992", "Doctor Who"),  # Doctor Who: Blink
+    ("tt9256656", model.TVSeries, "tt7587890", "The Rookie"),  # The Rookie: Greenlight
+    ("tt1247466", model.TVMiniSeries, "tt0185906", "Band of Brothers"),  # Band of Brothers: Points
+])
+def test_title_reference_parser_should_set_series_for_episode(imdb_id, series_type, series_imdb_id, series_title):
+    parsed = web.get_title(imdb_id=imdb_id)
+    series = parsed.series
+    assert isinstance(series, series_type)
+    assert (series.imdb_id, series.title) == (series_imdb_id, series_title)
+
+
+@pytest.mark.parametrize(("imdb_id", "series_year", "series_end_year"), [
+    ("tt1000252", 2005, 2022),  # Doctor Who: Blink
+    ("tt9256656", 2018, None),  # The Rookie: Greenlight
+    ("tt1247466", 2001, 2001),  # Band of Brothers: Points
+])
+def test_title_reference_parser_should_set_series_years_for_episode(imdb_id, series_year, series_end_year):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert (parsed.series.year, parsed.series.end_year) == (series_year, series_end_year)
+
+
+@pytest.mark.parametrize(("imdb_id", "season", "episode"), [
+    ("tt1000252", "3", "10"),  # Doctor Who: Blink
+])
+def test_title_reference_parser_should_set_season_and_episode_numbers_for_episode(imdb_id, season, episode):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert (parsed.season, parsed.episode) == (season, episode)
+
+
+@pytest.mark.parametrize(("imdb_id", "prev_id", "next_id"), [
+    ("tt1000252", "tt1000256", "tt1000259"),  # Doctor Who: Blink
+    ("tt0562992", None, "tt0562997"),  # Doctor Who: Rose
+    ("tt2121965", "tt2121964", None),  # House M.D.: Everybody Dies
+])
+def test_title_reference_parser_should_set_previous_and_next_episodes_for_episode(imdb_id, prev_id, next_id):
+    parsed = web.get_title(imdb_id=imdb_id)
+    assert (parsed.previous_episode_id, parsed.next_episode_id) == (prev_id, next_id)
 
 
 @pytest.mark.parametrize(("imdb_id", "release_date"), [
     ("tt1000252", date(2007, 6, 9)),  # Doctor Who: Blink
 ])
 def test_title_reference_parser_should_set_release_date_for_episode(imdb_id, release_date):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert parsed.release_date == release_date
 
 
@@ -185,7 +345,7 @@ def test_title_reference_parser_should_set_release_date_for_episode(imdb_id, rel
     ("tt0185906", 0, []),  # Band of Brothers (Mini-Series)
 ])
 def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, creators):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     assert len(parsed.creators) == n
     if len(creators) > 0:
         assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.creators] == creators
@@ -200,7 +360,7 @@ def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, c
     ]),
 ])
 def test_title_reference_parser_should_set_all_crew_members(imdb_id, n, crew):
-    parsed = web.get_title(imdb_id=imdb_id, page="reference")
+    parsed = web.get_title(imdb_id=imdb_id)
     parsed_crew = parsed.costume_department
     assert len(parsed_crew) == n
     if len(crew) > 0:
