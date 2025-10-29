@@ -7,7 +7,7 @@ and celebrity information from IMDb.
 
 > [!Note]
 > This project and its authors are not affiliated
-| with the Internet Movie Database Inc.
+> with the Internet Movie Database Inc.
 > See the [`DISCLAIMER.txt`](DISCLAIMER.txt)
 > file for details about terms of use.
 
