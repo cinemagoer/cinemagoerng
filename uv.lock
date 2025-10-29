@@ -57,7 +57,7 @@ typing = [
 requires-dist = [
     { name = "jmespath", specifier = "~=1.0.1" },
     { name = "lxml", specifier = "~=5.4.0" },
-    { name = "typedload", specifier = "~=2.38" },
+    { name = "typedload", specifier = "~=2.39" },
 ]
 
 [package.metadata.requires-dev]
