@@ -60,6 +60,14 @@ def set_episodes_series(data: CollectedData) -> CollectedData:
     return data
 
 
+def set_episodes_plot_languages(data: CollectedData) -> CollectedData:
+    lang = data.get("_page_lang")
+    if lang is not None:
+        for episode in data.get("episodes", []):
+            episode["plot"] = {lang: episode["plot"]}
+    return data
+
+
 def build_episode_map(data: CollectedData) -> CollectedData:
     episodes = data.get("episodes")
     if episodes is not None:
@@ -70,6 +78,7 @@ def build_episode_map(data: CollectedData) -> CollectedData:
 def update_postprocessors(postprocessors: dict[str, Postprocessor]) -> None:
     postprocessors.update({
         "set_episodes_series": set_episodes_series,
+        "set_episodes_plot_languages": set_episodes_plot_languages,
         "build_episode_map": build_episode_map,
     })
 

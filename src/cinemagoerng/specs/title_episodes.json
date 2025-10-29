@@ -8,6 +8,12 @@
   ],
   "rules": [
     {
+      "key": "_page_lang",
+      "extractor": {
+        "path": "props.pageProps.translationContext.i18n.locale"
+      }
+    },
+    {
       "key": "series",
       "extractor": {
         "rules": [
@@ -122,23 +128,7 @@
           {
             "key": "plot",
             "extractor": {
-              "rules": [
-                {
-                  "key": "key",
-                  "extractor": {
-                    "path": "'en-US'"
-                  }
-                },
-                {
-                  "key": "value",
-                  "extractor": {
-                    "path": "plot"
-                  }
-                }
-              ],
-              "transforms": [
-                "make_dict"
-              ]
+              "path": "plot"
             }
           },
           {
@@ -162,6 +152,7 @@
   ],
   "post": [
     "set_episodes_series",
+    "set_episodes_plot_languages",
     "build_episode_map"
   ]
 }
