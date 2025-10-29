@@ -1,145 +1,159 @@
 {
-  "version": "20250704",
+  "version": "20251029",
   "url": "https://www.imdb.com/title/%(imdb_id)s/episodes/?season=%(season)s",
   "doctype": "html",
   "path_type": "jmespath",
-  "pre": ["parse_next_data"],
+  "pre": [
+    "parse_next_data"
+  ],
   "rules": [
     {
-      "key": "_page_lang",
+      "key": "series",
       "extractor": {
-        "path": "props.pageProps.translationContext.i18n.locale"
-      }
-    },
-    {
-      "key": "imdb_id",
-      "extractor": {
-        "path": "props.pageProps.contentData.entityMetadata.id"
-      }
-    },
-    {
-      "key": "type_id",
-      "extractor": {
-        "path": "props.pageProps.contentData.entityMetadata.titleType.id"
-      }
-    },
-    {
-      "key": "title",
-      "extractor": {
-        "path": "props.pageProps.contentData.entityMetadata.originalTitleText.text"
-      }
-    },
-    {
-      "key": "primary_image",
-      "extractor": {
-        "path": "props.pageProps.contentData.entityMetadata.primaryImage.url"
-      }
-    },
-    {
-      "key": "year",
-      "extractor": {
-        "path": "props.pageProps.contentData.entityMetadata.releaseYear.year"
-      }
-    },
-    {
-      "key": "end_year",
-      "extractor": {
-        "path": "props.pageProps.contentData.entityMetadata.releaseYear.endYear"
+        "rules": [
+          {
+            "key": "imdb_id",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.id"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.titleType.id"
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.originalTitleText.text"
+            }
+          },
+          {
+            "key": "primary_image",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.primaryImage.url"
+            }
+          },
+          {
+            "key": "year",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.releaseYear.year"
+            }
+          },
+          {
+            "key": "end_year",
+            "extractor": {
+              "path": "props.pageProps.contentData.entityMetadata.releaseYear.endYear"
+            }
+          }
+        ]
       }
     },
     {
       "key": "episodes",
       "extractor": {
+        "foreach": "props.pageProps.contentData.section.episodes.items[*]",
         "rules": [
           {
-            "key": {
-              "path": "props.pageProps.contentData.section.currentSeason"
-            },
+            "key": "imdb_id",
             "extractor": {
-              "foreach": "props.pageProps.contentData.section.episodes.items[*]",
+              "path": "id"
+            }
+          },
+          {
+            "key": "type_id",
+            "extractor": {
+              "path": "type"
+            }
+          },
+          {
+            "key": "title",
+            "extractor": {
+              "path": "titleText"
+            }
+          },
+          {
+            "key": "season",
+            "extractor": {
+              "path": "season"
+            }
+          },
+          {
+            "key": "episode",
+            "extractor": {
+              "path": "episode"
+            }
+          },
+          {
+            "key": "year",
+            "extractor": {
+              "path": "releaseYear"
+            }
+          },
+          {
+            "key": "release_date",
+            "extractor": {
               "rules": [
-                {
-                  "key": "imdb_id",
-                  "extractor": {
-                    "path": "id"
-                  }
-                },
-                {
-                  "key": "type_id",
-                  "extractor": {
-                    "path": "type"
-                  }
-                },
-                {
-                  "key": "title",
-                  "extractor": {
-                    "path": "titleText"
-                  }
-                },
-                {
-                  "key": "season",
-                  "extractor": {
-                    "path": "season"
-                  }
-                },
-                {
-                  "key": "episode",
-                  "extractor": {
-                    "path": "episode"
-                  }
-                },
                 {
                   "key": "year",
                   "extractor": {
-                    "path": "releaseYear"
+                    "path": "releaseDate.year"
                   }
                 },
                 {
-                  "key": "release_date",
+                  "key": "month",
                   "extractor": {
-                    "rules": [
-                      {
-                        "key": "year",
-                        "extractor": {
-                          "path": "releaseDate.year"
-                        }
-                      },
-                      {
-                        "key": "month",
-                        "extractor": {
-                          "path": "releaseDate.month"
-                        }
-                      },
-                      {
-                        "key": "day",
-                        "extractor": {
-                          "path": "releaseDate.day"
-                        }
-                      }
-                    ],
-                    "transforms": ["date"]
+                    "path": "releaseDate.month"
                   }
                 },
                 {
-                  "key": "_plot",
+                  "key": "day",
+                  "extractor": {
+                    "path": "releaseDate.day"
+                  }
+                }
+              ],
+              "transforms": [
+                "date"
+              ]
+            }
+          },
+          {
+            "key": "plot",
+            "extractor": {
+              "rules": [
+                {
+                  "key": "key",
+                  "extractor": {
+                    "path": "'en-US'"
+                  }
+                },
+                {
+                  "key": "value",
                   "extractor": {
                     "path": "plot"
                   }
-                },
-                {
-                  "key": "rating",
-                  "extractor": {
-                    "path": "aggregateRating",
-                    "transforms": ["decimal"]
-                  }
-                },
-                {
-                  "key": "vote_count",
-                  "extractor": {
-                    "path": "voteCount"
-                  }
                 }
+              ],
+              "transforms": [
+                "make_dict"
               ]
+            }
+          },
+          {
+            "key": "rating",
+            "extractor": {
+              "path": "aggregateRating",
+              "transforms": [
+                "decimal"
+            ]
+            }
+          },
+          {
+            "key": "vote_count",
+            "extractor": {
+              "path": "voteCount"
             }
           }
         ]
@@ -147,7 +161,7 @@
     }
   ],
   "post": [
-    "generate_episode_map",
-    "set_plot_langs"
+    "set_episodes_series",
+    "build_episode_map"
   ]
 }

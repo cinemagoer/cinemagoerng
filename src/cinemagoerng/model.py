@@ -22,7 +22,8 @@ from datetime import date
 from decimal import Decimal
 from typing import Any, Literal, TypeAlias
 
-from . import linguistics, lookup, piculet, web
+from . import linguistics, lookup, web
+from .piculet import JSONSpec, XMLSpec, deserialize
 
 
 @dataclass(kw_only=True)
@@ -196,7 +197,7 @@ class _Title:
     @property
     def sort_title(self) -> str:
         if len(self.language_codes) > 0:
-            primary_lang = self.language_codes[0].upper()
+            primary_lang: str = self.language_codes[0].upper()
             articles = linguistics.ARTICLES.get(primary_lang)
             if articles is not None:
                 first, *rest = self.title.split(" ")
@@ -222,19 +223,18 @@ class _Title:
     def set_akas(
             self,
             *,
-            spec: piculet.XMLSpec | piculet.JSONSpec | None = None,
+            spec: XMLSpec | JSONSpec | None = None,
             headers: dict[str, str] | None = None,
     ) -> None:
         if spec is None:
             spec = web.get_spec("title_akas")
         g_params: web.GraphQLParams = spec.graphql  # type: ignore
         g_vars = g_params["variables"]
-        if spec is None:
+        if "after" not in g_vars:
             g_vars["after"] = "null"
         context: dict[str, Any] = {"imdb_id": self.imdb_id} | g_vars
         data = web.scrape(spec, context=context, headers=headers)
-        akas = [piculet.deserialize(aka, AKA)
-                for aka in data.get("akas", [])]
+        akas = [deserialize(aka, AKA) for aka in data.get("akas", [])]
         self.akas.extend(akas)
         if data.get("has_next_page", False):
             g_vars["after"] = data["end_cursor"]
@@ -248,9 +248,8 @@ class _Title:
         spec = web.get_spec("title_parental_guide")
         context = {"imdb_id": self.imdb_id}
         data = web.scrape(spec=spec, context=context, headers=headers)
-        self.certification = piculet.deserialize(data["certification"],
-                                                Certification)
-        self.advisories = piculet.deserialize(data["advisories"], Advisories)
+        self.certification = deserialize(data["certification"], Certification)
+        self.advisories = deserialize(data["advisories"], Advisories)
 
 
 @dataclass(kw_only=True)
@@ -304,27 +303,25 @@ class TVEpisode(_TimedTitle):
     next_episode_id: str | None = None
 
 
-EpisodeMap: TypeAlias = dict[str, dict[str, TVEpisode]]
-
-
 @dataclass(kw_only=True)
 class _TVSeries(_TimedTitle):
     end_year: int | None = None
-    episodes: EpisodeMap = field(default_factory=dict)
+    seasons: list[str] = field(default_factory=list)
+    episodes: dict[str, dict[str, TVEpisode]] = field(default_factory=dict)
     creators: list[CrewCredit] = field(default_factory=list)
 
-    def get_episodes_by_year(self, year: int) -> list[TVEpisode]:
-        return [ep
-                for season in self.episodes.values()
-                for ep in season.values()
-                if ep.year == year]
-
-    def add_episodes(self, new_episodes: list[TVEpisode]) -> None:
-        for ep in new_episodes:
-            if ep.episode not in self.episodes.get(ep.season, {}):
-                if ep.season not in self.episodes:
-                    self.episodes[ep.season] = {}
-                self.episodes[ep.season][ep.episode] = ep
+    def set_episodes(
+            self,
+            *,
+            season: str,
+            headers: dict[str, str] | None = None,
+    ) -> None:
+        spec = web.get_spec("title_episodes")
+        context = {"imdb_id": self.imdb_id, "season": season}
+        data = web.scrape(spec=spec, context=context, headers=headers)
+        episodes = data.get("episodes")
+        if episodes is not None:
+            self.episodes[season] = deserialize(episodes, dict[str, TVEpisode])
 
 
 @dataclass(kw_only=True)

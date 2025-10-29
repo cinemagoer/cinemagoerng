@@ -21,8 +21,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
-from types import MappingProxyType
-from typing import Any, Literal, Mapping, TypeAlias, TypeVar
+from typing import Any, Literal, MutableMapping, TypeAlias, TypeVar
 
 import lxml.etree
 import lxml.html
@@ -46,9 +45,9 @@ _PARSERS: dict[DocType, Callable[[str], XMLNode | JSONNode]] = {
     "json": json.loads,
 }
 
-CollectedData: TypeAlias = Mapping[str, Any]
+CollectedData: TypeAlias = MutableMapping[str, Any]
 
-_EMPTY: CollectedData = MappingProxyType({})
+_EMPTY: CollectedData = {}
 
 
 Preprocessor: TypeAlias = Callable[[Node], XMLNode | JSONNode]

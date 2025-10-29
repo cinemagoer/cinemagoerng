@@ -19,7 +19,7 @@ import json
 from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
-from typing import Any, Literal, Mapping, NotRequired, TypeAlias, TypedDict
+from typing import Any, Mapping, NotRequired, TypedDict
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -116,12 +116,3 @@ def get_title(
     context = {"imdb_id": imdb_id}
     data = scrape(spec=spec, context=context, headers=headers)
     return piculet.deserialize(data, model.Title)  # type: ignore
-
-
-#         if key == "episodes":
-#             if isinstance(value, dict):
-#                 value = piculet.deserialize(value, model.EpisodeMap)
-#                 title.episodes.update(value)
-#             else:
-#                 value = piculet.deserialize(value, list[model.TVEpisode])
-#                 title.add_episodes(value)

@@ -33,21 +33,29 @@ def get_cache_key(url: str, *, headers: dict[str, str] | None = None) -> str:
 
     if len(parsed.query) > 0:
         query_params = parsed.query.split("&")
+        q_vars: dict[str, str] = {}
+        g_op: str | None = None
         for param in query_params:
             equals = param.index("=")
-            g_key, g_value = param[:equals], param[equals + 1:]
-            match g_key:
+            q_key, q_value = param[:equals], param[equals + 1:]
+            match q_key:
                 case "operationName":
-                    g_op = g_value
+                    g_op = q_value
                 case "variables":
-                    g_vars = {
-                        k: v for k, v in json.loads(g_value).items()
+                    q_vars = q_vars | {
+                        k: v for k, v in json.loads(q_value).items()
                         if k not in CACHE_KEY_IGNORED_VARS
                     }
-                    imdb_id = g_vars.pop("const")
-        if len(g_vars) > 0:
-            g_query = "__".join(f"{k}_{v}" for k, v in g_vars.items())
-            path += f"title_{imdb_id}_{g_op}__{g_query}"
+                case "extensions":
+                    pass
+                case _:
+                    q_vars[q_key] = q_value
+        if len(q_vars) > 0:
+            if g_op is not None:
+                imdb_id = q_vars.pop("const")
+                path += f"title_{imdb_id}_{g_op}"
+            q_query = "__".join(f"{k}_{v}" for k, v in q_vars.items())
+            path += f"__{q_query}"
 
     request_headers = headers if headers is not None else {}
     content_type = request_headers.get("Content-Type", "text/html")

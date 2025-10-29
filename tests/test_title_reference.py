@@ -282,7 +282,7 @@ def test_title_reference_parser_should_set_all_writers(imdb_id, n, writers):
 )
 def test_title_reference_parser_should_set_seasons_for_series(imdb_id, seasons):
     parsed = web.get_title(imdb_id=imdb_id)
-    assert list(parsed.episodes.keys()) == seasons
+    assert parsed.seasons == seasons
 
 
 @pytest.mark.parametrize(("imdb_id", "series_type", "series_imdb_id", "series_title"), [

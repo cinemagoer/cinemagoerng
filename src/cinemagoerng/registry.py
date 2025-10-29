@@ -18,7 +18,7 @@
 import html
 import json
 import re
-from typing import Any, NotRequired, TypedDict, TypeVar
+from typing import Any, NotRequired, TypedDict
 
 from .piculet import (
     CollectedData,
@@ -52,38 +52,25 @@ def update_preprocessors(preprocessors: dict[str, Preprocessor]) -> None:
 ########################################################################
 
 
-def generate_episode_map(data: CollectedData) -> CollectedData:
-    for season, episodes in data["episodes"].items():
-        data["episodes"][season] = {ep["episode"]: ep for ep in episodes}
+def set_episodes_series(data: CollectedData) -> CollectedData:
+    series = data.get("series")
+    if series is not None:
+        for episode in data.get("episodes", []):
+            episode["series"] = series
     return data
 
 
-def set_plot_langs(data: CollectedData) -> CollectedData:
+def build_episode_map(data: CollectedData) -> CollectedData:
     episodes = data.get("episodes")
-    default_lang = data.get("_page_lang", "en-US")
-
-    if not episodes:
-        return data
-
-    # Flatten episodes if it's a dictionary of seasons
-    if not isinstance(episodes, list):
-        episodes = [
-            episode
-            for season in episodes.values()
-            for episode in season.values()
-        ]
-
-    # Update plot language for each episode
-    for episode in episodes:
-        if "_plot" in episode:
-            episode["plot"] = {default_lang: episode["_plot"]}
+    if episodes is not None:
+        data["episodes"] = {ep["episode"]: ep for ep in episodes}
     return data
 
 
 def update_postprocessors(postprocessors: dict[str, Postprocessor]) -> None:
     postprocessors.update({
-        "generate_episode_map": generate_episode_map,
-        "set_plot_langs": set_plot_langs,
+        "set_episodes_series": set_episodes_series,
+        "build_episode_map": build_episode_map,
     })
 
 
@@ -104,23 +91,16 @@ def make_dict(item: DictItem, /) -> dict[str, Any]:
     return {item["key"]: value}
 
 
-T = TypeVar("T")
-
-
-def dict_keys(value: list[T]) -> dict[T, Any]:
-    return {k: {} for k in value}
-
-
 class DateDict(TypedDict):
     year: int | None
     month: int | None
     day: int | None
 
 
-def make_date(x: DateDict) -> str | None:
-    year = x.get("year")
-    month = x.get("month")
-    day = x.get("day")
+def make_date(value: DateDict) -> str | None:
+    year = value.get("year")
+    month = value.get("month")
+    day = value.get("day")
     if (year is None) or (month is None) or (day is None):
         return None
     return f"{year}-{month:02}-{day:02}"
@@ -181,7 +161,6 @@ def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
 def update_transformers(transformers: dict[str, Transformer]) -> None:
     transformers.update({
         "make_dict": make_dict,
-        "dict_keys": dict_keys,
         "date": make_date,
         "unescape": html.unescape,
         "div60": lambda x: x // 60,
