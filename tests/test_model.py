@@ -38,6 +38,7 @@ def test_title_sort_title_should_strip_article(imdb_id, title, language_codes, s
 
 @pytest.mark.parametrize(("title", "country_code", "country"), [
     ("Луна", "SUHH", "Soviet Union"),
+    ("DUMMY", None, None),
 ])
 def test_title_aka_countries_should_return_country_names(title, country_code, country):
     aka = AKA(title=title, country_code=country_code)
@@ -46,6 +47,7 @@ def test_title_aka_countries_should_return_country_names(title, country_code, co
 
 @pytest.mark.parametrize(("title", "language_code", "language"), [
     ("Луна", "ru", "Russian"),
+    ("DUMMY", None, None),
 ])
 def test_title_aka_languages_should_return_language_names(title, language_code, language):
     aka = AKA(title=title, language_code=language_code)
