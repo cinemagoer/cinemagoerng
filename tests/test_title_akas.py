@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng import web
+from cinemagoerng import web as imdb
 
 
 @pytest.mark.parametrize(("imdb_id", "n_before", "n_after", "akas"), [
@@ -13,9 +13,9 @@ from cinemagoerng import web
     ("tt0133093", 0, 68, []),  # The Matrix
 ])
 def test_title_akas_parser_should_set_all_akas_on_update(imdb_id, n_before, n_after, akas):
-    parsed = web.get_title(imdb_id=imdb_id)
+    parsed = imdb.get_title(imdb_id=imdb_id)
     assert len(parsed.akas) == n_before
-    parsed.set_akas()
+    imdb.set_akas(parsed)
     assert len(parsed.akas) == n_after
     if len(akas) > 0:
         assert [(aka.title, aka.country_code, aka.country, aka.language_code, aka.language, aka.notes)

@@ -3,7 +3,7 @@ import pytest
 from datetime import date
 from decimal import Decimal
 
-from cinemagoerng import web
+from cinemagoerng import web as imdb
 
 
 @pytest.mark.parametrize(("imdb_id", "season", "n"), [
@@ -12,8 +12,8 @@ from cinemagoerng import web
     ("tt0185906", "1", 10),  # Band of Brothers (Mini-Series)
 ])
 def test_title_episodes_parser_should_set_episodes_for_season(imdb_id, season, n):
-    parsed = web.get_title(imdb_id=imdb_id)
-    parsed.set_episodes(season=season)
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    imdb.set_episodes(parsed, season=season)
     assert len(parsed.episodes[season]) == n
 
 
@@ -22,8 +22,8 @@ def test_title_episodes_parser_should_set_episodes_for_season(imdb_id, season, n
     ("tt0185906", "1", "1", "Band of Brothers"),
 ])
 def test_title_episodes_parser_should_set_season_and_series(imdb_id, season, episode, series):
-    parsed = web.get_title(imdb_id=imdb_id)
-    parsed.set_episodes(season=season)
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    imdb.set_episodes(parsed, season=season)
     ep = parsed.episodes[season][episode]
     assert (ep.season, ep.series.imdb_id, ep.series.title) == (season, imdb_id, series)
 
@@ -42,8 +42,8 @@ def test_title_episodes_parser_should_set_season_and_series(imdb_id, season, epi
     ]),
 ])
 def test_title_episodes_parser_should_set_imdb_id_and_title(imdb_id, season, episodes):
-    parsed = web.get_title(imdb_id=imdb_id)
-    parsed.set_episodes(season=season)
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    imdb.set_episodes(parsed, season=season)
     for ep in episodes:
         episode = parsed.episodes[season][ep[0]]
         assert (episode.episode, episode.imdb_id, episode.title) == ep
@@ -63,8 +63,8 @@ def test_title_episodes_parser_should_set_imdb_id_and_title(imdb_id, season, epi
     ]),
 ])
 def test_title_episodes_parser_should_set_release_dates(imdb_id, season, episodes):
-    parsed = web.get_title(imdb_id=imdb_id)
-    parsed.set_episodes(season=season)
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    imdb.set_episodes(parsed, season=season)
     for ep in episodes:
         episode = parsed.episodes[season][ep[0]]
         assert (episode.episode, episode.year, episode.release_date) == ep
@@ -74,8 +74,8 @@ def test_title_episodes_parser_should_set_release_dates(imdb_id, season, episode
     ("tt0436992", "3", "10", Decimal("9.8")),  # Doctor Who: Blink
 ])
 def test_title_episodes_parser_should_set_episode_rating(imdb_id, season, episode, rating):
-    parsed = web.get_title(imdb_id=imdb_id)
-    parsed.set_episodes(season=season)
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    imdb.set_episodes(parsed, season=season)
     episode = parsed.episodes[season][episode]
     assert abs(episode.rating - rating) <= Decimal("0.3")
 
@@ -84,8 +84,8 @@ def test_title_episodes_parser_should_set_episode_rating(imdb_id, season, episod
     ("tt0436992", "3", "10", 23500),  # Doctor Who: Blink
 ])
 def test_title_episodes_parser_should_set_vote_count(imdb_id, season, episode, vote_count):
-    parsed = web.get_title(imdb_id=imdb_id)
-    parsed.set_episodes(season=season)
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    imdb.set_episodes(parsed, season=season)
     episode = parsed.episodes[season][episode]
     assert episode.vote_count >= vote_count
 
@@ -94,7 +94,7 @@ def test_title_episodes_parser_should_set_vote_count(imdb_id, season, episode, v
     ("tt0436992", "3", "10", "Sally Sparrow receives a cryptic message"),  # Doctor Who: Blink
 ])
 def test_title_episodes_parser_should_set_plot(imdb_id, season, episode, plot):
-    parsed = web.get_title(imdb_id=imdb_id)
-    parsed.set_episodes(season=season)
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    imdb.set_episodes(parsed, season=season)
     episode = parsed.episodes[season][episode]
     assert episode.plot["en-US"].startswith(plot)

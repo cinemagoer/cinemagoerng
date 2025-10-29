@@ -20,10 +20,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
-from typing import Any, Literal, TypeAlias
+from typing import Literal, TypeAlias
 
-from . import linguistics, lookup, web
-from .piculet import JSONSpec, XMLSpec, deserialize
+from . import linguistics, lookup
 
 
 @dataclass(kw_only=True)
@@ -208,49 +207,6 @@ class _Title:
                     return title
         return self.title
 
-    def set_taglines(
-            self,
-            *,
-            headers: dict[str, str] | None = None,
-    ) -> None:
-        spec = web.get_spec("title_taglines")
-        context = {"imdb_id": self.imdb_id}
-        data = web.scrape(spec=spec, context=context, headers=headers)
-        taglines = data.get("taglines")
-        if taglines is not None:
-            self.taglines = data["taglines"]
-
-    def set_akas(
-            self,
-            *,
-            spec: XMLSpec | JSONSpec | None = None,
-            headers: dict[str, str] | None = None,
-    ) -> None:
-        if spec is None:
-            spec = web.get_spec("title_akas")
-        g_params: web.GraphQLParams = spec.graphql  # type: ignore
-        g_vars = g_params["variables"]
-        if "after" not in g_vars:
-            g_vars["after"] = "null"
-        context: dict[str, Any] = {"imdb_id": self.imdb_id} | g_vars
-        data = web.scrape(spec, context=context, headers=headers)
-        akas = [deserialize(aka, AKA) for aka in data.get("akas", [])]
-        self.akas.extend(akas)
-        if data.get("has_next_page", False):
-            g_vars["after"] = data["end_cursor"]
-            self.set_akas(spec=spec, headers=headers)
-
-    def set_parental_guide(
-            self,
-            *,
-            headers: dict[str, str] | None = None,
-    ) -> None:
-        spec = web.get_spec("title_parental_guide")
-        context = {"imdb_id": self.imdb_id}
-        data = web.scrape(spec=spec, context=context, headers=headers)
-        self.certification = deserialize(data["certification"], Certification)
-        self.advisories = deserialize(data["advisories"], Advisories)
-
 
 @dataclass(kw_only=True)
 class _TimedTitle(_Title):
@@ -309,19 +265,6 @@ class _TVSeries(_TimedTitle):
     seasons: list[str] = field(default_factory=list)
     episodes: dict[str, dict[str, TVEpisode]] = field(default_factory=dict)
     creators: list[CrewCredit] = field(default_factory=list)
-
-    def set_episodes(
-            self,
-            *,
-            season: str,
-            headers: dict[str, str] | None = None,
-    ) -> None:
-        spec = web.get_spec("title_episodes")
-        context = {"imdb_id": self.imdb_id, "season": season}
-        data = web.scrape(spec=spec, context=context, headers=headers)
-        episodes = data.get("episodes")
-        if episodes is not None:
-            self.episodes[season] = deserialize(episodes, dict[str, TVEpisode])
 
 
 @dataclass(kw_only=True)

@@ -3,7 +3,7 @@
 ## 0.6 (unreleased)
 
 - Getting a title now always uses the reference page.
-- Updating attributes of a title is now achieved through setters.
+- Updating a title now uses specific functions instead of generic page update.
 - Improve GraphQL handling.
 - Credits now contain person objects instead of subclassing.
 - Add Accept-Language header to HTTP requests (@tykling).

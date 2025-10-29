@@ -20,20 +20,20 @@ import sys
 import textwrap
 from argparse import ArgumentParser
 
-from cinemagoerng import web
+from cinemagoerng import web as imdb
 
 _INDENT = "  "
 _LINE_WIDTH = 72
 
 
 def get_title(imdb_num: int, taglines: bool = False) -> None:
-    item = web.get_title(f"tt{imdb_num:07d}")
+    item = imdb.get_title(f"tt{imdb_num:07d}")
     if item is None:
         print("No title with this IMDb number was found.")
         sys.exit()
 
     if taglines:
-        item.set_taglines()
+        imdb.set_taglines(item)
 
     print(f"Title: {item.title} ({item.__class__.__name__})")
 

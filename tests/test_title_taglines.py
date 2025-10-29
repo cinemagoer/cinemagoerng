@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng import web
+from cinemagoerng import web as imdb
 
 
 @pytest.mark.parametrize(("imdb_id", "n_before", "n_after", "taglines"), [
@@ -9,8 +9,8 @@ from cinemagoerng import web
     ("tt3629794", 0, 0, []),  # Aslan
 ])
 def test_title_taglines_parser_should_set_taglines(imdb_id, n_before, n_after, taglines):
-    parsed = web.get_title(imdb_id=imdb_id)
+    parsed = imdb.get_title(imdb_id=imdb_id)
     assert len(parsed.taglines) == n_before
-    parsed.set_taglines()
+    imdb.set_taglines(parsed)
     assert len(parsed.taglines) == n_after
     assert set(parsed.taglines).issuperset(set(taglines))
