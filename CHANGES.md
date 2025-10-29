@@ -1,6 +1,6 @@
 # CHANGES
 
-## 0.6 (unreleased)
+## 0.6 (2025-10-29)
 
 - Getting a title now always uses the reference page.
 - Updating a title now uses specific functions instead of generic page update.

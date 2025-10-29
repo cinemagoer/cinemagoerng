@@ -22,7 +22,8 @@ and celebrity information from IMDb.
 
 ## Installation
 
-You can install CinemagoerNG using pip:
+CinemagoerNG supports Python 3.11 and later versions.
+You can install it using pip:
 
 ```bash
 pip install cinemagoerng
@@ -122,22 +123,6 @@ uv run ruff check --preview src tests
 uv run tox
 ```
 
-## Python Version Support
-
-CinemagoerNG supports Python 3.11 and later versions:
-
-- Python 3.11
-- Python 3.12
-- Python 3.13
-- PyPy 3.11
-
-## Contributing
-
-Contributions are welcome!
-Feel free to submit a Pull Request.
-For major changes, please open an issue first to discuss
-what you would like to change.
-
 ## License
 
 This project is licensed under the
@@ -146,7 +131,8 @@ GNU Lesser General Public License v3 or later - see the
 
 ## Acknowledgments
 
-CinemagoerNG is a modern reimagining of the original Cinemagoer/IMDbPY project.
+CinemagoerNG is a modern reimagining of the original
+[Cinemagoer/IMDbPY](https://github.com/cinemagoer/cinemagoer) project.
 Special thanks to:
 
 - All contributors to the original Cinemagoer (IMDbPY) project.

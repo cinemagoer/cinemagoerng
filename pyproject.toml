@@ -1,12 +1,11 @@
 [project]
 name = "cinemagoerng"
-version = "0.5.1"
+version = "0.6"
 description = "Retrieve data from the IMDb."
 readme = "README.md"
 
 authors = [
     {name = "H. Turgut Uyar", email = "uyar@tekir.org"},
-    {name = "Davide Alberani", email = "da@mimante.net"},
 ]
 license = "LGPL-3.0-or-later"
 license-files = ["LICENSE.txt"]
@@ -39,7 +38,7 @@ classifiers = [
 
 requires-python = "~=3.11"
 dependencies = [
-    "typedload~=2.38",
+    "typedload~=2.39",
     "lxml~=5.4.0",
     "jmespath~=1.0.1",
 ]
@@ -55,7 +54,7 @@ typing = [
     "types-jmespath>=1.0.2.20250809",
 ]
 style = [
-    "ruff>=0.14.0",
+    "ruff>=0.14.2",
 ]
 dev = [
     {include-group = "test"},
@@ -93,7 +92,7 @@ ignore = ["E731"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py3{11,12,13}, pypy3{11}, types, style
+envlist = py3{11,12,13,14}, pypy3{11}, types, style
 isolated_build = True
 
 [testenv]
