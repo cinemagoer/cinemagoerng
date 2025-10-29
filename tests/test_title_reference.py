@@ -51,6 +51,16 @@ def test_title_reference_parser_should_set_primary_image(imdb_id, primary_image)
     assert parsed.primary_image == primary_image
 
 
+@pytest.mark.parametrize(("imdb_id", "language", "primary_image"), [
+    ("tt0133093",  # The Matrix
+     "de-DE",
+     "https://m.media-amazon.com/images/M/MV5BYjM1YzE0MzMtMDM4Ni00M2M4LWEyYzItNGFjMDkxZTcyNTEyXkEyXkFqcGc@._V1_.jpg"),
+])
+def test_title_reference_parser_should_set_primary_image_for_given_language(imdb_id, language, primary_image):
+    parsed = imdb.get_title(imdb_id=imdb_id, headers={"Accept-Language": language})
+    assert parsed.primary_image == primary_image
+
+
 @pytest.mark.parametrize(("imdb_id", "year"), [
     ("tt0133093", 1999),  # The Matrix
     ("tt7587890", 2018),  # The Rookie (2018-)

@@ -1,3 +1,4 @@
+import copy
 import json
 from pathlib import Path
 from urllib.parse import urlparse
@@ -57,9 +58,12 @@ def get_cache_key(url: str, *, headers: dict[str, str] | None = None) -> str:
             q_query = "__".join(f"{k}_{v}" for k, v in q_vars.items())
             path += f"__{q_query}"
 
-    request_headers = headers if headers is not None else {}
-    content_type = request_headers.get("Content-Type", "text/html")
+    request_headers = copy.copy(headers) if headers is not None else {}
+    content_type = request_headers.pop("Content-Type", "text/html")
     suffix = CACHE_SUFFIXES[content_type]
+    if len(request_headers) > 0:
+        q_headers = "__".join(f"{k.lower()}_{v}" for k, v in request_headers.items())
+        path += f"__{q_headers}"
     return f"{path}{suffix}"
 
 
