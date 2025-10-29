@@ -19,6 +19,8 @@ import importlib.metadata
 import sys
 import textwrap
 from argparse import ArgumentParser
+from http import HTTPStatus
+from urllib.error import HTTPError
 
 from cinemagoerng import web as imdb
 
@@ -27,9 +29,11 @@ _LINE_WIDTH = 72
 
 
 def get_title(imdb_num: int, taglines: bool = False) -> None:
-    item = imdb.get_title(f"tt{imdb_num:07d}")
-    if item is None:
-        print("No title with this IMDb number was found.")
+    try:
+        item = imdb.get_title(f"tt{imdb_num:07d}")
+    except HTTPError as e:
+        if e.code == HTTPStatus.NOT_FOUND:
+            print("No title with this IMDb number was found.")
         sys.exit()
 
     if taglines:

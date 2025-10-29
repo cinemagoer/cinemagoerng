@@ -17,10 +17,8 @@
 
 import json
 from functools import lru_cache
-from http import HTTPStatus
 from pathlib import Path
 from typing import Any, Mapping, NotRequired, TypedDict
-from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from . import model, piculet, registry
@@ -98,12 +96,7 @@ def _scrape(
     request_headers = headers if headers is not None else {}
     if spec.graphql is not None:
         request_headers["Content-Type"] = "application/json"
-    try:
-        document = fetch(url, headers=request_headers)
-    except HTTPError as e:
-        if e.status == HTTPStatus.NOT_FOUND:
-            return piculet._EMPTY
-        raise e  # pragma: no cover
+    document = fetch(url, headers=request_headers)
     return piculet.scrape(document, spec)
 
 
@@ -141,8 +134,6 @@ def set_akas(
         spec = _spec("title_akas")
     g_params: GraphQLParams = spec.graphql  # type: ignore
     g_vars = g_params["variables"]
-    if "after" not in g_vars:
-        g_vars["after"] = "null"
     context: dict[str, Any] = {"imdb_id": title.imdb_id} | g_vars
     data = _scrape(spec, context=context, headers=headers)
     akas = [
