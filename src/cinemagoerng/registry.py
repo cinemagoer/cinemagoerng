@@ -64,7 +64,11 @@ def set_episodes_plot_languages(data: CollectedData) -> CollectedData:
     lang = data.get("_page_lang")
     if lang is not None:
         for episode in data.get("episodes", []):
-            episode["plot"] = {lang: episode["plot"]}
+            plot = episode.get("plot")
+            if plot is not None:
+                episode["plot"] = {lang: plot}
+            else:
+                episode["plot"] = {}
     return data
 
 
