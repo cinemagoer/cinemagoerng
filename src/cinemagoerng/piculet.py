@@ -13,15 +13,20 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Piculet.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Piculet is a module for extracting data from HTML/XML and JSON documents.
+The queries are written in XPath for HTML/XML, and in JMESPath for JSON.
+
+The documentation is available on: https://piculet.readthedocs.io/
+"""
+
 from __future__ import annotations
 
 import json
-import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from decimal import Decimal
 from functools import partial
-from typing import Any, Literal, MutableMapping, TypeAlias, TypeVar
+from typing import Any, Literal, Mapping, TypeAlias
 
 import lxml.etree
 import lxml.html
@@ -29,314 +34,261 @@ import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
 
-XMLNode: TypeAlias = lxml.etree._Element
-JSONNode: TypeAlias = dict
+deserialize = partial(typedload.load, pep563=True, basiccast=False)
+"""Generate an object from a dictionary."""
 
-Node = TypeVar("Node", XMLNode, JSONNode)
+serialize = typedload.dump
+"""Generate a dictionary from an object."""
 
-__lxml_ns = lxml.etree.FunctionNamespace(None)
-__lxml_ns["string-join"] = lambda _, texts, sep: sep.join(texts)
+
+Node: TypeAlias = lxml.etree._Element | dict[str, Any]
 
 DocType: TypeAlias = Literal["html", "xml", "json"]
 
-_PARSERS: dict[DocType, Callable[[str], XMLNode | JSONNode]] = {
+_PARSERS: dict[DocType, Callable[[str], Node]] = {
     "html": lxml.html.fromstring,
     "xml": lxml.etree.fromstring,
     "json": json.loads,
 }
 
-CollectedData: TypeAlias = MutableMapping[str, Any]
 
-_EMPTY: CollectedData = {}
-
-
-Preprocessor: TypeAlias = Callable[[Node], XMLNode | JSONNode]
-
-preprocessors: dict[str, Preprocessor] = {}
-
-
-class Preprocess:
-    def __init__(self, name: str) -> None:
-        self.name: str = name
-        self.apply: Preprocessor = preprocessors[name]
-
-    def __str__(self) -> str:
-        return self.name
-
-
-Postprocessor: TypeAlias = Callable[[CollectedData], CollectedData]
-
-postprocessors: dict[str, Postprocessor] = {}
-
-
-class Postprocess:
-    def __init__(self, name: str) -> None:
-        self.name: str = name
-        self.apply: Postprocessor = postprocessors[name]
-
-    def __str__(self) -> str:
-        return self.name
-
-
+Preprocessor: TypeAlias = Callable[[Node], Node]
+Postprocessor: TypeAlias = Callable[[dict[str, Any]], dict[str, Any]]
 Transformer: TypeAlias = Callable[[Any], Any]
 
 
-transformers: dict[str, Transformer] = {
-    "decimal": lambda x: Decimal(str(x)),
-    "int": int,
-    "lower": str.lower,
-    "str": str,
-    "strip": str.strip,
-}
+class Query:
+    """A query based on XPath or JMESPath.
 
-
-class Transform:
-    def __init__(self, name: str) -> None:
-        self.name: str = name
-        self.apply: Transformer = transformers[name]
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class XMLPath:
-    _re_text_path = re.compile(r""".*\/(text\(\)|(@\w+))$""")
+    Expressions starting with ``/`` or ``./`` are assumed to be XPath.
+    and others are assumed to be JMESPath.
+    """
 
     def __init__(self, path: str) -> None:
         self.path: str = path
-        if XMLPath._re_text_path.match(path):
-            path = f"string({path})"
-        self._compiled = compile_xpath(path)
+        """Path expression to apply to nodes."""
+
+        self._compiled: Callable[[Node], Any] = \
+            compile_xpath(path) if path.startswith(("/", "./")) else \
+            compile_jmespath(path).search  # type: ignore
 
     def __str__(self) -> str:
         return self.path
 
-    def apply(self, root: XMLNode) -> Any:
-        value = self._compiled(root)
-        return value if value != "" else None
+    def apply(self, node: Node) -> Any:
+        """Apply this query to a node.
 
-    def select(self, root: XMLNode) -> list[XMLNode]:
-        return self._compiled(root)  # type: ignore
+        If this is an XPath query, it should return a list of texts,
+        which will be concatenated.
+        """
+        value: Any = self._compiled(node)
+        if isinstance(self._compiled, lxml.etree.XPath):
+            return "".join(value) if len(value) > 0 else None
+        return value
 
+    def get(self, node: Node) -> Node:
+        """Get the first node matched by applying this query to a node."""
+        value: Any = self._compiled(node)
+        if isinstance(self._compiled, lxml.etree.XPath):
+            return value[0]
+        return value
 
-class JSONPath:
-    def __init__(self, path: str) -> None:
-        self.path: str = path
-        self._compiled = compile_jmespath(path).search
-
-    def __str__(self) -> str:
-        return self.path
-
-    def apply(self, root: JSONNode) -> Any:
-        return self._compiled(root)
-
-    def select(self, root: JSONNode) -> list[JSONNode]:
-        selected = self._compiled(root)
-        return selected if selected is not None else []  # type: ignore
-
-
-@dataclass(kw_only=True)
-class XMLPicker:
-    path: XMLPath
-    transforms: list[Transform] = field(default_factory=list)
-    foreach: XMLPath | None = None
-
-    def extract(self, root: XMLNode) -> Any:
-        return self.path.apply(root)
+    def select(self, node: Node) -> list[Node]:
+        """Get all nodes matched by applying this query to a node."""
+        value: Any = self._compiled(node)
+        if isinstance(self._compiled, lxml.etree.XPath):
+            return value
+        return value if value is not None else []
 
 
 @dataclass(kw_only=True)
-class JSONPicker:
-    path: JSONPath
-    transforms: list[Transform] = field(default_factory=list)
-    foreach: JSONPath | None = None
+class Extractor:
+    """Base class for extractors."""
 
-    def extract(self, root: JSONNode) -> Any:
-        return self.path.apply(root)
+    root: Query | None = None
+    """Query to select the root node to extract the data from."""
 
+    foreach: Query | None = None
+    """Query to select the nodes for producing multiple results."""
 
-@dataclass(kw_only=True)
-class XMLCollector:
-    rules: list[XMLRule] = field(default_factory=list)
-    transforms: list[Transform] = field(default_factory=list)
-    foreach: XMLPath | None = None
+    transforms: list[str] = field(default_factory=list)
+    """Names of transform functions to apply to the obtained data."""
 
-    def extract(self, root: XMLNode) -> CollectedData:
-        return collect_xml(root, self.rules)
+    _transforms: list[Transformer] = field(default_factory=list)
 
-
-@dataclass(kw_only=True)
-class JSONCollector:
-    rules: list[JSONRule] = field(default_factory=list)
-    transforms: list[Transform] = field(default_factory=list)
-    foreach: JSONPath | None = None
-
-    def extract(self, root: JSONNode) -> CollectedData:
-        return collect_json(root, self.rules)
+    def _set_transforms(self, registry: Mapping[str, Transformer]) -> None:
+        self._transforms = [registry[name] for name in self.transforms]
 
 
 @dataclass(kw_only=True)
-class XMLRule:
-    key: str | XMLPicker
-    extractor: XMLPicker | XMLCollector
-    transforms: list[Transform] = field(default_factory=list)
-    foreach: XMLPath | None = None
+class Picker(Extractor):
+    """An extractor that produces a single value."""
+
+    path: Query
+    """Query to apply to a node to extract the value."""
+
+    def extract(self, node: Node) -> Any:
+        """Extract data from a node."""
+        return self.path.apply(node)
 
 
 @dataclass(kw_only=True)
-class JSONRule:
-    key: str | JSONPicker
-    extractor: JSONPicker | JSONCollector
-    transforms: list[Transform] = field(default_factory=list)
-    foreach: JSONPath | None = None
+class Collector(Extractor):
+    """An extractor that collects multiple pieces of data."""
 
+    rules: list[Rule] = field(default_factory=list)
+    """Rules to apply to a node to collect the data."""
 
-def extract_xml(root: XMLNode, rule: XMLRule) -> CollectedData:
-    data: dict[str, Any] = {}
+    def _set_transforms(self, registry: Mapping[str, Transformer]) -> None:
+        super()._set_transforms(registry)
+        for rule in self.rules:
+            rule._set_transformers(registry)
 
-    subroots = [root] if rule.foreach is None else rule.foreach.select(root)
-    for subroot in subroots:
-        if rule.extractor.foreach is None:
-            value = rule.extractor.extract(subroot)
-            if (value is None) or (value is _EMPTY):
-                continue
-            for transform in rule.extractor.transforms:
-                value = transform.apply(value)
-        else:
-            raws = [rule.extractor.extract(n)
-                    for n in rule.extractor.foreach.select(subroot)]
-            value = [v for v in raws if (v is not None) and (v is not _EMPTY)]
-            if len(value) == 0:
-                continue
-            if len(rule.extractor.transforms) > 0:
-                for i in range(len(value)):
-                    for transform in rule.extractor.transforms:
-                        value[i] = transform.apply(value[i])
-
-        for transform in rule.transforms:
-            value = transform.apply(value)
-
-        match rule.key:
-            case str():
-                key = rule.key
-            case XMLPicker():
-                key = rule.key.extract(subroot)
-                for key_transform in rule.key.transforms:
-                    key = key_transform.apply(key)
-        data[key] = value
-
-    return data if len(data) > 0 else _EMPTY
-
-
-def extract_json(root: JSONNode, rule: JSONRule) -> CollectedData:
-    data: dict[str, Any] = {}
-
-    subroots = [root] if rule.foreach is None else rule.foreach.select(root)
-    for subroot in subroots:
-        if rule.extractor.foreach is None:
-            value = rule.extractor.extract(subroot)
-            if (value is None) or (value is _EMPTY):
-                continue
-            for transform in rule.extractor.transforms:
-                value = transform.apply(value)
-        else:
-            raws = [rule.extractor.extract(n)
-                    for n in rule.extractor.foreach.select(subroot)]
-            value = [v for v in raws if (v is not None) and (v is not _EMPTY)]
-            if len(value) == 0:
-                continue
-            if len(rule.extractor.transforms) > 0:
-                for i in range(len(value)):
-                    for transform in rule.extractor.transforms:
-                        value[i] = transform.apply(value[i])
-
-        for transform in rule.transforms:
-            value = transform.apply(value)
-
-        match rule.key:
-            case str():
-                key = rule.key
-            case JSONPicker():
-                key = rule.key.extract(subroot)
-                for key_transform in rule.key.transforms:
-                    key = key_transform.apply(key)
-        data[key] = value
-
-    return data if len(data) > 0 else _EMPTY
-
-
-def collect_xml(root: XMLNode, rules: list[XMLRule]) -> CollectedData:
-    data: dict[str, Any] = {}
-    for rule in rules:
-        subdata = extract_xml(root, rule)
-        data.update(subdata)
-    return data if len(data) > 0 else _EMPTY
-
-
-def collect_json(root: JSONNode, rules: list[JSONRule]) -> CollectedData:
-    data: dict[str, Any] = {}
-    for rule in rules:
-        subdata = extract_json(root, rule)
-        data.update(subdata)
-    return data if len(data) > 0 else _EMPTY
+    def extract(self, node: Node) -> dict[str, Any] | None:
+        """Extract data from a node."""
+        data: dict[str, Any] = {}
+        for rule in self.rules:
+            subdata = rule.apply(node)
+            if subdata is not None:
+                data.update(subdata)
+        return data if len(data) > 0 else None
 
 
 @dataclass(kw_only=True)
-class _Spec:
-    version: str
-    url: str
-    graphql: dict[str, Any] | None = None
-    doctype: DocType
-    pre: list[Preprocess] = field(default_factory=list)
-    post: list[Postprocess] = field(default_factory=list)
+class Rule:
+    """A rule that generates key-value pairs from a node."""
+
+    key: str | Picker
+    """Name of key or extractor to produce the key."""
+
+    extractor: Picker | Collector
+    """Extractor to produce the value."""
+
+    foreach: Query | None = None
+    """Query to select the nodes for producing multiple key-value pairs."""
+
+    def _set_transformers(self, registry: Mapping[str, Transformer]) -> None:
+        self.extractor._set_transforms(registry)
+        if isinstance(self.key, Picker):
+            self.key._set_transforms(registry)
+
+    def apply(self, root: Node) -> dict[str, Any] | None:
+        """Apply this rule to a node."""
+        data: dict[str, Any] = {}
+
+        if self.extractor.root is not None:
+            root = self.extractor.root.get(root)
+        nodes = [root] if self.foreach is None else self.foreach.select(root)
+        for node in nodes:
+            if self.extractor.foreach is None:
+                value = self.extractor.extract(node)
+                if value is None:
+                    continue
+                for transform in self.extractor._transforms:
+                    value = transform(value)
+            else:
+                raws = [self.extractor.extract(n)
+                        for n in self.extractor.foreach.select(node)]
+                value = [v for v in raws if v is not None]
+                if len(value) == 0:
+                    continue
+                if len(self.extractor.transforms) > 0:
+                    for i in range(len(value)):
+                        for transform in self.extractor._transforms:
+                            value[i] = transform(value[i])
+
+            if isinstance(self.key, str):
+                key = self.key
+            else:
+                key = self.key.extract(node)
+                for key_transform in self.key._transforms:
+                    key = key_transform(key)
+            data[key] = value
+
+        return data if len(data) > 0 else None
 
 
 @dataclass(kw_only=True)
-class XMLSpec(_Spec):
-    path_type: Literal["xpath"] = "xpath"
-    rules: list[XMLRule] = field(default_factory=list)
+class Spec(Collector):
+    """A scraping specification."""
+
+    pre: list[str] = field(default_factory=list)
+    """Names of preprocessor functions."""
+
+    post: list[str] = field(default_factory=list)
+    """Names of postprocessor functions."""
+
+    _pre: list[Preprocessor] = field(default_factory=list)
+    _post: list[Postprocessor] = field(default_factory=list)
+
+    def _set_pre(self, registry: Mapping[str, Preprocessor]) -> None:
+        self._pre = [registry[name] for name in self.pre]
+
+    def _set_post(self, registry: Mapping[str, Postprocessor]) -> None:
+        self._post = [registry[name] for name in self.post]
+
+    def preprocess(self, root: Node) -> Node:
+        """Apply the preprocessors to the root node."""
+        for preprocess in self._pre:
+            root = preprocess(root)
+        return root
+
+    def extract(self, root: Node):
+        """Extract data from a node."""
+        if self.root is not None:
+            root = self.root.get(root)
+        data = super().extract(root)
+        return data if data is not None else {}
+
+    def postprocess(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Apply the postprocessors to the collected data."""
+        for postprocess in self._post:
+            data = postprocess(data)
+        return data
+
+    def scrape(
+            self,
+            document: str | Node,
+            *,
+            doctype: DocType,
+        ) -> dict[str, Any]:
+        """Scrape a document."""
+        root = document if not isinstance(document, str) else \
+            build_tree(document, doctype=doctype)
+        root = self.preprocess(root)
+        data = self.extract(root)
+        data = self.postprocess(data)
+        return data
 
 
-@dataclass(kw_only=True)
-class JSONSpec(_Spec):
-    path_type: Literal["jmespath"] = "jmespath"
-    rules: list[JSONRule] = field(default_factory=list)
+def build_tree(document: str, doctype: DocType) -> Node:
+    """Convert a document to a tree."""
+    return _PARSERS[doctype](document)
 
 
-def scrape(document: str, spec: XMLSpec | JSONSpec) -> CollectedData:
-    root = _PARSERS[spec.doctype](document)
-    for preprocess in spec.pre:
-        root = preprocess.apply(root)
-    match (root, spec):
-        case (XMLNode(), XMLSpec()):
-            data = collect_xml(root, spec.rules)
-        case (JSONNode(), JSONSpec()):
-            data = collect_json(root, spec.rules)
-        case _:
-            raise TypeError("Node and spec types don't match")
-    for postprocess in spec.post:
-        data = postprocess.apply(data)
-    return data
+def load_spec(
+        content: Mapping[str, Any],
+        *,
+        type_: type = Spec,
+        transformers: Mapping[str, Transformer] | None = None,
+        preprocessors: Mapping[str, Preprocessor] | None = None,
+        postprocessors: Mapping[str, Postprocessor] | None = None,
+) -> Spec:
+    """Deserialize a mapping into a scraping specification."""
+    spec: Spec = deserialize(
+        content,
+        type_=type_,
+        strconstructed={Query},
+        failonextra=True,
+    )
+    if preprocessors is not None:
+        spec._set_pre(preprocessors)
+    if postprocessors is not None:
+        spec._set_post(postprocessors)
+    if transformers is not None:
+        spec._set_transforms(transformers)
+    return spec
 
 
-_data_classes = {Decimal}
-
-deserialize = partial(
-    typedload.load,
-    strconstructed=_data_classes,
-    pep563=True,
-    basiccast=False,
-)
-
-serialize = partial(typedload.dump, strconstructed=_data_classes)
-
-_spec_classes = {Preprocess, Postprocess, Transform, XMLPath, JSONPath}
-
-load_spec = partial(
-    deserialize,
-    type_=XMLSpec | JSONSpec,
-    strconstructed=_spec_classes,
-    failonextra=True,
-)
-
-dump_spec = partial(serialize, strconstructed=_spec_classes)
+def dump_spec(spec: Spec) -> dict[str, Any]:
+    return serialize(spec, strconstructed={Query})

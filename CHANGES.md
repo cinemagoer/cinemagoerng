@@ -1,5 +1,9 @@
 # CHANGES
 
+## 0.7 (unreleased)
+
+- Update to Piculet 2 (spec files edited for format changes).
+
 ## 0.6 (2025-10-29)
 
 - Getting a title now always uses the reference page.

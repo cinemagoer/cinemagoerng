@@ -1,56 +1,57 @@
 {
-  "version": "20251029",
+  "version": "20251123",
   "url": "https://www.imdb.com/title/%(imdb_id)s/episodes/?season=%(season)s",
   "doctype": "html",
-  "path_type": "jmespath",
   "pre": [
     "parse_next_data"
   ],
+  "root": "props.pageProps",
   "rules": [
     {
       "key": "_page_lang",
       "extractor": {
-        "path": "props.pageProps.translationContext.i18n.locale"
+        "path": "translationContext.i18n.locale"
       }
     },
     {
       "key": "series",
       "extractor": {
+        "root": "contentData.entityMetadata",
         "rules": [
           {
             "key": "imdb_id",
             "extractor": {
-              "path": "props.pageProps.contentData.entityMetadata.id"
+              "path": "id"
             }
           },
           {
             "key": "type_id",
             "extractor": {
-              "path": "props.pageProps.contentData.entityMetadata.titleType.id"
+              "path": "titleType.id"
             }
           },
           {
             "key": "title",
             "extractor": {
-              "path": "props.pageProps.contentData.entityMetadata.originalTitleText.text"
+              "path": "originalTitleText.text"
             }
           },
           {
             "key": "primary_image",
             "extractor": {
-              "path": "props.pageProps.contentData.entityMetadata.primaryImage.url"
+              "path": "primaryImage.url"
             }
           },
           {
             "key": "year",
             "extractor": {
-              "path": "props.pageProps.contentData.entityMetadata.releaseYear.year"
+              "path": "releaseYear.year"
             }
           },
           {
             "key": "end_year",
             "extractor": {
-              "path": "props.pageProps.contentData.entityMetadata.releaseYear.endYear"
+              "path": "releaseYear.endYear"
             }
           }
         ]
@@ -59,7 +60,8 @@
     {
       "key": "episodes",
       "extractor": {
-        "foreach": "props.pageProps.contentData.section.episodes.items[*]",
+        "root": "contentData.section.episodes",
+        "foreach": "items[*]",
         "rules": [
           {
             "key": "imdb_id",
@@ -100,23 +102,24 @@
           {
             "key": "release_date",
             "extractor": {
+              "root": "releaseDate",
               "rules": [
                 {
                   "key": "year",
                   "extractor": {
-                    "path": "releaseDate.year"
+                    "path": "year"
                   }
                 },
                 {
                   "key": "month",
                   "extractor": {
-                    "path": "releaseDate.month"
+                    "path": "month"
                   }
                 },
                 {
                   "key": "day",
                   "extractor": {
-                    "path": "releaseDate.day"
+                    "path": "day"
                   }
                 }
               ],

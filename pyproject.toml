@@ -75,6 +75,9 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 source_pkgs = ["cinemagoerng"]
+omit = [
+    "src/cinemagoerng/piculet.py",
+]
 
 [tool.coverage.report]
 show_missing = true

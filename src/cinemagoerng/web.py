@@ -16,7 +16,9 @@
 # along with CinemagoerNG.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-from functools import lru_cache
+from dataclasses import dataclass
+from decimal import Decimal
+from functools import lru_cache, partial
 from pathlib import Path
 from typing import Any, Mapping, NotRequired, TypedDict
 from urllib.request import Request, urlopen
@@ -38,11 +40,6 @@ def fetch(url: str, /, *, headers: dict[str, str] | None = None) -> str:
     return content.decode("utf-8")
 
 
-registry.update_preprocessors(piculet.preprocessors)
-registry.update_postprocessors(piculet.postprocessors)
-registry.update_transformers(piculet.transformers)
-
-
 class GraphQLVariables(TypedDict):
     after: NotRequired[str]
     const: NotRequired[str]
@@ -58,20 +55,37 @@ class GraphQLParams(TypedDict):
     extensions: dict[str, Any]
 
 
+deserialize: partial[Any] = partial(
+    piculet.deserialize,
+    strconstructed={Decimal}
+)
+
+
+@dataclass(kw_only=True)
+class Spec(piculet.Spec):
+    version: str
+    url: str
+    graphql: GraphQLParams | None = None
+    doctype: piculet.DocType
+
+
 SPECS_DIR = Path(__file__).parent / "specs"
 
 
 @lru_cache(maxsize=None)
-def _spec(page: str, /) -> piculet.XMLSpec | piculet.JSONSpec:
+def _spec(page: str, /) -> Spec:
     path = SPECS_DIR / f"{page}.json"
     content = path.read_text(encoding="utf-8")
-    return piculet.load_spec(json.loads(content))  # type: ignore
+    return piculet.load_spec(
+        json.loads(content),
+        type_=Spec,
+        preprocessors=registry.preprocessors,
+        postprocessors=registry.postprocessors,
+        transformers=registry.transformers,
+    )  # type: ignore
 
 
-def _get_url(
-        spec: piculet.XMLSpec | piculet.JSONSpec,
-        context: Mapping[str, Any],
-) -> str:
+def _get_url(spec: Spec, context: Mapping[str, Any]) -> str:
     url_template = spec.url
     if spec.graphql is not None:
         g_params = []
@@ -87,17 +101,17 @@ def _get_url(
 
 
 def _scrape(
-        spec: piculet.XMLSpec | piculet.JSONSpec,
+        spec: Spec,
         *,
         context: Mapping[str, Any],
         headers: dict[str, str] | None = None,
-) -> piculet.CollectedData:
+) -> dict[str, Any]:
     url = _get_url(spec, context=context)
     request_headers = headers if headers is not None else {}
     if spec.graphql is not None:
         request_headers["Content-Type"] = "application/json"
     document = fetch(url, headers=request_headers)
-    return piculet.scrape(document, spec)
+    return spec.scrape(document, doctype=spec.doctype)
 
 
 def get_title(
@@ -108,7 +122,7 @@ def get_title(
     spec = _spec("title_reference")
     context = {"imdb_id": imdb_id}
     data = _scrape(spec=spec, context=context, headers=headers)
-    return piculet.deserialize(data, model.Title)  # type: ignore
+    return deserialize(data, model.Title)
 
 
 def set_taglines(
@@ -127,18 +141,17 @@ def set_taglines(
 def set_akas(
         title: model.Title,
         *,
-        spec: piculet.XMLSpec | piculet.JSONSpec | None = None,
+        spec: Spec | None = None,
         headers: dict[str, str] | None = None,
 ) -> None:
     if spec is None:
         spec = _spec("title_akas")
-    g_params: GraphQLParams = spec.graphql  # type: ignore
+    g_params = spec.graphql
+    assert g_params is not None, g_params
     g_vars = g_params["variables"]
     context: dict[str, Any] = {"imdb_id": title.imdb_id} | g_vars
     data = _scrape(spec, context=context, headers=headers)
-    akas = [
-        piculet.deserialize(aka, model.AKA) for aka in data.get("akas", [])
-    ]
+    akas = [deserialize(aka, model.AKA) for aka in data.get("akas", [])]
     title.akas.extend(akas)
     if data.get("has_next_page", False):
         g_vars["after"] = data["end_cursor"]
@@ -153,14 +166,11 @@ def set_parental_guide(
     spec = _spec("title_parental_guide")
     context = {"imdb_id": title.imdb_id}
     data = _scrape(spec=spec, context=context, headers=headers)
-    title.certification = piculet.deserialize(
+    title.certification = deserialize(
         data["certification"],
         model.Certification,
     )
-    title.advisories = piculet.deserialize(
-        data["advisories"],
-        model.Advisories,
-    )
+    title.advisories = deserialize(data["advisories"], model.Advisories)
 
 
 def set_episodes(
@@ -174,7 +184,7 @@ def set_episodes(
     data = _scrape(spec=spec, context=context, headers=headers)
     episodes = data.get("episodes")
     if episodes is not None:
-        title.episodes[season] = piculet.deserialize(
+        title.episodes[season] = deserialize(
             episodes,
             dict[str, model.TVEpisode],
         )

@@ -1,66 +1,66 @@
 {
-  "version": "20251029",
+  "version": "20251123",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference/",
   "doctype": "html",
-  "path_type": "jmespath",
   "pre": [
     "parse_next_data"
   ],
+  "root": "props.pageProps",
   "rules": [
     {
       "key": "imdb_id",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.id"
+        "path": "aboveTheFoldData.id"
       }
     },
     {
       "key": "type_id",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.titleType.id"
+        "path": "aboveTheFoldData.titleType.id"
       }
     },
     {
       "key": "title",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.originalTitleText.text"
+        "path": "aboveTheFoldData.originalTitleText.text"
       }
     },
     {
       "key": "primary_image",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.primaryImage.url"
+        "path": "aboveTheFoldData.primaryImage.url"
       }
     },
     {
       "key": "year",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.releaseYear.year"
+        "path": "aboveTheFoldData.releaseYear.year"
       }
     },
     {
       "key": "end_year",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.releaseYear.endYear"
+        "path": "aboveTheFoldData.releaseYear.endYear"
       }
     },
     {
       "key": "country_codes",
       "extractor": {
-        "foreach": "props.pageProps.mainColumnData.countriesDetails.countries[*]",
+        "foreach": "mainColumnData.countriesDetails.countries[*]",
         "path": "id"
       }
     },
     {
       "key": "language_codes",
       "extractor": {
-        "foreach": "props.pageProps.mainColumnData.spokenLanguages.spokenLanguages[*]",
+        "foreach": "mainColumnData.spokenLanguages.spokenLanguages[*]",
         "path": "id"
       }
     },
     {
       "key": "runtime",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.runtime.seconds",
+        "path": "aboveTheFoldData.runtime.seconds",
         "transforms": [
           "div60"
         ]
@@ -69,31 +69,32 @@
     {
       "key": "genres",
       "extractor": {
-        "foreach": "props.pageProps.mainColumnData.genres.genres[*]",
+        "foreach": "mainColumnData.genres.genres[*]",
         "path": "text"
       }
     },
     {
       "key": "taglines",
       "extractor": {
-        "foreach": "props.pageProps.mainColumnData.taglines.edges[*]",
+        "foreach": "mainColumnData.taglines.edges[*]",
         "path": "node.text"
       }
     },
     {
       "key": "plot",
       "extractor": {
+        "root": "mainColumnData.plot",
         "rules": [
           {
             "key": "key",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.plot.language.id"
+              "path": "language.id"
             }
           },
           {
             "key": "value",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.plot.plotText.plainText"
+              "path": "plotText.plainText"
             }
           }
         ],
@@ -109,13 +110,13 @@
           {
             "key": "key",
             "extractor": {
-              "path": "locale"
+              "path": "translationContext.i18n.locale"
             }
           },
           {
             "key": "value",
             "extractor": {
-              "foreach": "props.pageProps.mainColumnData.summaries.edges[*]",
+              "foreach": "mainColumnData.summaries.edges[*]",
               "path": "node.plotText.plaidHtml"
             }
           }
@@ -128,7 +129,7 @@
     {
       "key": "rating",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.ratingsSummary.aggregateRating",
+        "path": "aboveTheFoldData.ratingsSummary.aggregateRating",
         "transforms": [
           "decimal"
         ]
@@ -137,17 +138,17 @@
     {
       "key": "vote_count",
       "extractor": {
-        "path": "props.pageProps.aboveTheFoldData.ratingsSummary.voteCount"
+        "path": "aboveTheFoldData.ratingsSummary.voteCount"
       }
     },
     {
       "key": "top_ranking",
       "extractor": {
-        "path": "props.pageProps.mainColumnData.ratingsSummary.topRanking.rank"
+        "path": "mainColumnData.ratingsSummary.topRanking.rank"
       }
     },
     {
-      "foreach": "props.pageProps.mainColumnData.categories[*]",
+      "foreach": "mainColumnData.categories[*]",
       "key": {
         "path": "name",
         "transforms": [
@@ -206,42 +207,43 @@
     {
       "key": "seasons",
       "extractor": {
-        "foreach": "props.pageProps.mainColumnData.episodes.displayableSeasons.edges[*]",
+        "foreach": "mainColumnData.episodes.displayableSeasons.edges[*]",
         "path": "node.season"
       }
     },
     {
       "key": "series",
       "extractor": {
+        "root": "mainColumnData.series.series",
         "rules": [
           {
             "key": "imdb_id",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.series.series.id"
+              "path": "id"
             }
           },
           {
             "key": "type_id",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.series.series.titleType.id"
+              "path": "titleType.id"
             }
           },
           {
             "key": "title",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.series.series.originalTitleText.text"
+              "path": "originalTitleText.text"
             }
           },
           {
             "key": "year",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.series.series.releaseYear.year"
+              "path": "releaseYear.year"
             }
           },
           {
             "key": "end_year",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.series.series.releaseYear.endYear"
+              "path": "releaseYear.endYear"
             }
           }
         ]
@@ -250,7 +252,7 @@
     {
       "key": "season",
       "extractor": {
-        "path": "props.pageProps.mainColumnData.series.episodeNumber.seasonNumber",
+        "path": "mainColumnData.series.episodeNumber.seasonNumber",
         "transforms": [
           "str"
         ]
@@ -259,7 +261,7 @@
     {
       "key": "episode",
       "extractor": {
-        "path": "props.pageProps.mainColumnData.series.episodeNumber.episodeNumber",
+        "path": "mainColumnData.series.episodeNumber.episodeNumber",
         "transforms": [
           "str"
         ]
@@ -268,23 +270,24 @@
     {
       "key": "release_date",
       "extractor": {
+        "root": "mainColumnData.releaseDate",
         "rules": [
           {
             "key": "year",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.releaseDate.year"
+              "path": "year"
             }
           },
           {
             "key": "month",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.releaseDate.month"
+              "path": "month"
             }
           },
           {
             "key": "day",
             "extractor": {
-              "path": "props.pageProps.mainColumnData.releaseDate.day"
+              "path": "day"
             }
           }
         ],
@@ -296,13 +299,13 @@
     {
       "key": "previous_episode_id",
       "extractor": {
-        "path": "props.pageProps.mainColumnData.series.previousEpisode.id"
+        "path": "mainColumnData.series.previousEpisode.id"
       }
     },
     {
       "key": "next_episode_id",
       "extractor": {
-        "path": "props.pageProps.mainColumnData.series.nextEpisode.id"
+        "path": "mainColumnData.series.nextEpisode.id"
       }
     }
   ]

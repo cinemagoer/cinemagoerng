@@ -4,8 +4,15 @@ from cinemagoerng import web as imdb
 
 
 @pytest.mark.parametrize(("imdb_id", "n_before", "n_after", "akas"), [
-    ("tt0429489", 0, 3, [  # A Ay
+    ("tt0429489", 0, 10, [  # A Ay
+        ("Oh, Moon!", "AU", "Australia", None, None, []),
+        ("Oh, Moon!", "CA", "Canada", "en", "English", []),
+        ("A Ay", "DE", "Germany", None, None, []),
+        ("Oh, Moon!", "IN", "India", "en", "English", []),
+        ("Oh, Moon!", "IE", "Ireland", "en", "English", []),
+        ("Oh, Moon!", "NZ", "New Zealand", "en", "English", []),
         ("Луна", "SUHH", "Soviet Union", "ru", "Russian", []),
+        ("Oh, Moon!", "GB", "United Kingdom", None, None, []),
         ("Oh, Moon!", "US", "United States", None, None, ["literal English title"]),
         ("Oh, Moon!", "XWW", "World-wide", "en", "English", ["complete title"])
     ]),

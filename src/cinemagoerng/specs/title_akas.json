@@ -1,5 +1,5 @@
 {
-  "version": "20251019",
+  "version": "20251123",
   "url": "https://caching.graphql.imdb.com/",
   "graphql": {
     "operationName": "TitleAkasPaginated",
@@ -19,12 +19,12 @@
     }
   },
   "doctype": "json",
-  "path_type": "jmespath",
+  "root": "data.title.akas",
   "rules": [
     {
       "key": "akas",
       "extractor": {
-        "foreach": "data.title.akas.edges[*].node",
+        "foreach": "edges[*].node",
         "rules": [
           {
             "key": "title",
@@ -56,13 +56,13 @@
     {
       "key": "has_next_page",
       "extractor": {
-        "path": "data.title.akas.pageInfo.hasNextPage"
+        "path": "pageInfo.hasNextPage"
       }
     },
     {
       "key": "end_cursor",
       "extractor": {
-        "path": "data.title.akas.pageInfo.endCursor"
+        "path": "pageInfo.endCursor"
       }
     }
   ]

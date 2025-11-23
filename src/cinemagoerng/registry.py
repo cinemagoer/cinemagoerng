@@ -18,33 +18,24 @@
 import html
 import json
 import re
+from decimal import Decimal
 from typing import Any, NotRequired, TypedDict
 
-from .piculet import (
-    CollectedData,
-    JSONNode,
-    Postprocessor,
-    Preprocessor,
-    Transformer,
-    XMLNode,
-    XMLPath,
-)
+from .piculet import Node, Postprocessor, Preprocessor, Query, Transformer
 
 ########################################################################
 # PREPROCESSORS                                                        #
 ########################################################################
 
 
-def parse_next_data(root: XMLNode) -> JSONNode:
-    path = XMLPath("//script[@id='__NEXT_DATA__']/text()")
-    next_data = path.apply(root)
+def parse_next_data(root: Node) -> Node:
+    next_data = Query("//script[@id='__NEXT_DATA__']/text()").apply(root)
     return json.loads(next_data)
 
 
-def update_preprocessors(preprocessors: dict[str, Preprocessor]) -> None:
-    preprocessors.update({
-        "parse_next_data": parse_next_data,
-    })
+preprocessors: dict[str, Preprocessor] = {
+    "parse_next_data": parse_next_data,
+}
 
 
 ########################################################################
@@ -52,7 +43,7 @@ def update_preprocessors(preprocessors: dict[str, Preprocessor]) -> None:
 ########################################################################
 
 
-def set_episodes_series(data: CollectedData) -> CollectedData:
+def set_episodes_series(data: dict[str, Any]) -> dict[str, Any]:
     series = data.get("series")
     if series is not None:
         for episode in data.get("episodes", []):
@@ -60,31 +51,28 @@ def set_episodes_series(data: CollectedData) -> CollectedData:
     return data
 
 
-def set_episodes_plot_languages(data: CollectedData) -> CollectedData:
+def set_episodes_plot_languages(data: dict[str, Any]) -> dict[str, Any]:
     lang = data.get("_page_lang")
     if lang is not None:
         for episode in data.get("episodes", []):
             plot = episode.get("plot")
             if plot is not None:
                 episode["plot"] = {lang: plot}
-            else:
-                episode["plot"] = {}
     return data
 
 
-def build_episode_map(data: CollectedData) -> CollectedData:
+def build_episode_map(data: dict[str, Any]) -> dict[str, Any]:
     episodes = data.get("episodes")
     if episodes is not None:
         data["episodes"] = {ep["episode"]: ep for ep in episodes}
     return data
 
 
-def update_postprocessors(postprocessors: dict[str, Postprocessor]) -> None:
-    postprocessors.update({
-        "set_episodes_series": set_episodes_series,
-        "set_episodes_plot_languages": set_episodes_plot_languages,
-        "build_episode_map": build_episode_map,
-    })
+postprocessors: dict[str, Postprocessor] = {
+    "set_episodes_series": set_episodes_series,
+    "set_episodes_plot_languages": set_episodes_plot_languages,
+    "build_episode_map": build_episode_map,
+}
 
 
 ########################################################################
@@ -166,19 +154,15 @@ def parse_credit_notes(value: str) -> list[str]:
     return _re_parenthesized.findall(value)
 
 
-def flatten_list_of_dicts(value: list[dict[str, Any]]) -> dict[str, Any]:
-    """Convert a list of dictionaries to a single dictionary."""
-    return {k: v for d in value for k, v in d.items()}
-
-
-def update_transformers(transformers: dict[str, Transformer]) -> None:
-    transformers.update({
-        "make_dict": make_dict,
-        "date": make_date,
-        "unescape": html.unescape,
-        "div60": lambda x: x // 60,
-        "credit_category": parse_credit_category,
-        "credit_job": parse_credit_job,
-        "credit_notes": parse_credit_notes,
-        "flatten_list_of_dicts": flatten_list_of_dicts,
-    })
+transformers: dict[str, Transformer] = {
+    "str": str,
+    "lower": str.lower,
+    "decimal": lambda x: Decimal(str(x)),
+    "make_dict": make_dict,
+    "date": make_date,
+    "unescape": html.unescape,
+    "div60": lambda x: x // 60,
+    "credit_category": parse_credit_category,
+    "credit_job": parse_credit_job,
+    "credit_notes": parse_credit_notes,
+}

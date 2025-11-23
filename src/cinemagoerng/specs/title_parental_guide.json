@@ -1,11 +1,11 @@
 {
-  "version": "20250528",
+  "version": "20251123",
   "url": "https://www.imdb.com/title/%(imdb_id)s/parentalguide/",
   "doctype": "html",
-  "path_type": "jmespath",
   "pre": [
     "parse_next_data"
   ],
+  "root": "props.pageProps.contentData",
   "rules": [
     {
       "key": "certification",
@@ -14,19 +14,19 @@
           {
             "key": "mpa_rating",
             "extractor": {
-              "path": "props.pageProps.contentData.entityMetadata.certificate.rating"
+              "path": "entityMetadata.certificate.rating"
             }
           },
           {
             "key": "mpa_rating_reason",
             "extractor": {
-              "path": "props.pageProps.contentData.contentRatingData.ratingReason"
+              "path": "contentRatingData.ratingReason"
             }
           },
           {
             "key": "certificates",
             "extractor": {
-              "foreach": "props.pageProps.contentData.certificates[*]",
+              "foreach": "certificates[*]",
               "rules": [
                 {
                   "key": "country",
@@ -48,26 +48,16 @@
     },
     {
       "key": "advisories",
-      "transforms": [
-        "flatten_list_of_dicts"
-      ],
       "extractor": {
-        "foreach": "props.pageProps.contentData.categories[*]",
-        "transforms": [
-          "make_dict"
-        ],
         "rules": [
           {
-            "key": "key",
-            "extractor": {
+            "foreach": "categories[*]",
+            "key": {
               "path": "id",
               "transforms": [
                 "lower"
               ]
-            }
-          },
-          {
-            "key": "value",
+            },
             "extractor": {
               "rules": [
                 {
@@ -98,26 +88,16 @@
                 },
                 {
                   "key": "votes",
-                  "transforms": [
-                    "flatten_list_of_dicts"
-                  ],
                   "extractor": {
-                    "foreach": "severityBreakdown[*]",
-                    "transforms": [
-                      "make_dict"
-                    ],
                     "rules": [
                       {
-                        "key": "key",
-                        "extractor": {
+                        "foreach": "severityBreakdown[*]",
+                        "key": {
                           "path": "text",
                           "transforms": [
                             "lower"
                           ]
-                        }
-                      },
-                      {
-                        "key": "value",
+                        },
                         "extractor": {
                           "path": "votes"
                         }
