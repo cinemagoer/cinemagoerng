@@ -1,6 +1,6 @@
 # CHANGES
 
-## 0.7 (unreleased)
+## 0.7 (2025-11-23)
 
 - Update to Piculet 2 (spec files edited for format changes).
 
