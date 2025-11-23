@@ -24,6 +24,7 @@ from urllib.error import HTTPError
 
 from cinemagoerng import web as imdb
 
+
 _INDENT = "  "
 _LINE_WIDTH = 72
 

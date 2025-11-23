@@ -18,6 +18,7 @@
 from types import MappingProxyType
 from typing import Mapping
 
+
 ARTICLES: Mapping[str, frozenset[str]] = MappingProxyType({
     "DE": frozenset({"das", "der", "die"}),
     "EN": frozenset({"a", "an", "the"}),

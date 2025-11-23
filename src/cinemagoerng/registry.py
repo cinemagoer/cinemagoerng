@@ -23,6 +23,7 @@ from typing import Any, NotRequired, TypedDict
 
 from .piculet import Node, Postprocessor, Preprocessor, Query, Transformer
 
+
 ########################################################################
 # PREPROCESSORS                                                        #
 ########################################################################

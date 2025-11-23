@@ -18,6 +18,7 @@
 from types import MappingProxyType
 from typing import Mapping
 
+
 COUNTRY_CODES: Mapping[str, str] = MappingProxyType({
     "AD": "Andorra",
     "AE": "United Arab Emirates",

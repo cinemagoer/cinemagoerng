@@ -34,6 +34,7 @@ import typedload
 from jmespath import compile as compile_jmespath
 from lxml.etree import XPath as compile_xpath
 
+
 deserialize = partial(typedload.load, pep563=True, basiccast=False)
 """Generate an object from a dictionary."""
 
