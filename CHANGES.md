@@ -1,5 +1,9 @@
 # CHANGES
 
+## 0.8 (unreleased)
+
+- Change license to GPL 3.0 only.
+
 ## 0.7 (2025-11-23)
 
 - Update to Piculet 2 (spec files edited for format changes).

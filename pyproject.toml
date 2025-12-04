@@ -7,8 +7,11 @@ readme = "README.md"
 authors = [
     {name = "H. Turgut Uyar", email = "uyar@tekir.org"},
 ]
-license = "LGPL-3.0-or-later"
-license-files = ["LICENSE.txt"]
+license = "GPL-3.0-only"
+license-files = [
+    "LICENSE.txt",
+    "LICENSE-piculet.txt",
+]
 
 keywords = [
     "imdb",
