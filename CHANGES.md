@@ -3,6 +3,7 @@
 ## 0.8 (unreleased)
 
 - Change license to GPL 3.0 only.
+- Move from GitHub to Codeberg.
 
 ## 0.7 (2025-11-23)
 
