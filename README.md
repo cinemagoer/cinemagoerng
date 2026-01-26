@@ -117,7 +117,7 @@ uv run pytest
 uv run mypy src tests
 
 # Check code style
-uv run ruff check --preview src tests
+uv run ruff check src tests
 
 # Test under all supported Python versions
 uv run tox

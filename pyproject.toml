@@ -43,22 +43,22 @@ classifiers = [
 requires-python = "~=3.11"
 dependencies = [
     "typedload~=2.39",
-    "lxml~=5.4.0",
-    "jmespath~=1.0.1",
+    "lxml~=5.4",
+    "jmespath~=1.1",
 ]
 
 [dependency-groups]
 test = [
-    "pytest>=9.0.1",
+    "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
 ]
 typing = [
-    "mypy>=1.18.2",
+    "mypy>=1.19.1",
     "lxml-stubs>=0.5.1",
-    "types-jmespath>=1.0.2.20250809",
+    "types-jmespath>=1.1.0.20260124",
 ]
 style = [
-    "ruff>=0.14.6",
+    "ruff>=0.14.14",
 ]
 dev = [
     {include-group = "test"},
@@ -78,9 +78,7 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 source_pkgs = ["cinemagoerng"]
-omit = [
-    "src/cinemagoerng/piculet.py",
-]
+omit = ["src/cinemagoerng/piculet.py"]
 
 [tool.coverage.report]
 show_missing = true
@@ -92,6 +90,7 @@ line-length = 79
 [tool.ruff.lint]
 select = ["A", "E", "F", "I", "T", "W"]
 ignore = ["E731"]
+preview = true
 
 [tool.ruff.lint.per-file-ignores]
 "cli.py" = ["T201"]
@@ -122,7 +121,7 @@ commands =
 
 [testenv:style]
 commands =
-    ruff check --preview src tests
+    ruff check src tests
 """
 
 [build-system]
