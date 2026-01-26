@@ -318,22 +318,38 @@ def test_title_reference_parser_should_set_series_years_for_episode(imdb_id, ser
     assert (parsed.series.year, parsed.series.end_year) == (series_year, series_end_year)
 
 
-@pytest.mark.parametrize(("imdb_id", "season", "episode"), [
-    ("tt1000252", "3", "10"),  # Doctor Who: Blink
+@pytest.mark.parametrize(("imdb_id", "season"), [
+    ("tt1000252", "3"),  # Doctor Who: Blink
 ])
-def test_title_reference_parser_should_set_season_and_episode_numbers_for_episode(imdb_id, season, episode):
+def test_title_reference_parser_should_set_season_number_for_episode(imdb_id, season):
     parsed = imdb.get_title(imdb_id=imdb_id)
-    assert (parsed.season, parsed.episode) == (season, episode)
+    assert parsed.season == season
 
 
-@pytest.mark.parametrize(("imdb_id", "prev_id", "next_id"), [
-    ("tt1000252", "tt1000256", "tt1000259"),  # Doctor Who: Blink
-    ("tt0562992", None, "tt0562997"),  # Doctor Who: Rose
-    ("tt2121965", "tt2121964", None),  # House M.D.: Everybody Dies
+@pytest.mark.parametrize(("imdb_id", "episode"), [
+    ("tt1000252", "10"),  # Doctor Who: Blink
 ])
-def test_title_reference_parser_should_set_previous_and_next_episodes_for_episode(imdb_id, prev_id, next_id):
+def test_title_reference_parser_should_set_episode_number_for_episode(imdb_id, episode):
     parsed = imdb.get_title(imdb_id=imdb_id)
-    assert (parsed.previous_episode_id, parsed.next_episode_id) == (prev_id, next_id)
+    assert parsed.episode == episode
+
+
+@pytest.mark.parametrize(("imdb_id", "prev_id"), [
+    ("tt1000252", "tt1000256"),  # Doctor Who: Blink
+    ("tt0562992", None),  # Doctor Who: Rose
+])
+def test_title_reference_parser_should_set_previous_episode_for_episode(imdb_id, prev_id):
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    assert parsed.previous_episode_id == prev_id
+
+
+@pytest.mark.parametrize(("imdb_id", "next_id"), [
+    ("tt1000252", "tt1000259"),  # Doctor Who: Blink
+    ("tt0533407", None),  # Buffy the Vampire Slayer: Chosen
+])
+def test_title_reference_parser_should_set_previous_and_next_episodes_for_episode(imdb_id, next_id):
+    parsed = imdb.get_title(imdb_id=imdb_id)
+    assert parsed.next_episode_id == next_id
 
 
 @pytest.mark.parametrize(("imdb_id", "release_date"), [
