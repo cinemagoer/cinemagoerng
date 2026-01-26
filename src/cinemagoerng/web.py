@@ -1,4 +1,4 @@
-# Copyright 2024-2025 H. Turgut Uyar <uyar@tekir.org>
+# Copyright 2024-2026 H. Turgut Uyar <uyar@tekir.org>
 #
 # This file is part of CinemagoerNG.
 #
@@ -15,11 +15,12 @@
 # along with CinemagoerNG.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import Any, Mapping, NotRequired, TypedDict
+from typing import Any, NotRequired, TypedDict
 from urllib.request import Request, urlopen
 
 from . import model, piculet, registry

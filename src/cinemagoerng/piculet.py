@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2025 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2014-2026 H. Turgut Uyar <uyar@tekir.org>
 #
 # Piculet is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -23,10 +23,10 @@ The documentation is available on: https://piculet.readthedocs.io/
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from functools import partial
-from typing import Any, Literal, Mapping, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 import lxml.etree
 import lxml.html

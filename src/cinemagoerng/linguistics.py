@@ -1,4 +1,4 @@
-# Copyright 2024-2025 H. Turgut Uyar <uyar@tekir.org>
+# Copyright 2024-2026 H. Turgut Uyar <uyar@tekir.org>
 #
 # This file is part of CinemagoerNG.
 #
@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with CinemagoerNG.  If not, see <https://www.gnu.org/licenses/>.
 
+from collections.abc import Mapping
 from types import MappingProxyType
-from typing import Mapping
 
 
 ARTICLES: Mapping[str, frozenset[str]] = MappingProxyType({
