@@ -1,4 +1,4 @@
-# Copyright 2024-2025 H. Turgut Uyar <uyar@tekir.org>
+# Copyright 2024-2026 H. Turgut Uyar <uyar@tekir.org>
 #
 # This file is part of CinemagoerNG.
 #
@@ -19,9 +19,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
-from typing import Any, Literal, TypeAlias
+from enum import StrEnum
+from functools import partial
+from typing import Any, Literal
 
 from . import linguistics, lookup
+
+
+norepr = partial(field, repr=False)
 
 
 @dataclass(kw_only=True)
@@ -126,65 +131,137 @@ class Advisories:
     frightening: Advisory = field(default_factory=Advisory)
 
 
+class TitleType(StrEnum):
+    MOVIE = "movie"
+    SHORT = "short"
+    VIDEO = "video"
+    MUSIC_VIDEO = "musicVideo"
+    TV_MOVIE = "tvMovie"
+    TV_SHORT = "tvShort"
+    TV_SERIES = "tvSeries"
+    TV_MINI_SERIES = "tvMiniSeries"
+    TV_EPISODE = "tvEpisode"
+    TV_SPECIAL = "tvSpecial"
+    VIDEO_GAME = "videoGame"
+
+
+SERIES_ATTRS = frozenset({
+    "end_year",
+    "seasons",
+    "episodes",
+    "creators",
+})
+
+EPISODE_ATTRS = frozenset({
+    "series",
+    "season",
+    "episode",
+    "previous_episode_id",
+    "next_episode_id",
+})
+
+UNSUPPORTED_ATTRS: dict[TitleType, frozenset[str]] = {
+    TitleType.MOVIE: SERIES_ATTRS | EPISODE_ATTRS,
+    TitleType.SHORT: SERIES_ATTRS | EPISODE_ATTRS,
+    TitleType.VIDEO: SERIES_ATTRS | EPISODE_ATTRS,
+    TitleType.MUSIC_VIDEO: SERIES_ATTRS | EPISODE_ATTRS,
+    TitleType.TV_MOVIE: SERIES_ATTRS | EPISODE_ATTRS,
+    TitleType.TV_SHORT: SERIES_ATTRS | EPISODE_ATTRS,
+    TitleType.TV_SERIES: EPISODE_ATTRS,
+    TitleType.TV_MINI_SERIES: EPISODE_ATTRS,
+    TitleType.TV_EPISODE: SERIES_ATTRS,
+    TitleType.TV_SPECIAL: SERIES_ATTRS | EPISODE_ATTRS,
+    TitleType.VIDEO_GAME: SERIES_ATTRS | EPISODE_ATTRS | {"runtime"},
+}
+
+
 @dataclass(kw_only=True)
-class _Title:
+class Title:
+    type_id: TitleType
     imdb_id: str
     title: str
 
-    primary_image: str | None = None
+    primary_image: str | None = norepr(default=None)
 
     year: int | None = None
     country_codes: list[str] = field(default_factory=list)
     language_codes: list[str] = field(default_factory=list)
-    runtime: int | None = None
+
+    runtime: int | None = norepr(default=None)
 
     genres: list[str] = field(default_factory=list)
-    taglines: list[str] = field(default_factory=list)
+    taglines: list[str] = norepr(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
-    plot_summaries: dict[str, list[str]] = field(default_factory=dict)
+    plot_summaries: dict[str, list[str]] = norepr(default_factory=dict)
 
     rating: Decimal | None = None
-    vote_count: int = 0
-    top_ranking: int | None = None
+    vote_count: int | None = None
+    top_ranking: int | None = norepr(default=None)
 
-    cast: list[CastCredit] = field(default_factory=list)
-    directors: list[CrewCredit] = field(default_factory=list)
-    writers: list[CrewCredit] = field(default_factory=list)
-    producers: list[CrewCredit] = field(default_factory=list)
-    composers: list[CrewCredit] = field(default_factory=list)
-    cinematographers: list[CrewCredit] = field(default_factory=list)
-    editors: list[CrewCredit] = field(default_factory=list)
-    casting_directors: list[CrewCredit] = field(default_factory=list)
-    production_designers: list[CrewCredit] = field(default_factory=list)
-    art_directors: list[CrewCredit] = field(default_factory=list)
-    set_decorators: list[CrewCredit] = field(default_factory=list)
-    costume_designers: list[CrewCredit] = field(default_factory=list)
-    makeup_department: list[CrewCredit] = field(default_factory=list)
-    production_management: list[CrewCredit] = field(default_factory=list)
-    assistant_directors: list[CrewCredit] = field(default_factory=list)
-    art_department: list[CrewCredit] = field(default_factory=list)
-    sound_department: list[CrewCredit] = field(default_factory=list)
-    special_effects: list[CrewCredit] = field(default_factory=list)
-    visual_effects: list[CrewCredit] = field(default_factory=list)
-    stunts: list[CrewCredit] = field(default_factory=list)
-    choreographers: list[CrewCredit] = field(default_factory=list)
-    animation_department: list[CrewCredit] = field(default_factory=list)
-    camera_department: list[CrewCredit] = field(default_factory=list)
-    casting_department: list[CrewCredit] = field(default_factory=list)
-    costume_department: list[CrewCredit] = field(default_factory=list)
-    editorial_department: list[CrewCredit] = field(default_factory=list)
-    location_management: list[CrewCredit] = field(default_factory=list)
-    music_department: list[CrewCredit] = field(default_factory=list)
-    production_department: list[CrewCredit] = field(default_factory=list)
-    script_department: list[CrewCredit] = field(default_factory=list)
-    transportation_department: list[CrewCredit] = field(default_factory=list)
-    additional_crew: list[CrewCredit] = field(default_factory=list)
-    thanks: list[CrewCredit] = field(default_factory=list)
+    # for TV series
+    end_year: int | None = norepr(default=None)
+    seasons: list[str] | None = norepr(default=None)
+    episodes: dict[str, dict[str, Title]] | None = norepr(default=None)
+    creators: list[CrewCredit] | None = norepr(default=None)
 
-    akas: list[AKA] = field(default_factory=list)
+    # for TV episodes
+    series: Title | None = norepr(default=None)
+    season: str | None = norepr(default=None)
+    episode: str | None = norepr(default=None)
+    release_date: date | None = norepr(default=None)
+    previous_episode_id: str | None = norepr(default=None)
+    next_episode_id: str | None = norepr(default=None)
 
-    certification: Certification | None = None
-    advisories: Advisories | None = None
+    cast: list[CastCredit] = norepr(default_factory=list)
+    directors: list[CrewCredit] = norepr(default_factory=list)
+    writers: list[CrewCredit] = norepr(default_factory=list)
+    producers: list[CrewCredit] = norepr(default_factory=list)
+    composers: list[CrewCredit] = norepr(default_factory=list)
+    cinematographers: list[CrewCredit] = norepr(default_factory=list)
+    editors: list[CrewCredit] = norepr(default_factory=list)
+    casting_directors: list[CrewCredit] = norepr(default_factory=list)
+    production_designers: list[CrewCredit] = norepr(default_factory=list)
+    art_directors: list[CrewCredit] = norepr(default_factory=list)
+    set_decorators: list[CrewCredit] = norepr(default_factory=list)
+    costume_designers: list[CrewCredit] = norepr(default_factory=list)
+    makeup_department: list[CrewCredit] = norepr(default_factory=list)
+    production_management: list[CrewCredit] = norepr(default_factory=list)
+    assistant_directors: list[CrewCredit] = norepr(default_factory=list)
+    art_department: list[CrewCredit] = norepr(default_factory=list)
+    sound_department: list[CrewCredit] = norepr(default_factory=list)
+    special_effects: list[CrewCredit] = norepr(default_factory=list)
+    visual_effects: list[CrewCredit] = norepr(default_factory=list)
+    stunts: list[CrewCredit] = norepr(default_factory=list)
+    choreographers: list[CrewCredit] = norepr(default_factory=list)
+    animation_department: list[CrewCredit] = norepr(default_factory=list)
+    camera_department: list[CrewCredit] = norepr(default_factory=list)
+    casting_department: list[CrewCredit] = norepr(default_factory=list)
+    costume_department: list[CrewCredit] = norepr(default_factory=list)
+    editorial_department: list[CrewCredit] = norepr(default_factory=list)
+    location_management: list[CrewCredit] = norepr(default_factory=list)
+    music_department: list[CrewCredit] = norepr(default_factory=list)
+    production_department: list[CrewCredit] = norepr(default_factory=list)
+    script_department: list[CrewCredit] = norepr(default_factory=list)
+    transportation_department: list[CrewCredit] = norepr(default_factory=list)
+    additional_crew: list[CrewCredit] = norepr(default_factory=list)
+    thanks: list[CrewCredit] = norepr(default_factory=list)
+
+    akas: list[AKA] = norepr(default_factory=list)
+
+    certification: Certification | None = norepr(default=None)
+    advisories: Advisories | None = norepr(default=None)
+
+    def __post_init__(self) -> None:
+        type_id = super().__getattribute__("type_id")
+        for attr in UNSUPPORTED_ATTRS[type_id]:
+            if super().__getattribute__(attr) is not None:
+                raise TypeError(f"'{type_id}' takes no argument '{attr}'")
+
+    def __getattribute__(self, name: str, /) -> Any:
+        type_id = super().__getattribute__("type_id")
+        if name in UNSUPPORTED_ATTRS[type_id]:
+            raise AttributeError(f"'{type_id}' has no attribute '{name}'")
+        return super().__getattribute__(name) if name != "type_id" else type_id
 
     @property
     def countries(self) -> list[str]:
@@ -209,90 +286,5 @@ class _Title:
         return self.title
 
 
-@dataclass(kw_only=True)
-class Movie(_Title):
-    type_id: Literal["movie"] = "movie"
-
-
-@dataclass(kw_only=True)
-class TVMovie(_Title):
-    type_id: Literal["tvMovie"] = "tvMovie"
-
-
-@dataclass(kw_only=True)
-class ShortMovie(_Title):
-    type_id: Literal["short"] = "short"
-
-
-@dataclass(kw_only=True)
-class TVShortMovie(_Title):
-    type_id: Literal["tvShort"] = "tvShort"
-
-
-@dataclass(kw_only=True)
-class VideoMovie(_Title):
-    type_id: Literal["video"] = "video"
-
-
-@dataclass(kw_only=True)
-class MusicVideo(_Title):
-    type_id: Literal["musicVideo"] = "musicVideo"
-
-
-@dataclass(kw_only=True)
-class VideoGame(_Title):
-    type_id: Literal["videoGame"] = "videoGame"
-
-    def __getattribute__(self, name: str, /) -> Any:
-        if name == "runtime":
-            raise AttributeError("'VideoGame' object has no attribute 'runtime'")
-        return super().__getattribute__(name)
-
-
-@dataclass(kw_only=True)
-class TVEpisode(_Title):
-    type_id: Literal["tvEpisode"] = "tvEpisode"
-    series: TVSeries | TVMiniSeries
-    season: str
-    episode: str
-    release_date: date | None = None
-    previous_episode_id: str | None = None
-    next_episode_id: str | None = None
-
-
-@dataclass(kw_only=True)
-class _TVSeries(_Title):
-    end_year: int | None = None
-    seasons: list[str] = field(default_factory=list)
-    episodes: dict[str, dict[str, TVEpisode]] = field(default_factory=dict)
-    creators: list[CrewCredit] = field(default_factory=list)
-
-
-@dataclass(kw_only=True)
-class TVSeries(_TVSeries):
-    type_id: Literal["tvSeries"] = "tvSeries"
-
-
-@dataclass(kw_only=True)
-class TVMiniSeries(_TVSeries):
-    type_id: Literal["tvMiniSeries"] = "tvMiniSeries"
-
-
-@dataclass(kw_only=True)
-class TVSpecial(_Title):
-    type_id: Literal["tvSpecial"] = "tvSpecial"
-
-
-Title: TypeAlias = (
-    Movie
-    | TVMovie
-    | ShortMovie
-    | TVShortMovie
-    | VideoMovie
-    | MusicVideo
-    | VideoGame
-    | TVSeries
-    | TVMiniSeries
-    | TVEpisode
-    | TVSpecial
-)
+def Movie(*args: Any, **kwargs: Any) -> Title:
+    return Title(type_id=TitleType.MOVIE, *args, **kwargs)

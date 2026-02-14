@@ -58,7 +58,7 @@ class GraphQLParams(TypedDict):
 
 deserialize: partial[Any] = partial(
     piculet.deserialize,
-    strconstructed={Decimal}
+    strconstructed={Decimal},
 )
 
 
@@ -102,10 +102,10 @@ def _get_url(spec: Spec, context: Mapping[str, Any]) -> str:
 
 
 def _scrape(
-        spec: Spec,
-        *,
-        context: Mapping[str, Any],
-        headers: dict[str, str] | None = None,
+    spec: Spec,
+    *,
+    context: Mapping[str, Any],
+    headers: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     url = _get_url(spec, context=context)
     request_headers = headers if headers is not None else {}
@@ -116,9 +116,9 @@ def _scrape(
 
 
 def get_title(
-        imdb_id: str,
-        *,
-        headers: dict[str, str] | None = None,
+    imdb_id: str,
+    *,
+    headers: dict[str, str] | None = None,
 ) -> model.Title:
     spec = _spec("title_reference")
     context = {"imdb_id": imdb_id}
@@ -127,9 +127,9 @@ def get_title(
 
 
 def set_taglines(
-        title: model.Title,
-        *,
-        headers: dict[str, str] | None = None,
+    title: model.Title,
+    *,
+    headers: dict[str, str] | None = None,
 ) -> None:
     spec = _spec("title_taglines")
     context = {"imdb_id": title.imdb_id}
@@ -140,10 +140,10 @@ def set_taglines(
 
 
 def set_akas(
-        title: model.Title,
-        *,
-        spec: Spec | None = None,
-        headers: dict[str, str] | None = None,
+    title: model.Title,
+    *,
+    spec: Spec | None = None,
+    headers: dict[str, str] | None = None,
 ) -> None:
     if spec is None:
         spec = _spec("title_akas")
@@ -160,9 +160,9 @@ def set_akas(
 
 
 def set_parental_guide(
-        title: model.Title,
-        *,
-        headers: dict[str, str] | None = None,
+    title: model.Title,
+    *,
+    headers: dict[str, str] | None = None,
 ) -> None:
     spec = _spec("title_parental_guide")
     context = {"imdb_id": title.imdb_id}
@@ -175,17 +175,19 @@ def set_parental_guide(
 
 
 def set_episodes(
-        title: model.TVSeries | model.TVMiniSeries,
-        *,
-        season: str,
-        headers: dict[str, str] | None = None,
+    title: model.Title,
+    *,
+    season: str,
+    headers: dict[str, str] | None = None,
 ) -> None:
     spec = _spec("title_episodes")
     context = {"imdb_id": title.imdb_id, "season": season}
     data = _scrape(spec=spec, context=context, headers=headers)
     episodes = data.get("episodes")
     if episodes is not None:
+        if title.episodes is None:
+            title.episodes = {}
         title.episodes[season] = deserialize(
             episodes,
-            dict[str, model.TVEpisode],
+            dict[str, model.Title],
         )
