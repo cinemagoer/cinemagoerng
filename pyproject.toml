@@ -42,7 +42,7 @@ classifiers = [
 
 requires-python = "~=3.11"
 dependencies = [
-    "typedload~=2.39",
+    "typedload~=2.40",
     "lxml~=5.4",
     "jmespath~=1.1",
 ]
@@ -58,7 +58,7 @@ typing = [
     "types-jmespath>=1.1.0.20260124",
 ]
 style = [
-    "ruff>=0.14.14",
+    "ruff>=0.15.1",
 ]
 dev = [
     {include-group = "test"},
