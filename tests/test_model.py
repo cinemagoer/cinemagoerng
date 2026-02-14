@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng.model import AKA, CrewCredit, Movie, Person
+from cinemagoerng.model import AKA, CrewCredit, Movie, Person, VideoGame
 
 
 @pytest.mark.parametrize(("imdb_id", "title", "country_codes", "countries"), [
@@ -34,6 +34,14 @@ def test_title_languages_should_return_language_names(imdb_id, title, language_c
 def test_title_sort_title_should_strip_article(imdb_id, title, language_codes, sort_title):
     movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.sort_title == sort_title
+
+
+@pytest.mark.parametrize(("imdb_id", "title"), [
+    ("tt0390244", "The Matrix Online"),
+])
+def test_videogame_should_not_have_runtime(imdb_id, title):
+    title = VideoGame(imdb_id=imdb_id, title=title)
+    assert not hasattr(title, "runtime")
 
 
 @pytest.mark.parametrize(("title", "country_code", "country"), [

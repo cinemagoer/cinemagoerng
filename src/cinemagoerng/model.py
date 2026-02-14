@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 from . import linguistics, lookup
 
@@ -136,6 +136,8 @@ class _Title:
     year: int | None = None
     country_codes: list[str] = field(default_factory=list)
     language_codes: list[str] = field(default_factory=list)
+    runtime: int | None = None
+
     genres: list[str] = field(default_factory=list)
     taglines: list[str] = field(default_factory=list)
     plot: dict[str, str] = field(default_factory=dict)
@@ -208,37 +210,32 @@ class _Title:
 
 
 @dataclass(kw_only=True)
-class _TimedTitle(_Title):
-    runtime: int | None = None
-
-
-@dataclass(kw_only=True)
-class Movie(_TimedTitle):
+class Movie(_Title):
     type_id: Literal["movie"] = "movie"
 
 
 @dataclass(kw_only=True)
-class TVMovie(_TimedTitle):
+class TVMovie(_Title):
     type_id: Literal["tvMovie"] = "tvMovie"
 
 
 @dataclass(kw_only=True)
-class ShortMovie(_TimedTitle):
+class ShortMovie(_Title):
     type_id: Literal["short"] = "short"
 
 
 @dataclass(kw_only=True)
-class TVShortMovie(_TimedTitle):
+class TVShortMovie(_Title):
     type_id: Literal["tvShort"] = "tvShort"
 
 
 @dataclass(kw_only=True)
-class VideoMovie(_TimedTitle):
+class VideoMovie(_Title):
     type_id: Literal["video"] = "video"
 
 
 @dataclass(kw_only=True)
-class MusicVideo(_TimedTitle):
+class MusicVideo(_Title):
     type_id: Literal["musicVideo"] = "musicVideo"
 
 
@@ -246,9 +243,14 @@ class MusicVideo(_TimedTitle):
 class VideoGame(_Title):
     type_id: Literal["videoGame"] = "videoGame"
 
+    def __getattribute__(self, name: str, /) -> Any:
+        if name == "runtime":
+            raise AttributeError("'VideoGame' object has no attribute 'runtime'")
+        return super().__getattribute__(name)
+
 
 @dataclass(kw_only=True)
-class TVEpisode(_TimedTitle):
+class TVEpisode(_Title):
     type_id: Literal["tvEpisode"] = "tvEpisode"
     series: TVSeries | TVMiniSeries
     season: str
@@ -259,7 +261,7 @@ class TVEpisode(_TimedTitle):
 
 
 @dataclass(kw_only=True)
-class _TVSeries(_TimedTitle):
+class _TVSeries(_Title):
     end_year: int | None = None
     seasons: list[str] = field(default_factory=list)
     episodes: dict[str, dict[str, TVEpisode]] = field(default_factory=dict)
@@ -277,7 +279,7 @@ class TVMiniSeries(_TVSeries):
 
 
 @dataclass(kw_only=True)
-class TVSpecial(_TimedTitle):
+class TVSpecial(_Title):
     type_id: Literal["tvSpecial"] = "tvSpecial"
 
 
