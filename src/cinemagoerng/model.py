@@ -291,5 +291,5 @@ class Title:
         return self.title
 
 
-def Movie(*args: Any, **kwargs: Any) -> Title:
+def make_movie(*args: Any, **kwargs: Any) -> Title:
     return Title(type_id=TitleType.MOVIE, *args, **kwargs)

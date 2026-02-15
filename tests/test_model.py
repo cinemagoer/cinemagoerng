@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng.model import AKA, CrewCredit, Movie, Person, Title, TitleType
+from cinemagoerng.model import AKA, CrewCredit, Person, Title, TitleType, make_movie
 
 
 @pytest.mark.parametrize(("imdb_id", "title", "type_id", "attr", "value"), [
@@ -61,7 +61,7 @@ def test_title_should_not_have_unsupported_attribute(imdb_id, title, type_id, at
     ("tt0389150", "The Matrix Defence", ["GB"], ["United Kingdom"]),
 ])
 def test_title_countries_should_return_country_names(imdb_id, title, country_codes, countries):
-    movie = Movie(imdb_id=imdb_id, title=title, country_codes=country_codes)
+    movie = make_movie(imdb_id=imdb_id, title=title, country_codes=country_codes)
     assert movie.countries == countries
 
 
@@ -71,7 +71,7 @@ def test_title_countries_should_return_country_names(imdb_id, title, country_cod
     ("tt2971344", "Matrix: First Dream", ["zxx"], ["None"]),
 ])
 def test_title_languages_should_return_language_names(imdb_id, title, language_codes, languages):
-    movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
+    movie = make_movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.languages == languages
 
 
@@ -85,7 +85,7 @@ def test_title_languages_should_return_language_names(imdb_id, title, language_c
     ("tt10277922", "The", ["en"], "The"),
 ])
 def test_title_sort_title_should_strip_article(imdb_id, title, language_codes, sort_title):
-    movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
+    movie = make_movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.sort_title == sort_title
 
 
