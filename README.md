@@ -125,8 +125,7 @@ uv run tox
 
 ## License
 
-This project is licensed under the
-GNU Lesser General Public License v3 or later - see the
+This project is licensed under the GNU General Public License v3 - see the
 [`LICENSE.txt`](LICENSE.txt) file for details.
 
 ## Acknowledgments

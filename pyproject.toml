@@ -1,6 +1,6 @@
 [project]
 name = "cinemagoerng"
-version = "0.7"
+version = "0.8a1"
 description = "Retrieve data from the IMDb."
 readme = "README.md"
 

@@ -4,6 +4,7 @@
 
 - Change license to GPL 3.0 only.
 - Move from GitHub to Codeberg.
+- Unify different title classes into one.
 
 ## 0.7 (2025-11-23)
 
