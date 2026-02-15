@@ -184,6 +184,7 @@ class Title:
     primary_image: str | None = norepr(default=None)
 
     year: int | None = None
+    release_date: date | None = norepr(default=None)
     country_codes: list[str] = field(default_factory=list)
     language_codes: list[str] = field(default_factory=list)
 
@@ -208,7 +209,6 @@ class Title:
     series: Title | None = norepr(default=None)
     season: str | None = norepr(default=None)
     episode: str | None = norepr(default=None)
-    release_date: date | None = norepr(default=None)
     previous_episode_id: str | None = norepr(default=None)
     next_episode_id: str | None = norepr(default=None)
 

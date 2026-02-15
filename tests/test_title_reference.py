@@ -81,6 +81,15 @@ def test_title_reference_parser_should_set_series_end_year(imdb_id, end_year):
     assert parsed.end_year == end_year
 
 
+@pytest.mark.parametrize(("imdb_id", "release_date"), [
+    ("tt0133093", date(1999, 9, 3)),  # The Matrix
+    ("tt1000252", date(2007, 6, 9)),  # Doctor Who: Blink
+])
+def test_title_reference_parser_should_set_release_date(imdb_id, release_date):
+    parsed = get_title(imdb_id=imdb_id)
+    assert parsed.release_date == release_date
+
+
 @pytest.mark.parametrize(("imdb_id", "country_codes"), [
     ("tt0133093", ["US", "AU"]),  # The Matrix
     ("tt0389150", ["GB"]),  # The Matrix Defence
@@ -348,14 +357,6 @@ def test_title_reference_parser_should_set_previous_episode_for_episode(imdb_id,
 def test_title_reference_parser_should_set_previous_and_next_episodes_for_episode(imdb_id, next_id):
     parsed = get_title(imdb_id=imdb_id)
     assert parsed.next_episode_id == next_id
-
-
-@pytest.mark.parametrize(("imdb_id", "release_date"), [
-    ("tt1000252", date(2007, 6, 9)),  # Doctor Who: Blink
-])
-def test_title_reference_parser_should_set_release_date_for_episode(imdb_id, release_date):
-    parsed = get_title(imdb_id=imdb_id)
-    assert parsed.release_date == release_date
 
 
 @pytest.mark.skip(reason="series reference page parser not done yet")
