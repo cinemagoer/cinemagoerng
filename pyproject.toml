@@ -40,7 +40,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-requires-python = "~=3.11"
+requires-python = ">=3.11"
 dependencies = [
     "typedload~=2.40",
     "lxml~=5.4",
