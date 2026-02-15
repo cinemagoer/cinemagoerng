@@ -61,7 +61,7 @@ Transformer: TypeAlias = Callable[[Any], Any]
 class Query:
     """A query based on XPath or JMESPath.
 
-    Expressions starting with ``/`` or ``./`` are assumed to be XPath.
+    Expressions starting with ``/`` or ``./`` are assumed to be XPath,
     and others are assumed to be JMESPath.
     """
 
@@ -248,11 +248,11 @@ class Spec(Collector):
         return data
 
     def scrape(
-            self,
-            document: str | Node,
-            *,
-            doctype: DocType,
-        ) -> dict[str, Any]:
+        self,
+        document: str | Node,
+        *,
+        doctype: DocType,
+    ) -> dict[str, Any]:
         """Scrape a document."""
         root = document if not isinstance(document, str) else \
             build_tree(document, doctype=doctype)
@@ -268,12 +268,12 @@ def build_tree(document: str, doctype: DocType) -> Node:
 
 
 def load_spec(
-        content: Mapping[str, Any],
-        *,
-        type_: type = Spec,
-        transformers: Mapping[str, Transformer] | None = None,
-        preprocessors: Mapping[str, Preprocessor] | None = None,
-        postprocessors: Mapping[str, Postprocessor] | None = None,
+    content: Mapping[str, Any],
+    *,
+    type_: type = Spec,
+    transformers: Mapping[str, Transformer] | None = None,
+    preprocessors: Mapping[str, Preprocessor] | None = None,
+    postprocessors: Mapping[str, Postprocessor] | None = None,
 ) -> Spec:
     """Deserialize a mapping into a scraping specification."""
     spec: Spec = deserialize(
