@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import KW_ONLY, dataclass, field
 from datetime import date
 from decimal import Decimal
 from enum import StrEnum
@@ -29,7 +29,7 @@ from . import linguistics, lookup
 norepr = partial(field, repr=False)
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Person:
     imdb_id: str
     name: str
@@ -38,6 +38,7 @@ class Person:
 @dataclass
 class _Credit:
     person: Person
+    _: KW_ONLY
     notes: list[str] = field(default_factory=list)
 
     @property
@@ -58,19 +59,22 @@ class _Credit:
         return "uncredited" in self.notes
 
 
-@dataclass(kw_only=True)
+@dataclass
 class CrewCredit(_Credit):
+    _: KW_ONLY
     job: str | None = None
 
 
-@dataclass(kw_only=True)
+@dataclass
 class CastCredit(_Credit):
+    _: KW_ONLY
     characters: list[str] = field(default_factory=list)
 
 
 @dataclass
 class AKA:
     title: str
+    _: KW_ONLY
     country_code: str | None = None
     language_code: str | None = None
     notes: list[str] = field(default_factory=list)
@@ -175,11 +179,12 @@ UNSUPPORTED_ATTRS: dict[TitleType, frozenset[str]] = {
 }
 
 
-@dataclass(kw_only=True)
+@dataclass
 class Title:
-    type_id: TitleType
     imdb_id: str
     title: str
+    _: KW_ONLY
+    type_id: TitleType
 
     primary_image: str | None = norepr(default=None)
 
