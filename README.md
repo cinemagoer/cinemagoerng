@@ -86,9 +86,8 @@ CinemagoerNG can retrieve various types of information:
 
 - Directors
 - Writers
-- Cast members
 - Producers
-- Composers
+- Cast members
 - Crew members
 
 ### Additional details
