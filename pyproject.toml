@@ -68,7 +68,7 @@ dev = [
 ]
 
 [project.urls]
-repository = "https://codeberg.org/cinemagoer/cinemagoerng"
+repository = "https://github.com/cinemagoer/cinemagoerng"
 
 [project.scripts]
 cinemagoerng = "cinemagoerng:cli.main"

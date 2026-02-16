@@ -104,7 +104,7 @@ It is recommended to use `uv` for development:
 
 ```bash
 # Clone the repository
-git clone https://codeberg.org/cinemagoer/cinemagoerng.git
+git clone https://github.com/cinemagoer/cinemagoerng.git
 cd cinemagoerng
 
 # Set up environment

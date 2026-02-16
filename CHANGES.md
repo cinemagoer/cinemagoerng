@@ -5,7 +5,6 @@
 - Unify different title classes into one.
 - Move crew departments to the crew attribute with string keys.
 - Change license to GPL 3.0 only.
-- Move from GitHub to Codeberg.
 
 ## 0.7 (2025-11-23)
 
