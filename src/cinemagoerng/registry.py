@@ -18,7 +18,7 @@ import html
 import json
 import re
 from decimal import Decimal
-from typing import Any, NotRequired, TypedDict
+from typing import Any, TypedDict
 
 from .piculet import Node, Postprocessor, Preprocessor, Query, Transformer
 
@@ -41,6 +41,26 @@ preprocessors: dict[str, Preprocessor] = {
 ########################################################################
 # POSTPROCESSORS                                                       #
 ########################################################################
+
+
+def build_crew(data: dict[str, Any]) -> dict[str, Any]:
+    crew = {k[5:]: v for k, v in data.items() if k.startswith("crew.")}
+    for key in crew:
+        del data[f"crew.{key}"]
+    data["crew"] = crew
+    return data
+
+
+def adjust_credits(data: dict[str, Any]) -> dict[str, Any]:
+    for item in data.get("cast", []):
+        del item["job"]
+    for key in {"directors", "writers", "producers", "thanks"}:
+        for item in data.get(key, []):
+            del item["characters"]
+    for value in data["crew"].values():
+        for item in value:
+            del item["characters"]
+    return data
 
 
 def set_episodes_series(data: dict[str, Any]) -> dict[str, Any]:
@@ -69,6 +89,8 @@ def build_episode_map(data: dict[str, Any]) -> dict[str, Any]:
 
 
 postprocessors: dict[str, Postprocessor] = {
+    "build_crew": build_crew,
+    "adjust_credits": adjust_credits,
     "set_episodes_series": set_episodes_series,
     "set_episodes_plot_languages": set_episodes_plot_languages,
     "build_episode_map": build_episode_map,
@@ -110,34 +132,25 @@ def make_date(value: DateDict) -> str | None:
 _CREDIT_CATEGORIES = {
     "director": "directors",
     "writer": "writers",
-    "composer": "composers",
-    "cinematographer": "cinematographers",
-    "editor": "editors",
-    "casting director": "casting_directors",
-    "production designer": "production_designers",
-    "art director": "art_directors",
-    "set decorator": "set_decorators",
-    "costume designer": "costume_designers",
-    "second unit directors or assistant directors": "assistant_directors",
-    "choreographer": "choreographers",
-    "camera and electrical department": "camera_department",
-    "costume and wardrobe department": "costume_department",
-    "script and continuity department": "script_department",
-    "miscellaneous": "additional_crew",
+    "producer": "producers",
+    # "composer": "composers",
+    # "cinematographer": "cinematographers",
+    # "editor": "editors",
+    # "casting director": "casting_directors",
+    # "production designer": "production_designers",
+    # "art director": "art_directors",
+    # "set decorator": "set_decorators",
+    # "costume designer": "costume_designers",
+    # "choreographer": "choreographers",
 }
 
 
 def parse_credit_category(value: str) -> str:
     value = value.lower()
-    return _CREDIT_CATEGORIES.get(value, value.replace(" ", "_"))
-
-
-_re_parenthesized = re.compile(r"""\(([^)]*)\)*""")
-
-
-class CreditAttributes(TypedDict):
-    job: NotRequired[str]
-    notes: list[str]
+    category = _CREDIT_CATEGORIES.get(value, value.replace(" ", "_"))
+    if category in {"cast", "directors", "writers", "producers", "thanks"}:
+        return category
+    return f"crew.{category}"
 
 
 def parse_credit_job(value: str) -> str | None:
@@ -146,6 +159,9 @@ def parse_credit_job(value: str) -> str | None:
     parenthesis = value.find("(")
     job = value if parenthesis < 0 else value[:parenthesis].strip()
     return job if len(job) > 0 else None
+
+
+_re_parenthesized = re.compile(r"""\(([^)]*)\)*""")
 
 
 def parse_credit_notes(value: str) -> list[str]:

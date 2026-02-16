@@ -387,7 +387,7 @@ def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, c
 ])
 def test_title_reference_parser_should_set_all_crew_members(imdb_id, n, crew):
     parsed = get_title(imdb_id=imdb_id)
-    parsed_crew = parsed.costume_department
+    parsed_crew = parsed.crew["costume_and_wardrobe_department"]
     assert len(parsed_crew) == n
     if len(crew) > 0:
         assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed_crew] == crew

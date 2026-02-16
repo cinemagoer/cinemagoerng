@@ -149,20 +149,22 @@ class TitleType(StrEnum):
     VIDEO_GAME = "videoGame"
 
 
-SERIES_ATTRS = frozenset({
+SERIES_ATTRS: frozenset[str] = frozenset({
     "end_year",
     "seasons",
     "episodes",
     "creators",
 })
 
-EPISODE_ATTRS = frozenset({
+
+EPISODE_ATTRS: frozenset[str] = frozenset({
     "series",
     "season",
     "episode",
     "previous_episode_id",
     "next_episode_id",
 })
+
 
 UNSUPPORTED_ATTRS: dict[TitleType, frozenset[str]] = {
     TitleType.MOVIE: SERIES_ATTRS | EPISODE_ATTRS,
@@ -221,34 +223,7 @@ class Title:
     directors: list[CrewCredit] = norepr(default_factory=list)
     writers: list[CrewCredit] = norepr(default_factory=list)
     producers: list[CrewCredit] = norepr(default_factory=list)
-    composers: list[CrewCredit] = norepr(default_factory=list)
-    cinematographers: list[CrewCredit] = norepr(default_factory=list)
-    editors: list[CrewCredit] = norepr(default_factory=list)
-    casting_directors: list[CrewCredit] = norepr(default_factory=list)
-    production_designers: list[CrewCredit] = norepr(default_factory=list)
-    art_directors: list[CrewCredit] = norepr(default_factory=list)
-    set_decorators: list[CrewCredit] = norepr(default_factory=list)
-    costume_designers: list[CrewCredit] = norepr(default_factory=list)
-    makeup_department: list[CrewCredit] = norepr(default_factory=list)
-    production_management: list[CrewCredit] = norepr(default_factory=list)
-    assistant_directors: list[CrewCredit] = norepr(default_factory=list)
-    art_department: list[CrewCredit] = norepr(default_factory=list)
-    sound_department: list[CrewCredit] = norepr(default_factory=list)
-    special_effects: list[CrewCredit] = norepr(default_factory=list)
-    visual_effects: list[CrewCredit] = norepr(default_factory=list)
-    stunts: list[CrewCredit] = norepr(default_factory=list)
-    choreographers: list[CrewCredit] = norepr(default_factory=list)
-    animation_department: list[CrewCredit] = norepr(default_factory=list)
-    camera_department: list[CrewCredit] = norepr(default_factory=list)
-    casting_department: list[CrewCredit] = norepr(default_factory=list)
-    costume_department: list[CrewCredit] = norepr(default_factory=list)
-    editorial_department: list[CrewCredit] = norepr(default_factory=list)
-    location_management: list[CrewCredit] = norepr(default_factory=list)
-    music_department: list[CrewCredit] = norepr(default_factory=list)
-    production_department: list[CrewCredit] = norepr(default_factory=list)
-    script_department: list[CrewCredit] = norepr(default_factory=list)
-    transportation_department: list[CrewCredit] = norepr(default_factory=list)
-    additional_crew: list[CrewCredit] = norepr(default_factory=list)
+    crew: dict[str, list[CrewCredit]] = norepr(default_factory=dict)
     thanks: list[CrewCredit] = norepr(default_factory=list)
 
     akas: list[AKA] = norepr(default_factory=list)

@@ -59,6 +59,7 @@ class GraphQLParams(TypedDict):
 deserialize: partial[Any] = partial(
     piculet.deserialize,
     strconstructed={Decimal},
+    failonextra=True,
 )
 
 

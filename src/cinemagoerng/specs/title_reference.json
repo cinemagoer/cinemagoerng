@@ -1,5 +1,5 @@
 {
-  "version": "20251123",
+  "version": "20260216",
   "url": "https://www.imdb.com/title/%(imdb_id)s/reference/",
   "doctype": "html",
   "pre": [
@@ -308,5 +308,9 @@
         "path": "mainColumnData.series.nextEpisode.id"
       }
     }
+  ],
+  "post": [
+    "build_crew",
+    "adjust_credits"
   ]
 }
