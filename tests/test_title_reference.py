@@ -3,6 +3,7 @@ import pytest
 from datetime import date
 from decimal import Decimal
 
+from cinemagoerng import model
 from cinemagoerng.web import get_title
 
 
@@ -14,18 +15,36 @@ def test_title_reference_parser_should_set_imdb_id(imdb_id):
     assert parsed.imdb_id == imdb_id
 
 
+@pytest.mark.parametrize(("imdb_id", "class_"), [
+    ("tt0133093", model.Movie),  # The Matrix
+    ("tt2971344", model.ShortMovie),  # Matrix: First Dream
+    ("tt0109151", model.Video),  # Armitage III: Poly-Matrix
+    ("tt0389150", model.TVMovie),  # The Matrix Defence
+    ("tt0365467", model.TVShortMovie),  # Making 'The Matrix'
+    ("tt0436992", model.TVSeries),  # Doctor Who
+    ("tt0185906", model.TVMiniSeries),  # Band of Brothers
+    ("tt1000252", model.TVEpisode),  # Blink
+    ("tt0261024", model.TVSpecial),  # Live Aid
+    ("tt7045440", model.MusicVideo),  # David Bowie: Ziggy Stardust
+    ("tt0390244", model.VideoGame),  # The Matrix Online
+])
+def test_title_reference_parser_should_instantiate_correct_title(imdb_id, class_):
+    parsed = get_title(imdb_id=imdb_id)
+    assert isinstance(parsed, class_)
+
+
 @pytest.mark.parametrize(("imdb_id", "type_id"), [
     ("tt0133093", "movie"),  # The Matrix
-    ("tt0389150", "tvMovie"),  # The Matrix Defence
     ("tt2971344", "short"),  # Matrix: First Dream
-    ("tt0365467", "tvShort"),  # Making 'The Matrix'
     ("tt0109151", "video"),  # Armitage III: Poly-Matrix
-    ("tt7045440", "musicVideo"),  # David Bowie: Ziggy Stardust
-    ("tt0390244", "videoGame"),  # The Matrix Online
+    ("tt0389150", "tvMovie"),  # The Matrix Defence
+    ("tt0365467", "tvShort"),  # Making 'The Matrix'
     ("tt0436992", "tvSeries"),  # Doctor Who
     ("tt0185906", "tvMiniSeries"),  # Band of Brothers
     ("tt1000252", "tvEpisode"),  # Blink
     ("tt0261024", "tvSpecial"),  # Live Aid
+    ("tt7045440", "musicVideo"),  # David Bowie: Ziggy Stardust
+    ("tt0390244", "videoGame"),  # The Matrix Online
 ])
 def test_title_reference_parser_should_set_correct_kind(imdb_id, type_id):
     parsed = get_title(imdb_id=imdb_id)

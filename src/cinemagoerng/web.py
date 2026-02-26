@@ -176,7 +176,7 @@ def set_parental_guide(
 
 
 def set_episodes(
-    title: model.Title,
+    title: model.TVSeries,
     *,
     season: str,
     headers: dict[str, str] | None = None,
@@ -186,9 +186,7 @@ def set_episodes(
     data = _scrape(spec=spec, context=context, headers=headers)
     episodes = data.get("episodes")
     if episodes is not None:
-        if title.episodes is None:
-            title.episodes = {}
         title.episodes[season] = deserialize(
             episodes,
-            dict[str, model.Title],
+            dict[str, model.TVEpisode],
         )

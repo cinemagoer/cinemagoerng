@@ -1,59 +1,6 @@
 import pytest
 
-from cinemagoerng.model import AKA, CrewCredit, Person, Title, TitleType, make_movie
-
-
-@pytest.mark.parametrize(("imdb_id", "title", "type_id", "attr", "value"), [
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "end_year", 2000),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "seasons", []),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "episodes", []),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "creators", []),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "series",
-        Title(type_id=TitleType.TV_SERIES, imdb_id="tt0436992", title="Doctor Who")),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "season", "1"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "episode", "1"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "previous_episode_id", "tt1000252"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "next_episode_id", "tt1000252"),
-    ("tt0436992", "Doctor Who", TitleType.TV_SERIES, "season", "1"),
-    ("tt0436992", "Doctor Who", TitleType.TV_SERIES, "episode", "1"),
-    ("tt0436992", "Doctor Who", TitleType.TV_SERIES, "previous_episode_id", "tt1000252"),
-    ("tt0436992", "Doctor Who", TitleType.TV_SERIES, "next_episode_id", "tt1000252"),
-    ("tt1000252", "Blink", TitleType.TV_EPISODE, "end_year", []),
-    ("tt1000252", "Blink", TitleType.TV_EPISODE, "seasons", []),
-    ("tt1000252", "Blink", TitleType.TV_EPISODE, "episodes", []),
-    ("tt1000252", "Blink", TitleType.TV_EPISODE, "creators", []),
-    ("tt0390244", "The Matrix Online", TitleType.VIDEO_GAME, "runtime", 100),
-])
-def test_title_should_not_accept_unsupported_attribute(imdb_id, title, type_id, attr, value):
-    kwargs = {attr: value}
-    with pytest.raises(TypeError):
-        _ = Title(type_id=type_id, imdb_id=imdb_id, title=title, **kwargs)
-
-
-@pytest.mark.parametrize(("imdb_id", "title", "type_id", "attr"), [
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "end_year"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "seasons"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "episodes"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "creators"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "series"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "season"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "episode"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "previous_episode_id"),
-    ("tt0133093", "The Matrix", TitleType.MOVIE, "next_episode_id"),
-    ("tt0436992", "Doctor Who", TitleType.TV_SERIES, "season"),
-    ("tt0436992", "Doctor Who", TitleType.TV_SERIES, "episode"),
-    ("tt0436992", "Doctor Who", TitleType.TV_SERIES, "previous_episode_id"),
-    ("tt0436992", "Doctor Who", TitleType.TV_SERIES, "next_episode_id"),
-    ("tt1000252", "Blink", TitleType.TV_EPISODE, "end_year"),
-    ("tt1000252", "Blink", TitleType.TV_EPISODE, "seasons"),
-    ("tt1000252", "Blink", TitleType.TV_EPISODE, "episodes"),
-    ("tt1000252", "Blink", TitleType.TV_EPISODE, "creators"),
-    ("tt0390244", "The Matrix Online", TitleType.VIDEO_GAME, "runtime"),
-])
-def test_title_should_not_have_unsupported_attribute(imdb_id, title, type_id, attr):
-    with pytest.raises(AttributeError):
-        title = Title(type_id=type_id, imdb_id=imdb_id, title=title)
-        assert title.__getattribute__(attr) is None
+from cinemagoerng.model import AKA, CrewCredit, Movie, Person
 
 
 @pytest.mark.parametrize(("imdb_id", "title", "country_codes", "countries"), [
@@ -61,7 +8,7 @@ def test_title_should_not_have_unsupported_attribute(imdb_id, title, type_id, at
     ("tt0389150", "The Matrix Defence", ["GB"], ["United Kingdom"]),
 ])
 def test_title_countries_should_return_country_names(imdb_id, title, country_codes, countries):
-    movie = make_movie(imdb_id=imdb_id, title=title, country_codes=country_codes)
+    movie = Movie(imdb_id=imdb_id, title=title, country_codes=country_codes)
     assert movie.countries == countries
 
 
@@ -71,7 +18,7 @@ def test_title_countries_should_return_country_names(imdb_id, title, country_cod
     ("tt2971344", "Matrix: First Dream", ["zxx"], ["None"]),
 ])
 def test_title_languages_should_return_language_names(imdb_id, title, language_codes, languages):
-    movie = make_movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
+    movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.languages == languages
 
 
@@ -85,7 +32,7 @@ def test_title_languages_should_return_language_names(imdb_id, title, language_c
     ("tt10277922", "The", ["en"], "The"),
 ])
 def test_title_sort_title_should_strip_article(imdb_id, title, language_codes, sort_title):
-    movie = make_movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
+    movie = Movie(imdb_id=imdb_id, title=title, language_codes=language_codes)
     assert movie.sort_title == sort_title
 
 

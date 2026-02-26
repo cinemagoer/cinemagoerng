@@ -20,13 +20,9 @@ from dataclasses import KW_ONLY, dataclass, field
 from datetime import date
 from decimal import Decimal
 from enum import StrEnum
-from functools import partial
-from typing import Any, Literal
+from typing import Literal, TypeAlias
 
 from . import linguistics, lookup
-
-
-norepr = partial(field, repr=False)
 
 
 @dataclass
@@ -139,109 +135,51 @@ class TitleType(StrEnum):
     MOVIE = "movie"
     SHORT = "short"
     VIDEO = "video"
-    MUSIC_VIDEO = "musicVideo"
     TV_MOVIE = "tvMovie"
     TV_SHORT = "tvShort"
     TV_SERIES = "tvSeries"
     TV_MINI_SERIES = "tvMiniSeries"
     TV_EPISODE = "tvEpisode"
     TV_SPECIAL = "tvSpecial"
+    MUSIC_VIDEO = "musicVideo"
     VIDEO_GAME = "videoGame"
 
 
-SERIES_ATTRS: frozenset[str] = frozenset({
-    "end_year",
-    "seasons",
-    "episodes",
-    "creators",
-})
-
-
-EPISODE_ATTRS: frozenset[str] = frozenset({
-    "series",
-    "season",
-    "episode",
-    "previous_episode_id",
-    "next_episode_id",
-})
-
-
-UNSUPPORTED_ATTRS: dict[TitleType, frozenset[str]] = {
-    TitleType.MOVIE: SERIES_ATTRS | EPISODE_ATTRS,
-    TitleType.SHORT: SERIES_ATTRS | EPISODE_ATTRS,
-    TitleType.VIDEO: SERIES_ATTRS | EPISODE_ATTRS,
-    TitleType.MUSIC_VIDEO: SERIES_ATTRS | EPISODE_ATTRS,
-    TitleType.TV_MOVIE: SERIES_ATTRS | EPISODE_ATTRS,
-    TitleType.TV_SHORT: SERIES_ATTRS | EPISODE_ATTRS,
-    TitleType.TV_SERIES: EPISODE_ATTRS,
-    TitleType.TV_MINI_SERIES: EPISODE_ATTRS,
-    TitleType.TV_EPISODE: SERIES_ATTRS,
-    TitleType.TV_SPECIAL: SERIES_ATTRS | EPISODE_ATTRS,
-    TitleType.VIDEO_GAME: SERIES_ATTRS | EPISODE_ATTRS | {"runtime"},
-}
-
-
 @dataclass
-class Title:
+class _Title:
     imdb_id: str
     title: str
-    _: KW_ONLY
-    type_id: TitleType
 
-    primary_image: str | None = norepr(default=None)
+    _: KW_ONLY
+
+    primary_image: str | None = field(default=None, repr=False)
 
     year: int | None = None
-    release_date: date | None = norepr(default=None)
     country_codes: list[str] = field(default_factory=list)
     language_codes: list[str] = field(default_factory=list)
 
-    runtime: int | None = norepr(default=None)
-
     genres: list[str] = field(default_factory=list)
-    taglines: list[str] = norepr(default_factory=list)
+    taglines: list[str] = field(default_factory=list, repr=False)
     plot: dict[str, str] = field(default_factory=dict)
-    plot_summaries: dict[str, list[str]] = norepr(default_factory=dict)
+    plot_summaries: dict[str, list[str]] = field(default_factory=dict, repr=False)  # noqa: E501
 
     rating: Decimal | None = None
     vote_count: int | None = None
-    top_ranking: int | None = norepr(default=None)
+    top_ranking: int | None = field(default=None, repr=False)
 
-    # for TV series
-    end_year: int | None = norepr(default=None)
-    seasons: list[str] | None = norepr(default=None)
-    episodes: dict[str, dict[str, Title]] | None = norepr(default=None)
-    creators: list[CrewCredit] | None = norepr(default=None)
+    cast: list[CastCredit] = field(default_factory=list, repr=False)
 
-    # for TV episodes
-    series: Title | None = norepr(default=None)
-    season: str | None = norepr(default=None)
-    episode: str | None = norepr(default=None)
-    previous_episode_id: str | None = norepr(default=None)
-    next_episode_id: str | None = norepr(default=None)
+    directors: list[CrewCredit] = field(default_factory=list)
+    writers: list[CrewCredit] = field(default_factory=list, repr=False)
+    producers: list[CrewCredit] = field(default_factory=list, repr=False)
+    crew: dict[str, list[CrewCredit]] = field(default_factory=dict, repr=False)
+    thanks: list[CrewCredit] = field(default_factory=list, repr=False)
 
-    cast: list[CastCredit] = norepr(default_factory=list)
-    directors: list[CrewCredit] = norepr(default_factory=list)
-    writers: list[CrewCredit] = norepr(default_factory=list)
-    producers: list[CrewCredit] = norepr(default_factory=list)
-    crew: dict[str, list[CrewCredit]] = norepr(default_factory=dict)
-    thanks: list[CrewCredit] = norepr(default_factory=list)
+    akas: list[AKA] = field(default_factory=list, repr=False)
+    release_date: date | None = field(default=None, repr=False)
 
-    akas: list[AKA] = norepr(default_factory=list)
-
-    certification: Certification | None = norepr(default=None)
-    advisories: Advisories | None = norepr(default=None)
-
-    def __post_init__(self) -> None:
-        type_id = super().__getattribute__("type_id")
-        for attr in UNSUPPORTED_ATTRS[type_id]:
-            if super().__getattribute__(attr) is not None:
-                raise TypeError(f"'{type_id}' takes no argument '{attr}'")
-
-    def __getattribute__(self, name: str, /) -> Any:
-        type_id = super().__getattribute__("type_id")
-        if name in UNSUPPORTED_ATTRS[type_id]:
-            raise AttributeError(f"'{type_id}' has no attribute '{name}'")
-        return super().__getattribute__(name) if name != "type_id" else type_id
+    certification: Certification | None = field(default=None, repr=False)
+    advisories: Advisories | None = field(default=None, repr=False)
 
     @property
     def countries(self) -> list[str]:
@@ -266,5 +204,100 @@ class Title:
         return self.title
 
 
-def make_movie(*args: Any, **kwargs: Any) -> Title:
-    return Title(type_id=TitleType.MOVIE, *args, **kwargs)
+@dataclass
+class _TimedTitle(_Title):
+    runtime: int | None = None
+
+
+@dataclass
+class _Movie(_TimedTitle):
+    pass
+
+
+@dataclass
+class Movie(_Movie):
+    type_id: Literal[TitleType.MOVIE] = TitleType.MOVIE
+
+
+@dataclass
+class ShortMovie(_Movie):
+    type_id: Literal[TitleType.SHORT] = TitleType.SHORT
+
+
+@dataclass
+class Video(_Movie):
+    type_id: Literal[TitleType.VIDEO] = TitleType.VIDEO
+
+
+@dataclass
+class TVMovie(_Movie):
+    type_id: Literal[TitleType.TV_MOVIE] = TitleType.TV_MOVIE
+
+
+@dataclass
+class TVShortMovie(_Movie):
+    type_id: Literal[TitleType.TV_SHORT] = TitleType.TV_SHORT
+
+
+@dataclass
+class _TVSeries(_TimedTitle):
+    _: KW_ONLY
+
+    end_year: int | None = None
+    seasons: list[str] = field(default_factory=list, repr=False)
+    episodes: dict[str, dict[str, TVEpisode]] = field(default_factory=dict, repr=False)  # noqa: E501
+
+    creators: list[CrewCredit] = field(default_factory=list, repr=False)
+
+
+@dataclass
+class TVSeries(_TVSeries):
+    type_id: Literal[TitleType.TV_SERIES] = TitleType.TV_SERIES
+
+
+@dataclass
+class TVMiniSeries(_TVSeries):
+    type_id: Literal[TitleType.TV_MINI_SERIES] = TitleType.TV_MINI_SERIES
+
+
+@dataclass
+class TVEpisode(_TimedTitle):
+    type_id: Literal[TitleType.TV_EPISODE] = TitleType.TV_EPISODE
+
+    _: KW_ONLY
+
+    series: TVSeries | TVMiniSeries
+    season: str
+    episode: str
+    previous_episode_id: str | None = field(default=None, repr=False)
+    next_episode_id: str | None = field(default=None, repr=False)
+
+
+@dataclass
+class TVSpecial(_TimedTitle):
+    type_id: Literal[TitleType.TV_SPECIAL] = TitleType.TV_SPECIAL
+
+
+@dataclass
+class MusicVideo(_TimedTitle):
+    type_id: Literal[TitleType.MUSIC_VIDEO] = TitleType.MUSIC_VIDEO
+
+
+@dataclass
+class VideoGame(_Title):
+    type_id: Literal[TitleType.VIDEO_GAME] = TitleType.VIDEO_GAME
+
+
+Title: TypeAlias = (
+    Movie
+    | ShortMovie
+    | Video
+    | TVMovie
+    | TVShortMovie
+    | TVSeries
+    | TVMiniSeries
+    | TVEpisode
+    | TVSpecial
+    | MusicVideo
+    | VideoGame
+)
