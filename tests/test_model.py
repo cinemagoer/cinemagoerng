@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng.model import AKA, Movie
+from cinemagoerng.title import AKA, Movie
 
 
 @pytest.mark.parametrize(("imdb_id", "title", "country_codes", "countries"), [

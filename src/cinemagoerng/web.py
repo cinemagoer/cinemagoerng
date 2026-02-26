@@ -23,7 +23,20 @@ from pathlib import Path
 from typing import Any, NotRequired, TypedDict
 from urllib.request import Request, urlopen
 
-from . import model, piculet, registry
+from . import piculet, registry
+from .certification import Advisories, Certification
+from .title import (
+    AKA,
+    Movie,
+    ShortMovie,
+    Title,
+    TVEpisode,
+    TVMiniSeries,
+    TVMovie,
+    TVSeries,
+    TVShortMovie,
+    Video,
+)
 
 
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
@@ -120,20 +133,20 @@ def get_title(
     imdb_id: str,
     *,
     headers: dict[str, str] | None = None,
-) -> model.Title:
+) -> Title:
     spec = _spec("title_reference")
     context = {"imdb_id": imdb_id}
     data = _scrape(spec=spec, context=context, headers=headers)
-    return deserialize(data, model.Title)
+    return deserialize(data, Title)
 
 
 def get_movie(
     imdb_id: str,
     *,
     headers: dict[str, str] | None = None,
-) -> model._Movie:
+) -> Movie | ShortMovie | Video | TVMovie | TVShortMovie:
     title = get_title(imdb_id=imdb_id, headers=headers)
-    if not isinstance(title, model._Movie):
+    if not isinstance(title, (Movie, ShortMovie, Video, TVMovie, TVShortMovie)):
         raise ValueError("title not a movie")
     return title
 
@@ -142,9 +155,9 @@ def get_tv_series(
     imdb_id: str,
     *,
     headers: dict[str, str] | None = None,
-) -> model._TVSeries:
+) -> TVSeries | TVMiniSeries:
     title = get_title(imdb_id=imdb_id, headers=headers)
-    if not isinstance(title, model._TVSeries):
+    if not isinstance(title, (TVSeries, TVMiniSeries)):
         raise ValueError("title not a tv series")
     return title
 
@@ -153,15 +166,15 @@ def get_tv_episode(
     imdb_id: str,
     *,
     headers: dict[str, str] | None = None,
-) -> model.TVEpisode:
+) -> TVEpisode:
     title = get_title(imdb_id=imdb_id, headers=headers)
-    if not isinstance(title, model.TVEpisode):
+    if not isinstance(title, TVEpisode):
         raise ValueError("title not a TV episode")
     return title
 
 
 def set_taglines(
-    title: model.Title,
+    title: Title,
     *,
     headers: dict[str, str] | None = None,
 ) -> None:
@@ -174,7 +187,7 @@ def set_taglines(
 
 
 def set_akas(
-    title: model.Title,
+    title: Title,
     *,
     spec: Spec | None = None,
     headers: dict[str, str] | None = None,
@@ -186,7 +199,7 @@ def set_akas(
     g_vars = g_params["variables"]
     context: dict[str, Any] = {"imdb_id": title.imdb_id} | g_vars
     data = _scrape(spec, context=context, headers=headers)
-    akas = [deserialize(aka, model.AKA) for aka in data.get("akas", [])]
+    akas = [deserialize(aka, AKA) for aka in data.get("akas", [])]
     title.akas.extend(akas)
     if data.get("has_next_page", False):
         g_vars["after"] = data["end_cursor"]
@@ -194,22 +207,19 @@ def set_akas(
 
 
 def set_parental_guide(
-    title: model.Title,
+    title: Title,
     *,
     headers: dict[str, str] | None = None,
 ) -> None:
     spec = _spec("title_parental_guide")
     context = {"imdb_id": title.imdb_id}
     data = _scrape(spec=spec, context=context, headers=headers)
-    title.certification = deserialize(
-        data["certification"],
-        model.Certification,
-    )
-    title.advisories = deserialize(data["advisories"], model.Advisories)
+    title.certification = deserialize(data["certification"], Certification)
+    title.advisories = deserialize(data["advisories"], Advisories)
 
 
 def set_episodes(
-    title: model.TVSeries,
+    title: TVSeries,
     *,
     season: str,
     headers: dict[str, str] | None = None,
@@ -219,7 +229,4 @@ def set_episodes(
     data = _scrape(spec=spec, context=context, headers=headers)
     episodes = data.get("episodes")
     if episodes is not None:
-        title.episodes[season] = deserialize(
-            episodes,
-            dict[str, model.TVEpisode],
-        )
+        title.episodes[season] = deserialize(episodes, dict[str, TVEpisode])

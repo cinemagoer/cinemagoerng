@@ -3,7 +3,20 @@ import pytest
 from datetime import date
 from decimal import Decimal
 
-from cinemagoerng import model
+from cinemagoerng.title import (
+    Movie,
+    MusicVideo,
+    ShortMovie,
+    TVEpisode,
+    TVMiniSeries,
+    TVMovie,
+    TVSeries,
+    TVShortMovie,
+    TVSpecial,
+    Video,
+    VideoGame,
+    _TimedTitle,
+)
 from cinemagoerng.web import get_title, get_tv_episode, get_tv_series
 
 
@@ -16,17 +29,17 @@ def test_title_reference_parser_should_set_imdb_id(imdb_id):
 
 
 @pytest.mark.parametrize(("imdb_id", "class_"), [
-    ("tt0133093", model.Movie),  # The Matrix
-    ("tt2971344", model.ShortMovie),  # Matrix: First Dream
-    ("tt0109151", model.Video),  # Armitage III: Poly-Matrix
-    ("tt0389150", model.TVMovie),  # The Matrix Defence
-    ("tt0365467", model.TVShortMovie),  # Making 'The Matrix'
-    ("tt0436992", model.TVSeries),  # Doctor Who
-    ("tt0185906", model.TVMiniSeries),  # Band of Brothers
-    ("tt1000252", model.TVEpisode),  # Blink
-    ("tt0261024", model.TVSpecial),  # Live Aid
-    ("tt7045440", model.MusicVideo),  # David Bowie: Ziggy Stardust
-    ("tt0390244", model.VideoGame),  # The Matrix Online
+    ("tt0133093", Movie),  # The Matrix
+    ("tt2971344", ShortMovie),  # Matrix: First Dream
+    ("tt0109151", Video),  # Armitage III: Poly-Matrix
+    ("tt0389150", TVMovie),  # The Matrix Defence
+    ("tt0365467", TVShortMovie),  # Making 'The Matrix'
+    ("tt0436992", TVSeries),  # Doctor Who
+    ("tt0185906", TVMiniSeries),  # Band of Brothers
+    ("tt1000252", TVEpisode),  # Blink
+    ("tt0261024", TVSpecial),  # Live Aid
+    ("tt7045440", MusicVideo),  # David Bowie: Ziggy Stardust
+    ("tt0390244", VideoGame),  # The Matrix Online
 ])
 def test_title_reference_parser_should_instantiate_correct_class(imdb_id, class_):
     parsed = get_title(imdb_id=imdb_id)
@@ -129,7 +142,7 @@ def test_title_reference_parser_should_set_language_codes(imdb_id, language_code
 ])
 def test_title_reference_parser_should_set_runtime(imdb_id, runtime):
     parsed = get_title(imdb_id=imdb_id)
-    assert isinstance(parsed, model._TimedTitle) and parsed.runtime == runtime
+    assert isinstance(parsed, _TimedTitle) and parsed.runtime == runtime
 
 
 @pytest.mark.parametrize(("imdb_id", "genres"), [
