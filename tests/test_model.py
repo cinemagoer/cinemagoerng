@@ -1,6 +1,6 @@
 import pytest
 
-from cinemagoerng.model import AKA, CrewCredit, Movie, Person
+from cinemagoerng.model import AKA, Movie
 
 
 @pytest.mark.parametrize(("imdb_id", "title", "country_codes", "countries"), [
@@ -52,39 +52,3 @@ def test_title_aka_countries_should_return_country_names(title, country_code, co
 def test_title_aka_languages_should_return_language_names(title, language_code, language):
     aka = AKA(title=title, language_code=language_code)
     assert aka.language == language
-
-
-@pytest.mark.parametrize(("imdb_id", "name"), [
-    ("nm0905152", "Lilly Wachowski"),
-    ("nm0000309", "David Bowie"),
-])
-def test_title_credit_imdb_id_should_return_person_imdb_id(imdb_id, name):
-    credit = CrewCredit(Person(imdb_id=imdb_id, name=name))
-    assert credit.imdb_id == imdb_id
-
-
-@pytest.mark.parametrize(("imdb_id", "name"), [
-    ("nm0905152", "Lilly Wachowski"),
-    ("nm0000309", "David Bowie"),
-])
-def test_title_credit_name_should_return_person_name(imdb_id, name):
-    credit = CrewCredit(Person(imdb_id=imdb_id, name=name))
-    assert credit.name == name
-
-
-@pytest.mark.parametrize(("imdb_id", "name", "notes", "as_name"), [
-    ("nm0905152", "Lilly Wachowski", ["written by", "as The Wachowski Brothers"], "The Wachowski Brothers"),
-    ("nm0000309", "David Bowie", [], None),
-])
-def test_title_credit_as_name_should_return_just_name(imdb_id, name, notes, as_name):
-    credit = CrewCredit(Person(imdb_id=imdb_id, name=name), notes=notes)
-    assert credit.as_name == as_name
-
-
-@pytest.mark.parametrize(("imdb_id", "name", "notes", "uncredited"), [
-    ("nm0211063", "Thomas De Quincey", ['book "Suspiria de Profundis"', "uncredited"], True),
-    ("nm0905152", "Lilly Wachowski", ["written by", "as The Wachowski Brothers"], False),
-])
-def test_title_uncredited_should_return_boolean(imdb_id, name, notes, uncredited):
-    credit = CrewCredit(Person(imdb_id=imdb_id, name=name), notes=notes)
-    assert credit.uncredited == uncredited

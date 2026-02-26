@@ -23,48 +23,8 @@ from enum import StrEnum
 from typing import Literal, TypeAlias
 
 from . import linguistics, lookup
-
-
-@dataclass
-class Person:
-    imdb_id: str
-    name: str
-
-
-@dataclass
-class _Credit:
-    person: Person
-    _: KW_ONLY
-    notes: list[str] = field(default_factory=list)
-
-    @property
-    def imdb_id(self) -> str:
-        return self.person.imdb_id
-
-    @property
-    def name(self) -> str:
-        return self.person.name
-
-    @property
-    def as_name(self) -> str | None:
-        as_notes = [note for note in self.notes if note.startswith("as ")]
-        return as_notes[0][3:] if len(as_notes) > 0 else None
-
-    @property
-    def uncredited(self) -> bool:
-        return "uncredited" in self.notes
-
-
-@dataclass
-class CrewCredit(_Credit):
-    _: KW_ONLY
-    job: str | None = None
-
-
-@dataclass
-class CastCredit(_Credit):
-    _: KW_ONLY
-    characters: list[str] = field(default_factory=list)
+from .certification import Advisories, Certification
+from .credit import CastCredit, CrewCredit
 
 
 @dataclass
@@ -86,49 +46,6 @@ class AKA:
         if self.language_code is None:
             return None
         return lookup.LANGUAGE_CODES[self.language_code.upper()]
-
-
-@dataclass(kw_only=True)
-class Certificate:
-    country: str
-    ratings: list[str]
-
-
-@dataclass(kw_only=True)
-class Certification:
-    mpa_rating: str | None = "Not Rated"
-    mpa_rating_reason: str | None = None
-    certificates: list[Certificate] = field(default_factory=list)
-
-
-@dataclass(kw_only=True)
-class AdvisoryVotes:
-    none: int = 0
-    mild: int = 0
-    moderate: int = 0
-    severe: int = 0
-
-
-@dataclass(kw_only=True)
-class AdvisoryDetail:
-    text: str
-    is_spoiler: bool
-
-
-@dataclass(kw_only=True)
-class Advisory:
-    details: list[AdvisoryDetail] = field(default_factory=list)
-    status: Literal["Unknown", "None", "Mild", "Moderate", "Severe"] = "Unknown"  # noqa: E501
-    votes: AdvisoryVotes = field(default_factory=AdvisoryVotes)
-
-
-@dataclass(kw_only=True)
-class Advisories:
-    nudity: Advisory = field(default_factory=Advisory)
-    violence: Advisory = field(default_factory=Advisory)
-    profanity: Advisory = field(default_factory=Advisory)
-    alcohol: Advisory = field(default_factory=Advisory)
-    frightening: Advisory = field(default_factory=Advisory)
 
 
 class TitleType(StrEnum):
