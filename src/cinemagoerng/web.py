@@ -127,6 +127,39 @@ def get_title(
     return deserialize(data, model.Title)
 
 
+def get_movie(
+    imdb_id: str,
+    *,
+    headers: dict[str, str] | None = None,
+) -> model._Movie:
+    title = get_title(imdb_id=imdb_id, headers=headers)
+    if not isinstance(title, model._Movie):
+        raise ValueError("title not a movie")
+    return title
+
+
+def get_tv_series(
+    imdb_id: str,
+    *,
+    headers: dict[str, str] | None = None,
+) -> model._TVSeries:
+    title = get_title(imdb_id=imdb_id, headers=headers)
+    if not isinstance(title, model._TVSeries):
+        raise ValueError("title not a tv series")
+    return title
+
+
+def get_tv_episode(
+    imdb_id: str,
+    *,
+    headers: dict[str, str] | None = None,
+) -> model.TVEpisode:
+    title = get_title(imdb_id=imdb_id, headers=headers)
+    if not isinstance(title, model.TVEpisode):
+        raise ValueError("title not a TV episode")
+    return title
+
+
 def set_taglines(
     title: model.Title,
     *,

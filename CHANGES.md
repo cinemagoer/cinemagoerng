@@ -3,6 +3,7 @@
 ## 0.8 (unreleased)
 
 - Move crew departments to the crew attribute with string keys.
+- Add utility functions for retrieving movies, TV series and episodes.
 - Change license to GPL 3.0 only.
 
 ## 0.7 (2025-11-23)

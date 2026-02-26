@@ -4,7 +4,7 @@ from datetime import date
 from decimal import Decimal
 
 from cinemagoerng import model
-from cinemagoerng.web import get_title
+from cinemagoerng.web import get_title, get_tv_episode, get_tv_series
 
 
 @pytest.mark.parametrize(("imdb_id",), [
@@ -28,7 +28,7 @@ def test_title_reference_parser_should_set_imdb_id(imdb_id):
     ("tt7045440", model.MusicVideo),  # David Bowie: Ziggy Stardust
     ("tt0390244", model.VideoGame),  # The Matrix Online
 ])
-def test_title_reference_parser_should_instantiate_correct_title(imdb_id, class_):
+def test_title_reference_parser_should_instantiate_correct_class(imdb_id, class_):
     parsed = get_title(imdb_id=imdb_id)
     assert isinstance(parsed, class_)
 
@@ -96,17 +96,8 @@ def test_title_reference_parser_should_set_year(imdb_id, year):
     ("tt0185906", 2001),  # Band of Brothers (2001-2001) (TV Mini-Series)
 ])
 def test_title_reference_parser_should_set_series_end_year(imdb_id, end_year):
-    parsed = get_title(imdb_id=imdb_id)
+    parsed = get_tv_series(imdb_id=imdb_id)
     assert parsed.end_year == end_year
-
-
-@pytest.mark.parametrize(("imdb_id", "release_date"), [
-    ("tt0133093", date(1999, 9, 3)),  # The Matrix
-    ("tt1000252", date(2007, 6, 9)),  # Doctor Who: Blink
-])
-def test_title_reference_parser_should_set_release_date(imdb_id, release_date):
-    parsed = get_title(imdb_id=imdb_id)
-    assert parsed.release_date == release_date
 
 
 @pytest.mark.parametrize(("imdb_id", "country_codes"), [
@@ -138,7 +129,7 @@ def test_title_reference_parser_should_set_language_codes(imdb_id, language_code
 ])
 def test_title_reference_parser_should_set_runtime(imdb_id, runtime):
     parsed = get_title(imdb_id=imdb_id)
-    assert parsed.runtime == runtime
+    assert isinstance(parsed, model._TimedTitle) and parsed.runtime == runtime
 
 
 @pytest.mark.parametrize(("imdb_id", "genres"), [
@@ -216,6 +207,15 @@ def test_title_reference_parser_should_set_vote_count(imdb_id, votes):
 def test_title_reference_parser_should_set_top_ranking(imdb_id, rank):
     parsed = get_title(imdb_id=imdb_id)
     assert (abs(parsed.top_ranking - rank) < 10) if rank is not None else (parsed.top_ranking is None)
+
+
+@pytest.mark.parametrize(("imdb_id", "release_date"), [
+    ("tt0133093", date(1999, 9, 3)),  # The Matrix
+    ("tt1000252", date(2007, 6, 9)),  # Doctor Who: Blink
+])
+def test_title_reference_parser_should_set_release_date(imdb_id, release_date):
+    parsed = get_title(imdb_id=imdb_id)
+    assert parsed.release_date == release_date
 
 
 @pytest.mark.parametrize(("imdb_id", "n", "cast"), [
@@ -318,7 +318,7 @@ def test_title_reference_parser_should_set_all_writers(imdb_id, n, writers):
     ],
 )
 def test_title_reference_parser_should_set_seasons_for_series(imdb_id, seasons):
-    parsed = get_title(imdb_id=imdb_id)
+    parsed = get_tv_series(imdb_id=imdb_id)
     assert parsed.seasons == seasons
 
 
@@ -328,8 +328,7 @@ def test_title_reference_parser_should_set_seasons_for_series(imdb_id, seasons):
     ("tt1247466", "tvMiniSeries", "tt0185906", "Band of Brothers"),  # Band of Brothers: Points
 ])
 def test_title_reference_parser_should_set_series_for_episode(imdb_id, series_type_id, series_imdb_id, series_title):
-    parsed = get_title(imdb_id=imdb_id)
-    assert parsed.series is not None
+    parsed = get_tv_episode(imdb_id=imdb_id)
     series = parsed.series
     assert (series.type_id, series.imdb_id, series.title) == (series_type_id, series_imdb_id, series_title)
 
@@ -340,7 +339,7 @@ def test_title_reference_parser_should_set_series_for_episode(imdb_id, series_ty
     ("tt1247466", 2001, 2001),  # Band of Brothers: Points
 ])
 def test_title_reference_parser_should_set_series_years_for_episode(imdb_id, series_year, series_end_year):
-    parsed = get_title(imdb_id=imdb_id)
+    parsed = get_tv_episode(imdb_id=imdb_id)
     assert (parsed.series.year, parsed.series.end_year) == (series_year, series_end_year)
 
 
@@ -348,7 +347,7 @@ def test_title_reference_parser_should_set_series_years_for_episode(imdb_id, ser
     ("tt1000252", "3"),  # Doctor Who: Blink
 ])
 def test_title_reference_parser_should_set_season_number_for_episode(imdb_id, season):
-    parsed = get_title(imdb_id=imdb_id)
+    parsed = get_tv_episode(imdb_id=imdb_id)
     assert parsed.season == season
 
 
@@ -356,7 +355,7 @@ def test_title_reference_parser_should_set_season_number_for_episode(imdb_id, se
     ("tt1000252", "10"),  # Doctor Who: Blink
 ])
 def test_title_reference_parser_should_set_episode_number_for_episode(imdb_id, episode):
-    parsed = get_title(imdb_id=imdb_id)
+    parsed = get_tv_episode(imdb_id=imdb_id)
     assert parsed.episode == episode
 
 
@@ -365,7 +364,7 @@ def test_title_reference_parser_should_set_episode_number_for_episode(imdb_id, e
     ("tt0562992", None),  # Doctor Who: Rose
 ])
 def test_title_reference_parser_should_set_previous_episode_for_episode(imdb_id, prev_id):
-    parsed = get_title(imdb_id=imdb_id)
+    parsed = get_tv_episode(imdb_id=imdb_id)
     assert parsed.previous_episode_id == prev_id
 
 
@@ -374,7 +373,7 @@ def test_title_reference_parser_should_set_previous_episode_for_episode(imdb_id,
     ("tt0533407", None),  # Buffy the Vampire Slayer: Chosen
 ])
 def test_title_reference_parser_should_set_previous_and_next_episodes_for_episode(imdb_id, next_id):
-    parsed = get_title(imdb_id=imdb_id)
+    parsed = get_tv_episode(imdb_id=imdb_id)
     assert parsed.next_episode_id == next_id
 
 
@@ -390,7 +389,7 @@ def test_title_reference_parser_should_set_previous_and_next_episodes_for_episod
     ("tt0185906", 0, []),  # Band of Brothers (Mini-Series)
 ])
 def test_title_reference_parser_should_set_all_creators_for_series(imdb_id, n, creators):
-    parsed = get_title(imdb_id=imdb_id)
+    parsed = get_tv_series(imdb_id=imdb_id)
     assert (parsed.creators is not None) and (parsed.creators) == n
     if len(creators) > 0:
         assert [(credit.imdb_id, credit.name, credit.job, credit.notes) for credit in parsed.creators] == creators
