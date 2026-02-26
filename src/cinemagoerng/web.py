@@ -25,18 +25,7 @@ from urllib.request import Request, urlopen
 
 from . import piculet, registry
 from .certification import Advisories, Certification
-from .title import (
-    AKA,
-    Movie,
-    ShortMovie,
-    Title,
-    TVEpisode,
-    TVMiniSeries,
-    TVMovie,
-    TVSeries,
-    TVShortMovie,
-    Video,
-)
+from .title import AKA, AnyMovie, Title, TVEpisode, TVMiniSeries, TVSeries
 
 
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
@@ -144,9 +133,9 @@ def get_movie(
     imdb_id: str,
     *,
     headers: dict[str, str] | None = None,
-) -> Movie | ShortMovie | Video | TVMovie | TVShortMovie:
+) -> AnyMovie:
     title = get_title(imdb_id=imdb_id, headers=headers)
-    if not isinstance(title, (Movie, ShortMovie, Video, TVMovie, TVShortMovie)):
+    if not isinstance(title, AnyMovie):
         raise ValueError("title not a movie")
     return title
 

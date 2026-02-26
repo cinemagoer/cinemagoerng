@@ -127,32 +127,27 @@ class _TimedTitle(_Title):
 
 
 @dataclass
-class _Movie(_TimedTitle):
-    pass
-
-
-@dataclass
-class Movie(_Movie):
+class Movie(_TimedTitle):
     type_id: Literal[TitleType.MOVIE] = TitleType.MOVIE
 
 
 @dataclass
-class ShortMovie(_Movie):
+class ShortMovie(_TimedTitle):
     type_id: Literal[TitleType.SHORT] = TitleType.SHORT
 
 
 @dataclass
-class Video(_Movie):
+class Video(_TimedTitle):
     type_id: Literal[TitleType.VIDEO] = TitleType.VIDEO
 
 
 @dataclass
-class TVMovie(_Movie):
+class TVMovie(_TimedTitle):
     type_id: Literal[TitleType.TV_MOVIE] = TitleType.TV_MOVIE
 
 
 @dataclass
-class TVShortMovie(_Movie):
+class TVShortMovie(_TimedTitle):
     type_id: Literal[TitleType.TV_SHORT] = TitleType.TV_SHORT
 
 
@@ -204,6 +199,8 @@ class MusicVideo(_TimedTitle):
 class VideoGame(_Title):
     type_id: Literal[TitleType.VIDEO_GAME] = TitleType.VIDEO_GAME
 
+
+AnyMovie: TypeAlias = Movie | ShortMovie | Video | TVMovie | TVShortMovie
 
 Title: TypeAlias = (
     Movie
