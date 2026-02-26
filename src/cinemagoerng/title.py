@@ -202,6 +202,8 @@ class VideoGame(_Title):
 
 AnyMovie: TypeAlias = Movie | ShortMovie | Video | TVMovie | TVShortMovie
 
+AnySeries: TypeAlias = TVSeries | TVMiniSeries
+
 Title: TypeAlias = (
     Movie
     | ShortMovie

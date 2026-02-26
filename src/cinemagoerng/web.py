@@ -20,18 +20,21 @@ from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import Any, NotRequired, TypedDict
+from typing import Any, NotRequired, TypeAlias, TypedDict
 from urllib.request import Request, urlopen
 
 from . import piculet, registry
 from .certification import Advisories, Certification
-from .title import AKA, AnyMovie, Title, TVEpisode, TVMiniSeries, TVSeries
+from .title import AKA, AnyMovie, AnySeries, Title, TVEpisode, TVSeries
+
+
+Headers: TypeAlias = dict[str, str]
 
 
 _USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
 
 
-def fetch(url: str, /, *, headers: dict[str, str] | None = None) -> str:
+def fetch(url: str, /, *, headers: Headers | None = None) -> str:
     request = Request(url)
     request_headers = headers if headers is not None else {}
     if "User-Agent" not in request_headers:
@@ -108,7 +111,7 @@ def _scrape(
     spec: Spec,
     *,
     context: Mapping[str, Any],
-    headers: dict[str, str] | None = None,
+    headers: Headers | None = None,
 ) -> dict[str, Any]:
     url = _get_url(spec, context=context)
     request_headers = headers if headers is not None else {}
@@ -118,55 +121,35 @@ def _scrape(
     return spec.scrape(document, doctype=spec.doctype)
 
 
-def get_title(
-    imdb_id: str,
-    *,
-    headers: dict[str, str] | None = None,
-) -> Title:
+def get_title(imdb_id: str, *, headers: Headers | None = None) -> Title:
     spec = _spec("title_reference")
     context = {"imdb_id": imdb_id}
     data = _scrape(spec=spec, context=context, headers=headers)
     return deserialize(data, Title)
 
 
-def get_movie(
-    imdb_id: str,
-    *,
-    headers: dict[str, str] | None = None,
-) -> AnyMovie:
+def get_movie(imdb_id: str, *, headers: Headers | None = None) -> AnyMovie:
     title = get_title(imdb_id=imdb_id, headers=headers)
     if not isinstance(title, AnyMovie):
         raise ValueError("title not a movie")
     return title
 
 
-def get_tv_series(
-    imdb_id: str,
-    *,
-    headers: dict[str, str] | None = None,
-) -> TVSeries | TVMiniSeries:
+def get_series(imdb_id: str, *, headers: Headers | None = None) -> AnySeries:
     title = get_title(imdb_id=imdb_id, headers=headers)
-    if not isinstance(title, (TVSeries, TVMiniSeries)):
+    if not isinstance(title, AnySeries):
         raise ValueError("title not a tv series")
     return title
 
 
-def get_tv_episode(
-    imdb_id: str,
-    *,
-    headers: dict[str, str] | None = None,
-) -> TVEpisode:
+def get_episode(imdb_id: str, *, headers: Headers | None = None) -> TVEpisode:
     title = get_title(imdb_id=imdb_id, headers=headers)
     if not isinstance(title, TVEpisode):
-        raise ValueError("title not a TV episode")
+        raise ValueError("title not a tv episode")
     return title
 
 
-def set_taglines(
-    title: Title,
-    *,
-    headers: dict[str, str] | None = None,
-) -> None:
+def set_taglines(title: Title, *, headers: Headers | None = None) -> None:
     spec = _spec("title_taglines")
     context = {"imdb_id": title.imdb_id}
     data = _scrape(spec=spec, context=context, headers=headers)
@@ -179,7 +162,7 @@ def set_akas(
     title: Title,
     *,
     spec: Spec | None = None,
-    headers: dict[str, str] | None = None,
+    headers: Headers | None = None,
 ) -> None:
     if spec is None:
         spec = _spec("title_akas")
@@ -198,7 +181,7 @@ def set_akas(
 def set_parental_guide(
     title: Title,
     *,
-    headers: dict[str, str] | None = None,
+    headers: Headers | None = None,
 ) -> None:
     spec = _spec("title_parental_guide")
     context = {"imdb_id": title.imdb_id}
@@ -211,7 +194,7 @@ def set_episodes(
     title: TVSeries,
     *,
     season: str,
-    headers: dict[str, str] | None = None,
+    headers: Headers | None = None,
 ) -> None:
     spec = _spec("title_episodes")
     context = {"imdb_id": title.imdb_id, "season": season}
