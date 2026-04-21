@@ -159,7 +159,7 @@ def test_title_reference_parser_should_set_primary_image(imdb_id, primary_image)
 
 @pytest.mark.parametrize(("imdb_id", "language", "primary_image"), [
     ("tt0133093", "de-DE",  # The Matrix
-        "https://m.media-amazon.com/images/M/MV5BYjM1YzE0MzMtMDM4Ni00M2M4LWEyYzItNGFjMDkxZTcyNTEyXkEyXkFqcGc@._V1_.jpg"),
+        "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_.jpg"),
 ])
 def test_title_reference_parser_should_set_primary_image_for_given_language(imdb_id, language, primary_image):
     parsed = get_title(imdb_id=imdb_id, headers={"Accept-Language": language})
@@ -305,13 +305,14 @@ def test_title_reference_parser_should_set_release_date(imdb_id, release_date):
         ("nm0000614", "Alan Rickman", ["Interrogator"], []),
         ("nm0000656", "Madeleine Stowe", ["Victim"], [])
     ]),
-    ("tt0069281", 6, [  # Sleuth
+    ("tt0069281", 7, [  # Sleuth
         ("nm0000059", "Laurence Olivier", ["Andrew Wyke"], []),
         ("nm0000323", "Michael Caine", ["Milo Tindle", "Inspector Doppler"], []),
         ("nm0147250", "Alec Cawthorne", ["Inspector Doppler"], ["credit only"]),
         ("nm0560064", "John Matthews", ["Detective Sergeant Tarrant"], ["credit only"]),
         ("nm0151920", "Eve Channing", ["Marguerite Wyke"], ["credit only"]),
         ("nm0553117", "Teddy Martin", ["Police Constable Higgs"], ["credit only"]),
+        ("nm2213817", "Skeleton", ["Skeleton"], ["uncredited"]),
     ]),
     ("tt1000252", 12, [  # Blink
         ("nm0855039", "David Tennant", ["The Doctor"], []),
