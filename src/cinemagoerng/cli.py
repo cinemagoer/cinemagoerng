@@ -91,7 +91,7 @@ def get_title(imdb_num: int, taglines: bool = False) -> None:
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = ArgumentParser(description="Retrieve data from the IMDb.")
+    parser = ArgumentParser(description="Parse data from the IMDb.")
 
     version = importlib.metadata.version("cinemagoerng")
     parser.add_argument("--version", action="version", version=version)
@@ -101,18 +101,18 @@ def main(argv: list[str] | None = None) -> None:
 
     parser_get = command.add_parser(
         "get",
-        help="retrieve information about an item",
+        help="parse information about an item",
     )
 
     item_type = parser_get.add_subparsers(
         metavar="type",
-        help="type of item to retrieve",
+        help="type of item to parse",
     )
     item_type.required = True
 
     parser_get_title = item_type.add_parser(
         "title",
-        help="retrieve information about a title",
+        help="parse information about a title",
     )
     parser_get_title.add_argument(
         "imdb_num",

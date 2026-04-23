@@ -1,9 +1,9 @@
 # CinemagoerNG
 
 CinemagoerNG is a Python library and command-line utility
-for retrieving data from IMDb.
+for parsing IMDb data.
 It provides a clean, modern API for accessing movie, TV show,
-and celebrity information from IMDb.
+and celebrity information from the IMDb.
 
 > [!Note]
 > This project and its authors are not affiliated
@@ -13,12 +13,32 @@ and celebrity information from IMDb.
 
 ## Features
 
-- Retrieve comprehensive movie and TV show information.
+- Parse comprehensive movie and TV show information.
 - Support for alternate titles (AKAs).
 - Taglines and parental guide information.
 - Episode data for TV series.
 - Modern Python typing support.
 - Clean, intuitive API.
+
+## Important notice
+
+*As of April 2026, due to WAF policies on the IMDb web site,
+CinemagoerNG no longer contains any code to retrieve the pages.
+In order to use the library, you have to provide a function that will
+return the content for a given IMDb URL:*
+
+```python
+def fetch_custom(url: str) -> str:
+    """Somehow return the contents of the URL."""
+
+import cinemagoerng.web
+
+cinemagoerng.web.fetcher.set(fetch_custom)
+```
+
+This function does not necessarily have to make an HTTP/HTTPS connection;
+it could also read the content from some files or database
+that have been populated earlier.
 
 ## Installation
 
@@ -31,7 +51,7 @@ pip install cinemagoerng
 
 ## Basic usage
 
-Here's a simple example of retrieving movie information:
+Here's a simple example of parsing movie information:
 
 ```python
 from cinemagoerng import web as imdb
@@ -52,7 +72,7 @@ for credit in movie.directors:
     print(credit.name)   # "Lana Wachowski", "Lilly Wachowski"
 ```
 
-### Retrieving additional information
+### Parsing additional information
 
 You can fetch additional details using the relevant `set_` functions:
 
@@ -70,7 +90,7 @@ for aka in movie.akas:
 
 ## Available data
 
-CinemagoerNG can retrieve various types of information:
+CinemagoerNG can parse various types of information:
 
 ### Basic information
 
