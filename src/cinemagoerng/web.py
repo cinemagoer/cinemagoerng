@@ -14,36 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with CinemagoerNG.  If not, see <https://www.gnu.org/licenses/>.
 
+from contextvars import ContextVar
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import Any, NotRequired, TypeAlias, TypedDict
-from urllib.request import Request, urlopen
+from typing import Any, NotRequired, TypedDict
 
 from . import piculet, registry
 from .certification import Advisories, Certification
 from .title import AKA, AnyMovie, AnySeries, Title, TVEpisode, TVSeries
 
 
-Headers: TypeAlias = dict[str, str]
-
-
-_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Firefox/102.0"
-
-
-def fetch(url: str, /, *, headers: Headers | None = None) -> str:
-    request = Request(url)
-    request_headers = headers if headers is not None else {}
-    if "User-Agent" not in request_headers:
-        request_headers["User-Agent"] = _USER_AGENT
-    for header, value in request_headers.items():
-        request.add_header(header, value)
-    with urlopen(request) as response:
-        content: bytes = response.read()
-    return content.decode("utf-8")
+fetcher: ContextVar[Callable[[str], str]] = ContextVar("fetcher")
 
 
 class GraphQLVariables(TypedDict):
@@ -107,98 +92,77 @@ def _get_url(spec: Spec, context: Mapping[str, Any]) -> str:
     return url_template % context
 
 
-def _scrape(
-    spec: Spec,
-    *,
-    context: Mapping[str, Any],
-    headers: Headers | None = None,
-) -> dict[str, Any]:
+def _scrape(spec: Spec, *, context: Mapping[str, Any]) -> dict[str, Any]:
     url = _get_url(spec, context=context)
-    request_headers = headers if headers is not None else {}
-    if spec.graphql is not None:
-        request_headers["Content-Type"] = "application/json"
-    document = fetch(url, headers=request_headers)
+    fetch = fetcher.get()
+    document = fetch(url)
     return spec.scrape(document, doctype=spec.doctype)
 
 
-def get_title(imdb_id: str, *, headers: Headers | None = None) -> Title:
+def get_title(imdb_id: str) -> Title:
     spec = _spec("title_reference")
     context = {"imdb_id": imdb_id}
-    data = _scrape(spec=spec, context=context, headers=headers)
+    data = _scrape(spec=spec, context=context)
     return deserialize(data, Title)
 
 
-def get_movie(imdb_id: str, *, headers: Headers | None = None) -> AnyMovie:
-    title = get_title(imdb_id=imdb_id, headers=headers)
+def get_movie(imdb_id: str) -> AnyMovie:
+    title = get_title(imdb_id=imdb_id)
     if not isinstance(title, AnyMovie):
         raise ValueError("title not a movie")
     return title
 
 
-def get_series(imdb_id: str, *, headers: Headers | None = None) -> AnySeries:
-    title = get_title(imdb_id=imdb_id, headers=headers)
+def get_series(imdb_id: str) -> AnySeries:
+    title = get_title(imdb_id=imdb_id)
     if not isinstance(title, AnySeries):
         raise ValueError("title not a tv series")
     return title
 
 
-def get_episode(imdb_id: str, *, headers: Headers | None = None) -> TVEpisode:
-    title = get_title(imdb_id=imdb_id, headers=headers)
+def get_episode(imdb_id: str) -> TVEpisode:
+    title = get_title(imdb_id=imdb_id)
     if not isinstance(title, TVEpisode):
         raise ValueError("title not a tv episode")
     return title
 
 
-def set_taglines(title: Title, *, headers: Headers | None = None) -> None:
+def set_taglines(title: Title) -> None:
     spec = _spec("title_taglines")
     context = {"imdb_id": title.imdb_id}
-    data = _scrape(spec=spec, context=context, headers=headers)
+    data = _scrape(spec=spec, context=context)
     taglines = data.get("taglines")
     if taglines is not None:
         title.taglines = data["taglines"]
 
 
-def set_akas(
-    title: Title,
-    *,
-    spec: Spec | None = None,
-    headers: Headers | None = None,
-) -> None:
+def set_akas(title: Title, *, spec: Spec | None = None) -> None:
     if spec is None:
         spec = _spec("title_akas")
     g_params = spec.graphql
     assert g_params is not None, g_params
     g_vars = g_params["variables"]
     context: dict[str, Any] = {"imdb_id": title.imdb_id} | g_vars
-    data = _scrape(spec, context=context, headers=headers)
+    data = _scrape(spec, context=context)
     akas = [deserialize(aka, AKA) for aka in data.get("akas", [])]
     title.akas.extend(akas)
     if data.get("has_next_page", False):
         g_vars["after"] = data["end_cursor"]
-        set_akas(title, spec=spec, headers=headers)
+        set_akas(title, spec=spec)
 
 
-def set_parental_guide(
-    title: Title,
-    *,
-    headers: Headers | None = None,
-) -> None:
+def set_parental_guide(title: Title) -> None:
     spec = _spec("title_parental_guide")
     context = {"imdb_id": title.imdb_id}
-    data = _scrape(spec=spec, context=context, headers=headers)
+    data = _scrape(spec=spec, context=context)
     title.certification = deserialize(data["certification"], Certification)
     title.advisories = deserialize(data["advisories"], Advisories)
 
 
-def set_episodes(
-    title: TVSeries,
-    *,
-    season: str,
-    headers: Headers | None = None,
-) -> None:
+def set_episodes(title: TVSeries, *, season: str) -> None:
     spec = _spec("title_episodes")
     context = {"imdb_id": title.imdb_id, "season": season}
-    data = _scrape(spec=spec, context=context, headers=headers)
+    data = _scrape(spec=spec, context=context)
     episodes = data.get("episodes")
     if episodes is not None:
         title.episodes[season] = deserialize(episodes, dict[str, TVEpisode])

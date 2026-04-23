@@ -2,6 +2,7 @@
 
 ## 0.8 (unreleased)
 
+- Remove page fetching from the IMDb site.
 - Move crew departments to the crew attribute with string keys.
 - Add utility functions for retrieving movies, TV series and episodes.
 - Change license to GPL 3.0 only.

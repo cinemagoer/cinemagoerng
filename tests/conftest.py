@@ -1,5 +1,5 @@
-import copy
 import json
+import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -9,8 +9,6 @@ import cinemagoerng.web
 cache_dir = Path(__file__).parent / "imdb-cache"
 if not cache_dir.exists():
     cache_dir.mkdir(parents=True, exist_ok=True)
-
-fetch_orig = cinemagoerng.web.fetch
 
 
 CACHE_SUFFIXES = {
@@ -25,7 +23,7 @@ CACHE_KEY_IGNORED_VARS = {
 }
 
 
-def get_cache_key(url: str, *, headers: dict[str, str] | None = None) -> str:
+def get_cache_key(url: str) -> str:
     parsed = urlparse(url)
     path = parsed.path.replace("/", "_")
     if path.startswith("_"):
@@ -59,25 +57,23 @@ def get_cache_key(url: str, *, headers: dict[str, str] | None = None) -> str:
             q_query = "__".join(f"{k}_{v}" for k, v in q_vars.items())
             path += f"__{q_query}"
 
-    request_headers = copy.copy(headers) if headers is not None else {}
-    content_type = request_headers.pop("Content-Type", "text/html")
+    content_type = "text/html"
     suffix = CACHE_SUFFIXES[content_type]
-    if len(request_headers) > 0:
-        q_headers = "__".join(f"{k.lower()}_{v}" for k, v in request_headers.items())
-        path += f"__{q_headers}"
     return f"{path}{suffix}"
 
 
-def fetch_cached(url: str, /, *, headers: dict[str, str] | None = None) -> str:
-    cache_key = get_cache_key(url, headers=headers)
+def fetch_cached(url: str) -> str:
+    cache_key = get_cache_key(url)
     cache_path = cache_dir / cache_key
     if cache_key == "title_tt0000001_reference.html":
         cache_path.unlink(missing_ok=True)
     if cache_path.exists():
         return cache_path.read_text(encoding="utf-8")
-    content = fetch_orig(url, headers=headers)
+    script = Path(__file__).parent / "fetch.py"
+    process = subprocess.run(["uv", "run", script, url], capture_output=True)
+    content = process.stdout.decode("utf-8")
     cache_path.write_text(content, encoding="utf-8")
     return content
 
 
-cinemagoerng.web.fetch = fetch_cached
+cinemagoerng.web.fetcher.set(fetch_cached)
